@@ -1,0 +1,104 @@
+<yml_catalog date="2023-04-24 06:36">
+<shop>
+<name>La REDOUTE</name>
+<company>La REDOUTE Russia</company>
+<url>https://www.laredoute.ru</url>
+<currencies>
+<currency id="RUR" rate="1"/>
+</currencies>
+
+<offers>
+    <offer id="99680100018" available="true" type="vendor.model">
+        <currencyId>RUB</currencyId>
+        <pickup>true</pickup>
+        <delivery>true</delivery>
+        <url>https://goldapple.ru/99680100018-blackfood-modeling-cup-pack</url>
+        <entity_id>31949</entity_id>
+        <price>186</price>
+        <oldprice>233</oldprice>
+        <categoryId>986721</categoryId>
+        <picture>https://goldapple.ru/media/catalog/product/cache/0a19ad76fdd08744e75b836c7a3f78eb/8/8/8809278124157_1_cfoj8j1q2xllc5u5.jpg</picture>
+        <model>Blackfood Modeling Cup Pack 15 гр</model>
+        <vendor>INOFACE</vendor>
+        <typePrefix> Маска альгинатная Уголь </typePrefix>  
+        <bundle_id>goldapple.ru.goldapple.customers</bundle_id>
+        <ios_app_store_id>1154436683</ios_app_store_id>
+        <ios_tracking_url>https://app.appsflyer.com/id1154436683?pid=mail.ru_int&af_dp=goldapple%3A%2F%2Fgoldapple.ru%2F99680100018-blackfood-modeling-cup-pack</ios_tracking_url>
+
+        
+      </offer>
+      <offer id="99680100016" available="true" type="vendor.model">
+        <currencyId>RUB</currencyId>
+        <pickup>true</pickup>
+        <delivery>true</delivery>
+        <url>https://goldapple.ru/99680100016-yoghurt-modeling-mask</url>
+        <entity_id>31950</entity_id>
+        <price>534</price>
+        <oldprice>668</oldprice>
+        <categoryId>986721</categoryId>
+        <picture>https://goldapple.ru/media/catalog/product/cache/0a19ad76fdd08744e75b836c7a3f78eb/8/8/8809278127349_1_eoiwmzyonq0f713u.jpg</picture>
+        <model>Yoghurt Modeling Mask 200 мл</model>
+        <vendor>INOFACE</vendor>
+        <typePrefix> Маска для лица альгинатная с йогуртом </typePrefix>         
+        
+        <bundle_id>goldapple.ru.goldapple.customers</bundle_id>
+        <ios_app_store_id>1154436683</ios_app_store_id>
+       
+      </offer>
+      <offer id="99680100015" available="true" type="vendor.model">
+        <currencyId>RUB</currencyId>
+        <pickup>true</pickup>
+        <delivery>true</delivery>
+        <url>https://goldapple.ru/99680100015-vitamin-modeling-mask</url>
+        <entity_id>31952</entity_id>
+        <price>534</price>
+        <oldprice>668</oldprice>
+        <categoryId>986721</categoryId>
+        <picture>https://goldapple.ru/media/catalog/product/cache/0a19ad76fdd08744e75b836c7a3f78eb/8/8/8809278127387_1_9rzwvnpc7filu4cj.jpg</picture>
+        <model>Vitamin Modeling Mask 200 мл</model>
+        <vendor>INOFACE</vendor>
+        <typePrefix>Маска для лица альгинатная с витамином С </typePrefix>        
+        
+        <bundle_id>goldapple.ru.goldapple.customers</bundle_id>
+        <ios_app_store_id>1154436683</ios_app_store_id>
+        
+      </offer>
+      <offer id="99680100021" available="true" type="vendor.model">
+        <currencyId>RUB</currencyId>
+        <pickup>true</pickup>
+        <delivery>true</delivery>
+        <url>https://goldapple.ru/99680100021-peppermint-modeling-cup-pack</url>
+        <entity_id>31954</entity_id>
+        <price>186</price>
+        <oldprice>233</oldprice>
+        <categoryId>986721</categoryId>
+        <picture>https://goldapple.ru/media/catalog/product/cache/0a19ad76fdd08744e75b836c7a3f78eb/6/a/6a2de95ea44a955d0b04d5babef3da43.jpg</picture>
+        <model>Peppermint Modeling Cup Pack</model>
+        <vendor>INOFACE</vendor>
+        <typePrefix>Маска альгинатная Мята </typePrefix>     
+        
+        <bundle_id>goldapple.ru.goldapple.customers</bundle_id>
+        <ios_app_store_id>1154436683</ios_app_store_id>
+       
+      </offer>
+      <offer id="99680100022" available="true" type="vendor.model">
+        <currencyId>RUB</currencyId>
+        <pickup>true</pickup>
+        <delivery>true</delivery>
+        <url>https://goldapple.ru/99680100022-propolis-modeling-cup-pack</url>
+        <entity_id>31957</entity_id>
+        <price>186</price>
+        <oldprice>233</oldprice>
+        <categoryId>986721</categoryId>
+        <picture>https://goldapple.ru/media/catalog/product/cache/0a19ad76fdd08744e75b836c7a3f78eb/8/8/8809278124195_1_t9kwu3namolmjhbi.jpg</picture>
+        <model>Propolis Modeling Cup Pack 15 мл</model>
+        <vendor>INOFACE</vendor>
+        <typePrefix>Маска альгинатная Прополис</typePrefix>        
+        
+        <bundle_id>goldapple.ru.goldapple.customers</bundle_id>
+        <ios_app_store_id>1154436683</ios_app_store_id>
+        
+      </offer>
+</offers>
+</shop>
+</yml_catalog>
