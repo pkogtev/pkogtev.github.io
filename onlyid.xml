@@ -22,6 +22,7 @@
 <typePrefix> Маска альгинатная Уголь </typePrefix>
 <bundle_id>goldapple.ru.goldapple.customers</bundle_id>
 <ios_app_store_id>1154436683</ios_app_store_id>
+<ios_tracking_url>https://app.appsflyer.com/id1154436683?pid=mail.ru_int&amp;af_dp=goldapple%3A%2F%2Fgoldapple.ru%2F99680100016-yoghurt-modeling-mask</ios_tracking_url>
 </offer>
 <offer id="99680100016" available="true" type="vendor.model">
 <currencyId>RUB</currencyId>
