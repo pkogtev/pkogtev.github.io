@@ -44,7 +44,7 @@
 <android_url>goldapple://goldapple.ru/99680100016-yoghurt-modeling-mask</android_url>
 <bundle_id>goldapple.ru.goldapple.customers</bundle_id>
 <ios_app_store_id>1154436683</ios_app_store_id>
-<android_tracking_url>https://app.appsflyer.com/goldapple.ru.goldapple.customers?pid=mail.ru_int&af_dp=goldapple%3A%2F%2Fgoldapple.ru%2F99680100016-yoghurt-modeling-mask</android_tracking_url>
+<android_tracking_url>https://app.appsflyer.com/goldapple.ru.goldapple.customers?pid=mail.ru_intaf_dp=goldapple%3A%2F%2Fgoldapple.ru%2F99680100016-yoghurt-modeling-mask</android_tracking_url>
 <ios_tracking_url>https://app.appsflyer.com/id1154436683?pid=mail.ru_int&af_dp=goldapple%3A%2F%2Fgoldapple.ru%2F99680100016-yoghurt-modeling-mask</ios_tracking_url>
 </offer>
 <offer id="99680100015" available="true" type="vendor.model">
@@ -64,7 +64,7 @@
 <android_url>goldapple://goldapple.ru/99680100015-vitamin-modeling-mask</android_url>
 <bundle_id>goldapple.ru.goldapple.customers</bundle_id>
 <ios_app_store_id>1154436683</ios_app_store_id>
-<android_tracking_url>https://app.appsflyer.com/goldapple.ru.goldapple.customers?pid=mail.ru_int&af_dp=goldapple%3A%2F%2Fgoldapple.ru%2F99680100015-vitamin-modeling-mask</android_tracking_url>
+<android_tracking_url>https://app.appsflyer.com/goldapple.ru.goldapple.customers?pid=mail.ru_intaf_dp=goldapple%3A%2F%2Fgoldapple.ru%2F99680100015-vitamin-modeling-mask</android_tracking_url>
 <ios_tracking_url>https://app.appsflyer.com/id1154436683?pid=mail.ru_int&af_dp=goldapple%3A%2F%2Fgoldapple.ru%2F99680100015-vitamin-modeling-mask</ios_tracking_url>
 </offer>
 <offer id="99680100021" available="true" type="vendor.model">
@@ -84,7 +84,7 @@
 <android_url>goldapple://goldapple.ru/99680100021-peppermint-modeling-cup-pack</android_url>
 <bundle_id>goldapple.ru.goldapple.customers</bundle_id>
 <ios_app_store_id>1154436683</ios_app_store_id>
-<android_tracking_url>https://app.appsflyer.com/goldapple.ru.goldapple.customers?pid=mail.ru_int&af_dp=goldapple%3A%2F%2Fgoldapple.ru%2F99680100021-peppermint-modeling-cup-pack</android_tracking_url>
+<android_tracking_url>https://app.appsflyer.com/goldapple.ru.goldapple.customers?pid=mail.ru_intaf_dp=goldapple%3A%2F%2Fgoldapple.ru%2F99680100021-peppermint-modeling-cup-pack</android_tracking_url>
 <ios_tracking_url>https://app.appsflyer.com/id1154436683?pid=mail.ru_int&af_dp=goldapple%3A%2F%2Fgoldapple.ru%2F99680100021-peppermint-modeling-cup-pack</ios_tracking_url>
 </offer>
 <offer id="99680100022" available="true" type="vendor.model">
@@ -104,7 +104,7 @@
 <android_url>goldapple://goldapple.ru/99680100022-propolis-modeling-cup-pack</android_url>
 <bundle_id>goldapple.ru.goldapple.customers</bundle_id>
 <ios_app_store_id>1154436683</ios_app_store_id>
-<android_tracking_url>https://app.appsflyer.com/goldapple.ru.goldapple.customers?pid=mail.ru_int&af_dp=goldapple%3A%2F%2Fgoldapple.ru%2F99680100021-peppermint-modeling-cup-pack</android_tracking_url>
+<android_tracking_url>https://app.appsflyer.com/goldapple.ru.goldapple.customers?pid=mail.ru_intaf_dp=goldapple%3A%2F%2Fgoldapple.ru%2F99680100021-peppermint-modeling-cup-pack</android_tracking_url>
 <ios_tracking_url>https://app.appsflyer.com/id1154436683?pid=mail.ru_int&af_dp=goldapple%3A%2F%2Fgoldapple.ru%2F99680100021-peppermint-modeling-cup-pack</ios_tracking_url>
 </offer>
 </offers>
