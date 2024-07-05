@@ -1,0 +1,26 @@
+<yml_catalog date="2024-07-05 14:51">
+<shop>
+<currencies>
+<currency rate="1" id="RUB"/>
+</currencies>
+<categories/>
+<offers>
+<offer available="true" id="10848930">
+<name>Химчистка ковров и мягкой мебели</name>
+<url>https://vk.com/uslugi-226052297?w=product-226052297_10848930</url>
+<price_type>0</price_type>
+<price_unit>0</price_unit>
+<price>600</price>
+<currencyId>RUB</currencyId>
+<vkCategory>1205</vkCategory>
+<weight>1.0</weight>
+<dimensions>20.0/20.0/20.0</dimensions>
+<ae_stock>5</ae_stock>
+<description>
+<![CDATA[ Химчистка ковров и мягкой мебели ]]>
+</description>
+<picture>https://sun1-24.userapi.com/impg/XjW-rUCEH0294dx5A3Iv5zU0It2hASa5tDvNlA/ipozvQDEgBE.jpg?crop=0,0.275,1,0.45&size=1000x0&quality=95&sign=258c734ba2e536486ea54d403e047626</picture>
+</offer>
+</offers>
+</shop>
+</yml_catalog>
