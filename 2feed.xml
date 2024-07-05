@@ -6,6 +6,7 @@
 <currencies>
 <currency id="RUR" rate="1"/>
 </currencies>
+<offers>
 <offer id="99680100021" available="true" type="vendor.model">
 <currencyId>RUB</currencyId>
 <pickup>true</pickup>
