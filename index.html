@@ -176,430 +176,53 @@
             margin: 0 -24px;
             padding: 0 24px;
         }
-
-        .table-container::-webkit-scrollbar {
-            height: 8px;
-        }
-
-        .table-container::-webkit-scrollbar-track {
-            background: #F4F6F9;
-            border-radius: 4px;
-        }
-
-        .table-container::-webkit-scrollbar-thumb {
-            background: #D1D5DB;
-            border-radius: 4px;
-        }
-
-        .table-container::-webkit-scrollbar-thumb:hover {
-            background: #9CA3AF;
-        }
-
-        table {
-            width: 100%;
-            min-width: 1400px;
-            border-collapse: collapse;
-        }
-
-        thead {
-            background-color: #F4F6F9;
-        }
-
-        th {
-            padding: 14px 16px;
-            text-align: left;
-            font-size: 13px;
-            font-weight: 600;
-            color: #6B7280;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            white-space: nowrap;
-        }
-
-        td {
-            padding: 16px;
-            border-bottom: 1px solid #F4F6F9;
-            font-size: 14px;
-            vertical-align: top;
-        }
-
-        tbody tr {
-            transition: background-color 0.2s ease;
-        }
-
-        tbody tr:hover {
-            background-color: #F9FAFB;
-        }
-
-        .scenario-row {
-            background-color: #EFF6FF;
-            border-left: 4px solid #5CAEFF;
-            font-weight: 600;
-            color: #1E40AF;
-        }
-
-        .scenario-row td {
-            padding: 20px 16px;
-            font-size: 16px;
-        }
-
-        .step-row {
-            background-color: #FFFFFF;
-        }
-
-        .step-row td:first-child {
-            padding-left: 48px;
-        }
-
-        .editable {
-            cursor: pointer;
-            position: relative;
-            padding: 8px;
-            border-radius: 4px;
-            transition: background-color 0.2s ease;
-            min-height: 36px;
-            display: flex;
-            align-items: center;
-        }
-
-        .editable:hover {
-            background-color: #F0F9FF;
-        }
-
-        .editable input,
-        .editable textarea {
-            width: 100%;
-            padding: 6px 8px;
-            border: 2px solid #5CAEFF;
-            border-radius: 4px;
-            font-size: 14px;
-            font-family: inherit;
-        }
-
-        .editable textarea {
-            resize: vertical;
-            min-height: 60px;
-        }
-
-        .severity-badge {
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .severity-высокая {
-            background-color: #FEE2E2;
-            color: #991B1B;
-        }
-
-        .severity-средняя {
-            background-color: #FEF3C7;
-            color: #92400E;
-        }
-
-        .severity-низкая {
-            background-color: #D1FAE5;
-            color: #065F46;
-        }
-
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .modal-overlay.visible {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal {
-            background: #FFFFFF;
-            border-radius: 12px;
-            padding: 32px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            width: 500px;
-            max-width: 90vw;
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: slideUp 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes slideUp {
-            from {
-                transform: translateY(50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .modal h2 {
-            font-size: 22px;
-            font-weight: 600;
-            margin-bottom: 24px;
-            color: #2F3A4C;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 14px;
-            font-weight: 500;
-            color: #6B7280;
-            margin-bottom: 8px;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 10px 14px;
-            border: 2px solid #E8EAED;
-            border-radius: 8px;
-            font-size: 14px;
-            font-family: inherit;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #5CAEFF;
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 48px 24px;
-            color: #6B7280;
-        }
-
-        .empty-state-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-            opacity: 0.5;
-        }
-
-        .btn-delete {
-            background-color: transparent;
-            color: #EF4444;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .btn-delete:hover {
-            background-color: #FEE2E2;
-        }
-
-        .drag-handle {
-            cursor: move;
-            color: #9CA3AF;
-            font-size: 18px;
-            padding: 0 8px;
-            user-select: none;
-        }
-
-        .drag-handle:hover {
-            color: #5CAEFF;
-        }
-
-        .dragging {
-            opacity: 0.5;
-            background-color: #EFF6FF;
-        }
-
-        .drag-over {
-            border-top: 3px solid #5CAEFF;
-        }
-
-        .risk-count {
-            font-size: 14px;
-            color: #6B7280;
-            font-weight: 500;
-        }
-
-        .edit-hint {
-            font-size: 12px;
-            color: #6B7280;
-            font-style: italic;
-            margin-top: 8px;
-        }
-
-        input[type="file"] {
-            display: none;
-        }
-
-        .scenario-actions {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 16px;
-            }
-
-            header {
-                padding: 16px;
-            }
-
-            header h1 {
-                font-size: 20px;
-            }
-
-            .card {
-                padding: 16px;
-            }
-
-            .modal {
-                padding: 24px;
-                width: 95vw;
-            }
-        }
     </style>
 </head>
 <body>
     <header>
-        <h1>📊 Матрица рисков</h1>
+        <h1>Матрица рисков</h1>
     </header>
-
     <div class="container">
         <div class="main-content">
             <div class="top-bar">
                 <div class="top-bar-left">
                     <button class="btn-primary" id="addRiskBtn">+ Добавить риск</button>
-                    <button class="btn-secondary" id="importBtn">📤 Импорт CSV</button>
-                    <button class="btn-secondary" id="exportBtn">📥 Экспорт CSV</button>
-                    <input type="file" id="csvFileInput" accept=".csv">
-                </div>
-                <div class="risk-count">
-                    Всего рисков: <span id="riskCount">0</span>
+                    <button class="btn-secondary" id="importBtn">Импорт CSV</button>
+                    <button class="btn-secondary" id="exportBtn">Экспорт CSV</button>
                 </div>
             </div>
-
             <div class="card">
                 <div class="filters">
                     <div class="filter-group">
-                        <label>🔍 Поиск по сценарию</label>
-                        <input type="text" id="searchScenario" placeholder="Введите название сценария...">
+                        <label>Поиск по сценарию</label>
+                        <input type="text" id="searchScenario">
                     </div>
                     <div class="filter-group">
-                        <label>👥 Команда</label>
-                        <select id="filterTeam">
-                            <option value="">Все команды</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label>🏷️ Критичность</label>
-                        <select id="filterCriticality">
-                            <option value="">Все уровни</option>
-                            <option value="Высокая">🔴 Высокая</option>
-                            <option value="Средняя">🟠 Средняя</option>
-                            <option value="Низкая">🟢 Низкая</option>
-                        </select>
+                        <label>Команда</label>
+                        <select id="filterTeam"></select>
                     </div>
                 </div>
-                <p class="edit-hint">💡 Нажмите на любое поле для редактирования | Перетаскивайте строки с помощью ⋮⋮ | Импортируйте CSV для загрузки данных</p>
-            </div>
-
-            <div class="card">
                 <div class="table-container">
                     <table>
                         <thead>
                             <tr>
-                                <th style="width: 30px;"></th>
+                                <th>Сценарий</th>
                                 <th>Шаг пользователя</th>
-                                <th>Участвующие команды</th>
+                                <th>Команды</th>
+                                <th>Тип риска</th>
+                                <th>Вероятность</th>
+                                <th>Влияние</th>
                                 <th>Критичность</th>
-                                <th>Основной риск</th>
-                                <th style="width: 80px;"></th>
                             </tr>
                         </thead>
-                        <tbody id="riskTableBody">
+                        <tbody>
+                            <!-- Здесь будут отображаться риски -->
                         </tbody>
                     </table>
-                </div>
-                <div id="emptyState" class="empty-state" style="display: block;">
-                    <div class="empty-state-icon">📋</div>
-                    <p>Нет рисков для отображения</p>
-                    <p style="margin-top: 12px; font-size: 14px;">Добавьте риск вручную или импортируйте CSV файл</p>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Модальное окно -->
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="modal" id="modalContent">
-            <h2>Новый риск</h2>
-            <form id="riskForm">
-                <div class="form-group">
-                    <label>Сценарий *</label>
-                    <input type="text" id="scenario" required placeholder="Например: Покупка нативной подписки">
-                </div>
-
-                <div class="form-group">
-                    <label>Шаг пользователя *</label>
-                    <textarea id="step" required placeholder="Опишите конкретный шаг..."></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>Участвующие команды *</label>
-                    <input type="text" id="teams" required placeholder="Например: Команда привлечения">
-                </div>
-
-                <div class="form-group">
-                    <label>Критичность *</label>
-                    <select id="criticality" required>
-                        <option value="">Выберите уровень</option>
-                        <option value="Высокая">🔴 Высокая</option>
-                        <option value="Средняя">🟠 Средняя</option>
-                        <option value="Низкая">🟢 Низкая</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Основной риск *</label>
-                    <textarea id="mainRisk" required placeholder="Опишите основной риск..."></textarea>
-                </div>
-
-                <button type="submit" class="btn-success">✓ Сохранить риск</button>
-                <button type="button" class="btn-cancel" id="cancelBtn">Отмена</button>
-            </form>
-        </div>
-    </div>
-
-    <script src="app.js"></script>
+    <script src="app.js" nonce="nonce-KKVDwqnu6MDW+/r/fKfiJA=="></script>
 </body>
 </html>
