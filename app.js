@@ -576,8 +576,7 @@ function importFromCSV(event) {
     };
     reader.readAsText(file);
 }
-
-        </script>
+</script>
 
 // Запуск инициализации при загрузке страницы
 window.addEventListener('load', init);
