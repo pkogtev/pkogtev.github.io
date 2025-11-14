@@ -1,5 +1,4 @@
 // Данные рисков
-<script>
 let risks = [];
 let nextId = 1;
 let filteredRisks = [];
@@ -416,6 +415,5 @@ function importFromCSV(event) {
     };
     reader.readAsText(file);
 }
-</script>
 // Запуск инициализации при загрузке страницы
 window.addEventListener('load', init);
