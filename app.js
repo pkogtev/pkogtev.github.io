@@ -1,4 +1,5 @@
 // Данные рисков
+<script>
 let risks = [];
 let nextId = 1;
 let filteredRisks = [];
@@ -594,6 +595,7 @@ function exportToCSV() {
     link.click();
     document.body.removeChild(link);
 }
+</script>
 
 // Запуск при загрузке
 document.addEventListener('DOMContentLoaded', init);
