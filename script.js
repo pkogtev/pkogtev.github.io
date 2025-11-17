@@ -11,6 +11,14 @@ const GITHUB_CONFIG = {
     token: ''  // GitHub Personal Access Token (оставьте пустым для публичного чтения)
 };
 
+// При первом запуске введите токен
+const token = localStorage.getItem('github_token') || prompt('Введите GitHub Token:');
+if (token) {
+    localStorage.setItem('github_token', token);
+    GITHUB_CONFIG.token = token;
+}
+
+
 // URL для GitHub API
 const GITHUB_API_URL = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`;
 
