@@ -27,7 +27,12 @@ const RAW_URL = `https://raw.githubusercontent.com/${GITHUB_CONFIG.owner}/${GITH
 async function loadRisksFromGitHub() {
     try {
         // Пробуем загрузить из GitHub
-        const response = await fetch(RAW_URL + '?t=' + Date.now()); // добавляем timestamp для обхода кеша
+        const response = await fetch(GITHUB_API_URL, {
+    headers: {
+        'Accept': 'application/vnd.github.v3.raw',
+        'Authorization': `Bearer ${GITHUB_CONFIG.token}`
+    }
+}); // добавляем timestamp для обхода кеша
 
         if (response.ok) {
             risks = await response.json();
@@ -118,7 +123,7 @@ async function saveRisksToGitHub() {
         // Получаем текущий SHA файла (нужен для обновления)
         const getResponse = await fetch(GITHUB_API_URL, {
             headers: {
-                'Authorization': `token ${GITHUB_CONFIG.token}`,
+                'Authorization': `Bearer ${GITHUB_CONFIG.token}`,
                 'Accept': 'application/vnd.github.v3+json'
             }
         });
