@@ -8,7 +8,8 @@
     "r": "R1",
     "a": "A1",
     "probability": 3,
-    "severity": 12
+    "severity": 6,
+    "impact": 2
   },
   {
     "id": 1,
@@ -20,25 +21,5 @@
     "a": "A1",
     "probability": 3,
     "severity": 12
-  },
-  {
-    "id": 1763376899534.767,
-    "scenario": "кек",
-    "step": "кек2",
-    "teams": "платёжка",
-    "type": "Экономический",
-    "probability": 5,
-    "impact": 4,
-    "severity": 20
-  },
-  {
-    "id": 1763376899534.1716,
-    "scenario": "кек",
-    "step": "кек4",
-    "teams": "чекаут",
-    "type": "Технический",
-    "probability": 2,
-    "impact": 3,
-    "severity": 6
   }
 ]
