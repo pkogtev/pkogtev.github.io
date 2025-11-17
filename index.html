@@ -176,6 +176,18 @@
             background: #F9FAFB;
         }
 
+        .scenario-header {
+            background: #5CAEFF;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            padding: 16px 12px;
+        }
+
+        .scenario-header:hover {
+            background: #5CAEFF !important;
+        }
+
         .editable {
             cursor: pointer;
             padding: 6px 8px;
@@ -489,6 +501,23 @@
             width: 60px !important;
             text-align: center;
         }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6B7280;
+        }
+
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
     </style>
 </head>
 <body>
@@ -499,7 +528,7 @@
     <div class="container">
         <div class="controls">
             <button class="btn-primary" onclick="openModal()">+ Добавить риск</button>
-            <button class="btn-success" onclick="saveToJSON()">💾 Сохранить в JSON</button>
+            <button class="btn-success" onclick="downloadJSON()">💾 Скачать JSON</button>
             <button class="btn-secondary" id="loadJSONBtn">📁 Загрузить JSON</button>
             <div class="filters">
                 <div class="filter-group">
@@ -526,7 +555,6 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Сценарий</th>
                             <th>Шаг</th>
                             <th>Команды</th>
                             <th>Тип риска</th>
@@ -537,6 +565,9 @@
                         </tr>
                     </thead>
                     <tbody id="risksTableBody">
+                        <tr>
+                            <td colspan="7" class="loading">Загрузка данных</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
