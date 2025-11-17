@@ -31,7 +31,7 @@
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
             padding: 30px 20px;
         }
@@ -164,7 +164,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 1000px;
+            min-width: 1200px;
         }
 
         thead {
@@ -177,8 +177,8 @@
             text-align: left;
             font-weight: 600;
             font-size: 13px;
-            text-transform: uppercase;
             letter-spacing: 0.5px;
+            white-space: nowrap;
         }
 
         td {
@@ -271,7 +271,7 @@
             background: white;
             border-radius: 12px;
             width: 90%;
-            max-width: 800px;
+            max-width: 900px;
             max-height: 90vh;
             overflow-y: auto;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
@@ -331,7 +331,7 @@
         }
 
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .form-group label {
@@ -343,17 +343,25 @@
         }
 
         .form-group input,
-        .form-group select {
+        .form-group select,
+        .form-group textarea {
             width: 100%;
             padding: 12px 14px;
             border: 1px solid #E5E7EB;
             border-radius: 8px;
             font-size: 14px;
             transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
         }
 
         .form-group input:focus,
-        .form-group select:focus {
+        .form-group select:focus,
+        .form-group textarea:focus {
             outline: none;
             border-color: #5CAEFF;
             box-shadow: 0 0 0 3px rgba(92, 174, 255, 0.1);
@@ -379,6 +387,8 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #F4F6F9;
         }
 
         .step-header h4 {
@@ -404,6 +414,13 @@
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 15px;
             margin-top: 10px;
         }
@@ -442,7 +459,7 @@
         }
 
         .number-input {
-            width: 60px !important;
+            width: 70px !important;
             text-align: center;
         }
 
@@ -477,7 +494,8 @@
                 padding: 20px;
             }
 
-            .form-row {
+            .form-row,
+            .form-row-3 {
                 grid-template-columns: 1fr;
             }
 
@@ -499,7 +517,7 @@
     <div class="container">
         <div class="controls">
             <button class="btn-primary" onclick="openModal()">+ Добавить риск</button>
-            <button class="btn-success" onclick="saveToJSON()">💾 Сохранить в JSON</button>
+            <button class="btn-success" onclick="saveToJSON()">💾 Скачать JSON</button>
             <button class="btn-secondary" id="loadJSONBtn">📁 Загрузить JSON</button>
             <div class="filters">
                 <div class="filter-group">
@@ -528,9 +546,10 @@
                         <tr>
                             <th>Шаг пользователя</th>
                             <th>Участвующие команды</th>
-                            <th>Тип риска</th>
-                            <th>Вероятность</th>
-                            <th>Влияние</th>
+                            <th>Основной риск</th>
+                            <th>R</th>
+                            <th>A</th>
+                            <th>Вероятность риска</th>
                             <th>Критичность</th>
                             <th>Действия</th>
                         </tr>
