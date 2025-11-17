@@ -2,303 +2,276 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Матрица рисков</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Матрица рисков</title>
 
-    <!-- Основные стили -->
     <style>
+        /* -----------------------
+           ГЛОБАЛЬНЫЕ СТИЛИ
+        ------------------------ */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            margin: 0;
-            background: #f5f7fa;
             font-family: "Inter", sans-serif;
-            color: #1a1a1a;
+            background: #F6F7F9;
+            color: #1A1F36;
         }
 
-        header {
-            display: flex;
-            align-items: center;
-            padding: 20px 28px;
-            font-size: 32px;
-            font-weight: 700;
-            gap: 12px;
-        }
+        h1 { font-size: 26px; font-weight: 600; }
 
-        header img {
-            width: 32px;
+        .header {
+            background: white;
+            padding: 22px 40px;
+            border-bottom: 1px solid #E2E8F0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
         }
 
         .container {
-            padding: 20px 28px;
+            max-width: 1500px;
+            margin: 0 auto;
+            padding: 30px 20px;
         }
 
-        /* ───── Кнопки ───── */
-
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 18px;
-        }
+        /* -----------------------
+              КНОПКИ
+        ------------------------ */
 
         .btn {
-            background: #e9eef8;
-            border: none;
-            padding: 10px 18px;
+            padding: 8px 14px;
             border-radius: 10px;
             font-size: 14px;
+            font-weight: 500;
+            border: none;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            transition: 0.2s;
-        }
-
-        .btn:hover {
-            background: #d7e2f5;
+            gap: 6px;
+            transition: 0.25s ease;
         }
 
         .btn-primary {
-            background: #0066ff;
+            background: #5C8DFF;
             color: white;
         }
-
         .btn-primary:hover {
-            background: #0051d6;
+            background: #477AF5;
+            transform: translateY(-1px);
         }
 
-        .btn-danger {
-            background: #ffe5e5;
-            color: #b60000;
+        .btn-secondary {
+            background: #E5E7EB;
+            color: #374151;
+        }
+        .btn-secondary:hover {
+            background: #D1D5DB;
+            transform: translateY(-1px);
         }
 
-        /* ───── Таблица ───── */
+        .btn-success {
+            background: #3AC28D;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #2DA374;
+        }
+
+        .btn-delete {
+            background: none;
+            color: #DC2626;
+            padding: 4px 4px;
+            border-radius: 8px;
+        }
+        .btn-delete:hover {
+            background: #FEE2E2;
+        }
+
+        .delete-icon {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* -----------------------
+              ТАБЛИЦА
+        ------------------------ */
+
+        .table-container {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #E2E8F0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+        }
 
         table {
             width: 100%;
-            background: white;
-            border-radius: 14px;
-            overflow: hidden;
-            border-collapse: separate;
-            border-spacing: 0;
+            border-collapse: collapse;
         }
 
-        th, td {
-            padding: 14px 18px;
-            text-align: left;
-            vertical-align: middle;
+        thead {
+            background: #EEF3FF;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
 
         th {
-            background: #e7f0ff;
+            padding: 14px 10px;
+            color: #475569;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 14px 10px;
+            border-bottom: 1px solid #F1F5F9;
             font-size: 14px;
-            font-weight: 600;
-            color: #2b3a55;
         }
 
-        tr:nth-child(even) td {
-            background: #fafbff;
+        tbody tr:hover {
+            background: #F9FAFB;
         }
 
-        tr:hover td {
-            background: #eef3ff;
-        }
-
-        .editable {
-            cursor: pointer;
-        }
-
-        .editable-input {
-            width: 100%;
-            padding: 6px;
-            font-size: 14px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-        }
-
-        /* ───── Severity ───── */
-
+        /* -----------------------
+           КРИТИЧНОСТЬ
+        ------------------------ */
         .severity-badge {
-            padding: 4px 10px;
+            padding: 6px 12px;
             border-radius: 8px;
+            font-size: 13px;
             font-weight: 600;
             display: inline-block;
         }
-        .severity-low { background: #eafbea; color: #218c21; }
-        .severity-medium { background: #fff5d9; color: #d5a100; }
-        .severity-high { background: #ffe3d9; color: #d54b00; }
-        .severity-critical { background: #ffd4d4; color: #c30000; }
 
-        /* ───── Кнопка удалить ───── */
+        .severity-low { background: #E6FAE8; color: #256B2C; }
+        .severity-medium { background: #FFF4D6; color: #8B6700; }
+        .severity-high { background: #FFE4E4; color: #9B1C1C; }
+        .severity-critical { background: #E3EDFF; color: #1E40AF; }
 
-        .btn-delete {
-            background: white;
-            border: 2px solid #222;
-            border-radius: 10px;
-            padding: 4px 6px;
-            cursor: pointer;
-        }
-
-        .btn-delete:hover {
-            background: #ffeaea;
-            border-color: #ff3a3a;
-        }
-
-        /* ───── Модалка ───── */
-
+        /* -----------------------
+            МОДАЛЬНОЕ ОКНО
+        ------------------------ */
         .modal-overlay {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.45);
             display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
             justify-content: center;
             align-items: center;
+            z-index: 1000;
         }
 
-        .modal-overlay.active {
-            display: flex;
-        }
+        .modal-overlay.active { display: flex; }
 
         .modal {
+            width: 90%;
+            max-width: 900px;
             background: white;
             border-radius: 16px;
-            width: 560px;
-            max-height: 90vh;
-            overflow-y: auto;
-            padding: 24px;
-            box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+            padding: 0;
+            animation: fadeIn 0.25s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .modal-header {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 12px;
+            background: #1E293B;
+            color: white;
+            padding: 24px;
             display: flex;
             justify-content: space-between;
+        }
+
+        .modal-body { padding: 24px 28px; }
+        .modal-footer {
+            padding: 16px 28px;
+            background: #F1F5F9;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
         }
 
         .close-btn {
             background: none;
             border: none;
-            font-size: 26px;
+            color: white;
+            font-size: 32px;
             cursor: pointer;
         }
 
-        .form-group {
-            margin-bottom: 14px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 6px;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 8px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-        }
-
-        /* Popup подтверждения удаления */
-        #confirmPopup {
+        /* -----------------------
+        ПОДТВЕРЖДЕНИЕ УДАЛЕНИЯ
+        ------------------------ */
+        .confirm-popup {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             background: white;
             padding: 24px;
-            border-radius: 14px;
+            border-radius: 12px;
+            width: 350px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+            z-index: 2000;
             display: none;
-            box-shadow: 0 8px 40px rgba(0,0,0,0.25);
         }
-        #confirmPopup.active {
-            display: block;
-        }
+
+        .confirm-popup.active { display: block; }
+
     </style>
 </head>
 
 <body>
 
-<header>
-    <img src="https://img.icons8.com/color/48/combo-chart.png">
-    Матрица рисков
+<header class="header">
+    <h1>📊 Матрица рисков</h1>
 </header>
 
 <div class="container">
 
-    <div class="btn-group">
-        <button class="btn" onclick="syncWithGitHub()">🔄 Синхронизировать</button>
-        <button class="btn-primary" onclick="openModal()">＋ Добавить риск</button>
-        <button class="btn" onclick="saveToJSON()">💾 Экспорт JSON</button>
-
-        <button class="btn" id="loadJSONBtn">📂 Импорт JSON</button>
-        <input type="file" id="fileInput" accept="application/json" style="display:none">
-
-        <button class="btn-danger btn" onclick="deleteSelected()">🗑 Массовое удаление</button>
+    <div class="controls">
+        <button class="btn btn-primary" onclick="syncWithGitHub(event)">🔄 Синхронизировать</button>
+        <button class="btn btn-primary" onclick="openModal()">+ Добавить риск</button>
+        <button class="btn btn-secondary" onclick="saveToJSON()">💾 Экспорт JSON</button>
+        <button class="btn btn-secondary" id="loadJSONBtn">📁 Импорт JSON</button>
+        <button class="btn btn-danger" onclick="deleteSelected()">🗑 Массовое удаление</button>
     </div>
 
-    <!-- Таблица -->
-    <table>
-        <thead>
-        <tr>
-            <th><input type="checkbox" onclick="toggleSelectAll(this)"></th>
-            <th>ШАГ</th>
-            <th>КОМАНДЫ</th>
-            <th>ОСНОВНОЙ РИСК</th>
-            <th>R</th>
-            <th>A</th>
-            <th>ВЕРОЯТН.</th>
-            <th>ВЛИЯНИЕ</th>
-            <th>КРИТИЧНОСТЬ</th>
-            <th>ДЕЙСТВИЯ</th>
-        </tr>
-        </thead>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th><input type="checkbox" onclick="toggleSelectAll(this)"></th>
+                    <th>Шаг</th>
+                    <th>Команды</th>
+                    <th>Основной риск</th>
+                    <th>R</th>
+                    <th>A</th>
+                    <th>Вероятн.</th>
+                    <th>Влияние</th>
+                    <th>Критичность</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
 
-        <tbody id="risksTableBody"></tbody>
-    </table>
-
-</div>
-
-<!-- Модалка -->
-<div class="modal-overlay" id="modalOverlay" onclick="closeModalOnOverlay(event)">
-    <div class="modal" onclick="event.stopPropagation()">
-
-        <div class="modal-header">
-            <span>Добавить риск</span>
-            <button class="close-btn" onclick="closeModal()">&times;</button>
-        </div>
-
-        <form id="riskForm" onsubmit="addRisk(event)">
-            <div class="form-group">
-                <label>Название сценария</label>
-                <input type="text" id="scenarioName" required>
-            </div>
-
-            <div id="stepsContainer"></div>
-
-            <button type="button" class="btn" onclick="addStep()">＋ Добавить шаг</button>
-
-            <br><br>
-            <button type="submit" class="btn-primary">Сохранить</button>
-        </form>
-
+            <tbody id="risksTableBody"></tbody>
+        </table>
     </div>
 </div>
 
-<!-- Popup подтверждения удаления -->
-<div id="confirmPopup">
-    <p style="font-size:16px; font-weight:600; margin-bottom:16px;">
-        Удалить этот риск?
-    </p>
-
-    <button class="btn-danger btn" onclick="confirmDelete()">Удалить</button>
-    <button class="btn" onclick="closeConfirm()">Отмена</button>
+<!-- Confirm Popup -->
+<div id="confirmPopup" class="confirm-popup">
+    <h3 style="margin-bottom:12px;">Удалить риск?</h3>
+    <p style="margin-bottom:20px;">Это действие необратимо.</p>
+    <div style="display:flex; justify-content:center; gap:10px;">
+        <button class="btn btn-secondary" onclick="closeConfirm()">Отмена</button>
+        <button class="btn btn-danger" onclick="confirmDelete()">Удалить</button>
+    </div>
 </div>
 
-<!-- Скрипт -->
 <script src="script.js"></script>
-
 </body>
 </html>
