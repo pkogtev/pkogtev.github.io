@@ -7,8 +7,8 @@
     "mainRisk": "Неправильная валидация данных",
     "r": "Я",
     "a": "Не я",
-    "probability": 3,
-    "severity": 9,
+    "probability": null,
+    "severity": null,
     "impact": 3
   },
   {
