@@ -7,7 +7,19 @@ window.onload = function() {
     loadFromLocalStorage();
     renderTable();
     updateTeamFilter();
+    
+    // Закрытие dropdown при клике вне его
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.dropdown')) {
+            document.getElementById('exportDropdown').classList.remove('show');
+        }
+    });
 };
+
+function toggleExportDropdown() {
+    event.stopPropagation();
+    document.getElementById('exportDropdown').classList.toggle('show');
+}
 
 function openModal(index = -1) {
     editingIndex = index;
@@ -45,7 +57,7 @@ function addStep() {
     stepDiv.innerHTML = `
         <div class="step-header">
             <span class="step-number">Шаг ${stepCounter}</span>
-            <button class="btn-remove" onclick="removeStep(this)">Удалить</button>
+            <button class="btn-remove" onclick="removeStep(this)">🗑️ Удалить</button>
         </div>
         <div class="form-group">
             <label>Шаг пользователя *</label>
@@ -159,7 +171,7 @@ function loadScenarioData(scenario) {
         stepDiv.innerHTML = `
             <div class="step-header">
                 <span class="step-number">Шаг ${stepCounter}</span>
-                <button class="btn-remove" onclick="removeStep(this)">Удалить</button>
+                <button class="btn-remove" onclick="removeStep(this)">🗑️ Удалить</button>
             </div>
             <div class="form-group">
                 <label>Шаг пользователя *</label>
@@ -443,6 +455,44 @@ function saveToFile() {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+    document.getElementById('exportDropdown').classList.remove('show');
+}
+
+function exportToCSV() {
+    if (scenarios.length === 0) {
+        alert('Нет данных для экспорта');
+        return;
+    }
+
+    // Формируем CSV
+    let csv = '\uFEFF'; // BOM для корректного отображения кириллицы в Excel
+    csv += 'Сценарий,Шаг пользователя,Участвующие команды,Критичность,Основной риск,R (Ответственный),A (Утверждающий)\n';
+
+    scenarios.forEach(scenario => {
+        scenario.steps.forEach((step, index) => {
+            const scenarioName = index === 0 ? `"${scenario.name.replace(/"/g, '""')}"` : '""';
+            const stepName = `"${step.name.replace(/"/g, '""')}"`;
+            const teams = `"${(step.teams || '').replace(/"/g, '""')}"`;
+            const criticality = `"${step.criticality}"`;
+            const risk = `"${(step.risk || '').replace(/"/g, '""')}"`;
+            const r = `"${(step.r || '').replace(/"/g, '""')}"`;
+            const a = `"${(step.a || '').replace(/"/g, '""')}"`;
+            
+            csv += `${scenarioName},${stepName},${teams},${criticality},${risk},${r},${a}\n`;
+        });
+    });
+
+    // Создаем и скачиваем файл
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `risk-matrix-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    document.getElementById('exportDropdown').classList.remove('show');
 }
 
 function loadFromFile(event) {
