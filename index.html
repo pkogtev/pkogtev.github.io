@@ -1,198 +1,830 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Матрица рисков — Минималистичный стиль</title>
-<style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-        font-family: 'Inter', sans-serif;
-        background: #f7f7f7;
-        color: #222;
-        line-height: 1.5;
-    }
-    .header {
-        background: #ffffff;
-        border-bottom: 1px solid #e0e0e0;
-        padding: 24px 32px;
-    }
-    .header-content {
-        max-width: 1400px;
-        margin: 0 auto;
-        display: flex;
-        align-items: center;
-        gap: 16px;
-    }
-    .header-icon { font-size: 40px; opacity: 0.7; }
-    .header h1 { font-size: 28px; font-weight: 600; }
-    .header-subtitle { margin-top: 4px; color: #666; font-size: 14px; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Матрица рисков</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    .container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f8f9fa;
+            color: #212529;
+            line-height: 1.6;
+        }
 
-    .controls {
-        background: #fff;
-        border: 1px solid #dddddd;
-        border-radius: 8px;
-        padding: 18px;
-        margin-bottom: 20px;
-    }
-    .controls-row {
-        display: flex; flex-wrap: wrap;
-        justify-content: space-between; align-items: center;
-        gap: 12px;
-    }
-    .controls-left { display: flex; gap: 12px; flex-wrap: wrap; }
+        .header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #533483 75%, #8b3a8b 100%);
+            color: white;
+            padding: 50px 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
 
-    .btn {
-        padding: 10px 16px;
-        border-radius: 6px;
-        border: 1px solid #d4d4d4;
-        background: #fff;
-        cursor: pointer;
-        font-size: 14px;
-        transition: 0.15s;
-    }
-    .btn:hover { background: #f0f0f0; }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(139, 58, 139, 0.3) 0%, transparent 70%);
+            animation: pulse 15s ease-in-out infinite;
+        }
 
-    .btn-primary {
-        font-weight: 600;
-        border-color: #b5b5b5;
-    }
-    .btn-success { border-color: #c8dec8; }
-    .btn-secondary { border-color: #cfd2d6; }
-    .btn-danger { border-color: #d8bcbc; color: #b00; }
+        @keyframes pulse {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+                opacity: 0.5;
+            }
+            50% {
+                transform: translate(10%, 10%) scale(1.1);
+                opacity: 0.8;
+            }
+        }
 
-    input, select {
-        padding: 10px 12px;
-        border-radius: 6px;
-        border: 1px solid #d4d4d4;
-        background: #fff;
-        font-size: 14px;
-    }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            background: 
+                linear-gradient(90deg, 
+                    transparent 0%, 
+                    rgba(139, 58, 139, 0.1) 25%, 
+                    rgba(83, 52, 131, 0.1) 50%, 
+                    rgba(139, 58, 139, 0.1) 75%, 
+                    transparent 100%
+                );
+            pointer-events: none;
+        }
 
-    .table-container { background: #fff; border:1px solid #dddddd; border-radius: 8px; overflow:hidden; }
-    .table-wrapper { overflow-x:auto; }
+        .header-content {
+            position: relative;
+            z-index: 1;
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
 
-    table { width:100%; border-collapse:collapse; }
-    thead { background:#fafafa; border-bottom:1px solid #dddddd; }
-    th { padding:14px; text-align:left; font-size:13px; color:#555; }
-    td { padding:14px; border-bottom:1px solid #f1f1f1; }
-    tr:hover td { background:#f9f9f9; }
+        .header-icon {
+            font-size: 56px;
+            filter: drop-shadow(0 6px 12px rgba(0,0,0,0.5));
+            animation: float 3s ease-in-out infinite;
+        }
 
-    .scenario-row { background:#f3f4f5; font-weight:600; }
-    .step-row td:first-child { padding-left:32px; }
-    .editable:hover { background:#f2f2f2; }
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
 
-    .criticality { padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600; }
-    .criticality-low { background:#e4f6e4; color:#2e7d32; }
-    .criticality-medium { background:#fff4cc; color:#8a6d3b; }
-    .criticality-high { background:#f8d7da; color:#842029; }
-    .criticality-critical { background:#d9534f; color:#fff; }
+        .header h1 {
+            font-size: 42px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
 
-    /* Modal */
-    .modal-overlay {
-        display:none; position:fixed; inset:0;
-        background:rgba(0,0,0,0.25);
-        align-items:center; justify-content:center;
-    }
-    .modal-overlay.active { display:flex; }
+        .header-subtitle {
+            font-size: 15px;
+            opacity: 0.95;
+            margin-top: 8px;
+            font-weight: 400;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            color: #e0e0e0;
+        }
 
-    .modal {
-        background:#fff; border-radius:10px;
-        padding:24px; width:90%; max-width:700px;
-        border:1px solid #dddddd;
-    }
-    .modal-header { font-size:20px; font-weight:600; margin-bottom:16px; }
-    .form-group { margin-bottom:16px; }
-    .form-group label { display:block; margin-bottom:6px; font-weight:600; }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 30px;
+        }
 
-    .steps-container { margin-top:16px; }
-    .step-item { background:#fafafa; border:1px solid #dddddd; padding:16px; border-radius:6px; margin-bottom:12px; }
+        .controls {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+            border: 1px solid #e9ecef;
+        }
 
-    .btn-add-step { width:100%; padding:12px; border-radius:6px; border:1px dashed #aaa; background:#fff; font-weight:600; cursor:pointer; }
-    .btn-add-step:hover { background:#f3f3f3; }
-</style>
+        .controls-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .controls-left {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #533483 0%, #8b3a8b 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(83, 52, 131, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(17, 153, 142, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            color: white;
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(235, 51, 73, 0.4);
+        }
+
+        .btn-edit {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 8px 16px;
+            font-size: 13px;
+            margin-right: 5px;
+        }
+
+        .btn-edit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(240, 147, 251, 0.4);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select,
+        textarea {
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            min-width: 200px;
+            background: white;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #8b3a8b;
+            box-shadow: 0 0 0 3px rgba(139, 58, 139, 0.1);
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            overflow: hidden;
+            border: 1px solid #e9ecef;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #533483 75%, #8b3a8b 100%);
+            color: white;
+        }
+
+        th {
+            padding: 18px 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            border-bottom: 3px solid rgba(255,255,255,0.1);
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid #f1f3f5;
+            font-size: 14px;
+            color: #495057;
+        }
+
+        tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+            transform: scale(1.001);
+        }
+
+        .scenario-row {
+            background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+            font-weight: 700;
+            color: #212529;
+        }
+
+        .scenario-row td {
+            padding: 16px;
+            font-size: 15px;
+            border-bottom: 2px solid #adb5bd;
+        }
+
+        .scenario-row:hover {
+            background: linear-gradient(135deg, #dee2e6 0%, #ced4da 100%);
+        }
+
+        .step-row td:first-child {
+            padding-left: 50px;
+            position: relative;
+        }
+
+        .step-row td:first-child::before {
+            content: '└';
+            position: absolute;
+            left: 30px;
+            color: #adb5bd;
+            font-weight: bold;
+        }
+
+        .editable {
+            cursor: pointer;
+            position: relative;
+            min-height: 20px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .editable:hover {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+        }
+
+        .editable input,
+        .editable select,
+        .editable textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid #8b3a8b;
+            border-radius: 8px;
+            font-size: 14px;
+            min-width: auto;
+        }
+
+        .editable textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .criticality {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .criticality-low {
+            background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%);
+            color: #1e4620;
+        }
+
+        .criticality-medium {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: #7c2d12;
+        }
+
+        .criticality-high {
+            background: linear-gradient(135deg, #ffa8a8 0%, #fc6767 100%);
+            color: #7f1d1d;
+        }
+
+        .criticality-critical {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            color: white;
+        }
+
+        .actions-cell {
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            width: 90%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(100px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-header {
+            padding: 30px;
+            border-bottom: 2px solid #f1f3f5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #533483 75%, #8b3a8b 100%);
+            color: white;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .modal-header h2 {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .close-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            font-size: 28px;
+            color: white;
+            cursor: pointer;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #212529;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #8b3a8b;
+            box-shadow: 0 0 0 3px rgba(139, 58, 139, 0.1);
+        }
+
+        .steps-container {
+            margin-top: 20px;
+        }
+
+        .step-item {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 2px solid #dee2e6;
+            transition: all 0.3s ease;
+        }
+
+        .step-item:hover {
+            border-color: #8b3a8b;
+            box-shadow: 0 4px 12px rgba(139, 58, 139, 0.15);
+        }
+
+        .step-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .step-number {
+            font-weight: 700;
+            background: linear-gradient(135deg, #533483 0%, #8b3a8b 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .btn-remove {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-remove:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(235, 51, 73, 0.4);
+        }
+
+        .btn-add-step {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            border: 2px dashed #8b3a8b;
+            border-radius: 12px;
+            color: #8b3a8b;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-add-step:hover {
+            background: linear-gradient(135deg, #e1bee7 0%, #ce93d8 100%);
+            border-color: #533483;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 58, 139, 0.2);
+        }
+
+        .modal-footer {
+            padding: 20px 30px;
+            border-top: 2px solid #f1f3f5;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            background: #f8f9fa;
+            border-radius: 0 0 20px 20px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #6c757d;
+        }
+
+        .empty-state-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            color: #6c757d;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 220px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            border-radius: 12px;
+            z-index: 1;
+            overflow: hidden;
+            border: 1px solid #e9ecef;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+        }
+
+        .dropdown-content.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #495057;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-weight: 500;
+        }
+
+        .dropdown-item:hover {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            color: #8b3a8b;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .header-icon {
+                font-size: 40px;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            .controls {
+                padding: 20px;
+            }
+
+            .controls-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .controls-left {
+                flex-direction: column;
+            }
+
+            input[type="text"],
+            select {
+                width: 100%;
+                min-width: auto;
+            }
+
+            .modal {
+                width: 95%;
+                max-height: 95vh;
+                border-radius: 16px;
+            }
+
+            .modal-body {
+                padding: 20px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 12px 10px;
+            }
+
+            .step-row td:first-child {
+                padding-left: 30px;
+            }
+
+            .step-row td:first-child::before {
+                left: 15px;
+            }
+        }
+    </style>
 </head>
 <body>
-<div class="header">
-    <div class="header-content">
-        <div class="header-icon">🎯</div>
-        <div>
-            <h1>Матрица рисков</h1>
-            <div class="header-subtitle">Управление и контроль рисков проекта</div>
-        </div>
-    </div>
-</div>
-
-<div class="container">
-
-    <div class="controls">
-        <div class="controls-row">
-            <div class="controls-left">
-                <button class="btn btn-primary" id="addScenarioBtn" onclick="openModal()">➕ Добавить сценарий</button>
-
-                <input type="text" id="searchInput" placeholder="Поиск..." oninput="applyFilters()" />
-                <select id="teamFilter" onchange="applyFilters()">
-                    <option value="">Все команды</option>
-                </select>
-            </div>
-
-            <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                <button class="btn btn-success" onclick="saveToFile()">JSON</button>
-                <button class="btn btn-secondary" onclick="exportToCSV()">CSV</button>
-                <input type="file" id="fileInput" accept=".json" style="display:none;" onchange="loadFromFile(event)" />
-                <input type="file" id="csvInput" accept=".csv" style="display:none;" onchange="importFromCSV(event)" />
+    <div class="header">
+        <div class="header-content">
+            <div class="header-icon">🎯</div>
+            <div>
+                <h1>Матрица рисков</h1>
+                <div class="header-subtitle">Управление и контроль рисков проекта</div>
             </div>
         </div>
     </div>
 
-    <div class="table-container">
-        <div class="table-wrapper">
-            <table id="risksTable">
-                <thead>
-                    <tr>
-                        <th>Сценарий / Шаг пользователя</th>
-                        <th>Участвующие команды</th>
-                        <th>Критичность</th>
-                        <th>Основной риск</th>
-                        <th>R</th>
-                        <th>A</th>
-                        <th>Действия</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody">
-                    <tr>
-                        <td colspan="7" style="padding:40px; text-align:center; color:#777;">Нет данных. Добавьте первый сценарий.</td>
-                    </tr>
-                </tbody>
-            </table>
+    <div class="container">
+        <div class="controls">
+            <div class="controls-row">
+                <div class="controls-left">
+                    <button class="btn btn-primary" id="addScenarioBtn" onclick="openModal()">
+                        <span>➕</span> Добавить сценарий
+                    </button>
+                    <div class="input-group">
+                        <input type="text" id="searchInput" placeholder="🔍 Поиск по сценарию..." oninput="applyFilters()">
+                        <select id="teamFilter" onchange="applyFilters()">
+                            <option value="">Все команды</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <div class="dropdown">
+                        <button class="btn btn-success" onclick="toggleExportDropdown()">
+                            <span>📥</span> Экспорт
+                        </button>
+                        <div id="exportDropdown" class="dropdown-content">
+                            <button class="dropdown-item" onclick="saveToFile()">
+                                <span>💾</span> Скачать JSON
+                            </button>
+                            <button class="dropdown-item" onclick="exportToCSV()">
+                                <span>📊</span> Экспорт в CSV
+                            </button>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-secondary" onclick="toggleImportDropdown()">
+                            <span>📂</span> Импорт
+                        </button>
+                        <div id="importDropdown" class="dropdown-content">
+                            <button class="dropdown-item" onclick="document.getElementById('fileInput').click()">
+                                <span>📄</span> Загрузить JSON
+                            </button>
+                            <button class="dropdown-item" onclick="document.getElementById('csvInput').click()">
+                                <span>📊</span> Импорт из CSV
+                            </button>
+                        </div>
+                    </div>
+                    <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="loadFromFile(event)">
+                    <input type="file" id="csvInput" accept=".csv" style="display: none;" onchange="importFromCSV(event)">
+                </div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="table-wrapper">
+                <table id="risksTable">
+                    <thead>
+                        <tr>
+                            <th>Сценарий / Шаг пользователя</th>
+                            <th>Участвующие команды</th>
+                            <th>Критичность</th>
+                            <th>Основной риск</th>
+                            <th style="width: 100px;">R</th>
+                            <th style="width: 100px;">A</th>
+                            <th style="width: 140px;" id="actionsHeader">Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr>
+                            <td colspan="7">
+                                <div class="empty-state">
+                                    <div class="empty-state-icon">📋</div>
+                                    <p>Нет данных. Добавьте первый сценарий.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-</div>
 
-<div class="modal-overlay" id="modalOverlay">
-    <div class="modal">
-        <div class="modal-header" id="modalTitle">Добавить сценарий</div>
+    <!-- Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modalTitle">Добавить сценарий</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Название сценария *</label>
+                    <input type="text" id="scenarioName" placeholder="Например: Регистрация пользователя">
+                </div>
 
-        <div class="form-group">
-            <label>Название сценария</label>
-            <input type="text" id="scenarioName" />
-        </div>
-
-        <div class="steps-container">
-            <label>Шаги сценария</label>
-            <div id="stepsContainer"></div>
-            <button class="btn-add-step" onclick="addStep()">➕ Добавить шаг</button>
-        </div>
-
-        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
-            <button class="btn" onclick="closeModal()">Отмена</button>
-            <button class="btn btn-success" onclick="saveScenario()">Сохранить</button>
+                <div class="steps-container">
+                    <label style="display: block; margin-bottom: 12px; font-weight: 600; color: #212529;">Шаги сценария</label>
+                    <div id="stepsContainer"></div>
+                    <button class="btn-add-step" onclick="addStep()">➕ Добавить шаг</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">Отмена</button>
+                <button class="btn btn-success" onclick="saveScenario()">💾 Сохранить сценарий</button>
+            </div>
         </div>
     </div>
-</div>
 
-<script src="app.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
