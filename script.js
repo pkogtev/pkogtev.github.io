@@ -2,18 +2,21 @@ let risks = [];
 let stepCounter = 0;
 let riskCounter = 0;
 
-// API endpoints (замените на ваши реальные URL)
-const API_URL = 'http://localhost:3000/api/risks'; // Пример URL для вашего сервера
-
-// Для демонстрации используем localStorage как замену серверу
-// В реальном проекте замените эти функции на fetch запросы к серверу
+// API endpoints
+const API_URL = 'http://localhost:3000/api/risks';
 
 async function loadRisksFromServer() {
     try {
-        // Попытка загрузить из localStorage (имитация сервера)
-        const savedData = localStorage.getItem('risks');
-        if (savedData) {
-            risks = JSON.parse(savedData);
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error('Ошибка загрузки данных');
+        risks = await response.json();
+        console.log('Данные загружены с сервера:', risks.length, 'рисков');
+    } catch (error) {
+        console.error('Ошибка загрузки рисков:', error);
+        // Загружаем из localStorage если сервер недоступен
+        const saved = localStorage.getItem('risks');
+        if (saved) {
+            risks = JSON.parse(saved);
         } else {
             // Начальные данные
             risks = [
@@ -58,41 +61,34 @@ async function loadRisksFromServer() {
                     severity: 6
                 }
             ];
-            await saveRisksToServer();
         }
-        
-        /* Для реального сервера используйте:
-        const response = await fetch(API_URL);
-        if (!response.ok) throw new Error('Ошибка загрузки данных');
-        risks = await response.json();
-        */
-        
-    } catch (error) {
-        console.error('Ошибка загрузки рисков:', error);
-        risks = [];
+        // Сохраняем в localStorage
+        saveToLocalStorage();
     }
+}
+
+function saveToLocalStorage() {
+    localStorage.setItem('risks', JSON.stringify(risks));
 }
 
 async function saveRisksToServer() {
     try {
-        // Сохранение в localStorage (имитация сервера)
-        localStorage.setItem('risks', JSON.stringify(risks));
-        
-        /* Для реального сервера используйте:
-        const response = await fetch(API_URL, {
+        const response = await fetch(`${API_URL}/bulk`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(risks)
         });
-        if (!response.ok) throw new Error('Ошибка сохранения данных');
-        */
         
-        console.log('Данные сохранены на сервере');
+        if (!response.ok) throw new Error('Ошибка сохранения данных');
+        
+        const result = await response.json();
+        console.log('Данные сохранены на сервере:', result.message);
     } catch (error) {
         console.error('Ошибка сохранения рисков:', error);
-        alert('Ошибка сохранения данных на сервере');
+        // Сохраняем локально если сервер недоступен
+        saveToLocalStorage();
     }
 }
 
@@ -174,7 +170,6 @@ function attachScenarioEditListeners() {
             const saveEdit = async () => {
                 const newScenario = input.value.trim();
                 if (newScenario && newScenario !== oldScenario) {
-                    // Обновляем все риски с этим сценарием
                     risks.forEach(risk => {
                         if (risk.scenario === oldScenario) {
                             risk.scenario = newScenario;
@@ -198,7 +193,7 @@ function attachScenarioEditListeners() {
 function attachEditListeners() {
     document.querySelectorAll('.editable').forEach(el => {
         el.addEventListener('click', function() {
-            const id = parseInt(this.dataset.id);
+            const id = parseFloat(this.dataset.id);
             const field = this.dataset.field;
             const currentValue = this.textContent;
 
@@ -423,7 +418,7 @@ async function deleteRisk(id) {
     }
 }
 
-function downloadJSON() {
+function saveToJSON() {
     const dataStr = JSON.stringify(risks, null, 2);
     const dataBlob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(dataBlob);
@@ -472,10 +467,4 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Обработчик кнопки загрузки JSON
     document.getElementById('loadJSONBtn').addEventListener('click', loadFromJSON);
-
-    // Автосохранение каждые 30 секунд
-    setInterval(async () => {
-        await saveRisksToServer();
-        console.log('Автосохранение выполнено');
-    }, 30000);
 });
