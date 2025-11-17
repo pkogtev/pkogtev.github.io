@@ -12,7 +12,7 @@
     "impact": 3
   },
   {
-    "id": 1,
+    "id": 2,
     "scenario": "Авторизация пользователя",
     "step": "Ввод логина и пароля",
     "teams": "Backend, Frontend",
