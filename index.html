@@ -1,242 +1,206 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>Матрица рисков</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>Матрица рисков</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Интерфейсный шрифт -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+    body {
+        margin: 0;
+        font-family: Inter, Arial, sans-serif;
+        background: #f5f7fb;
+        color: #333;
+    }
 
-    <style>
-        body {
-            margin: 0;
-            background: #f5f6fa;
-            font-family: "Inter", sans-serif;
-            color: #333;
-        }
+    h1 {
+        padding: 20px 30px;
+        margin: 0;
+        font-size: 26px;
+        font-weight: 700;
+    }
 
-        /* Верхняя панель */
-        .topbar {
-            background: #2d2f7f;
-            color: white;
-            padding: 14px 28px;
-            font-size: 20px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-        }
+    .toolbar {
+        display: flex;
+        gap: 12px;
+        padding: 0 30px 20px;
+    }
 
-        /* Контейнер */
-        .container {
-            width: 92%;
-            max-width: 1400px;
-            margin: 24px auto;
-        }
+    .btn {
+        padding: 10px 18px;
+        border-radius: 10px;
+        font-size: 15px;
+        border: none;
+        cursor: pointer;
+        background: #e9eef7;
+        color: #444;
+        transition: 0.15s;
+    }
+    .btn:hover { background: #dfe6f2; }
 
-        /* Панель кнопок */
-        .actions {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 18px;
-        }
+    .btn-primary {
+        background: #377dff;
+        color: #fff;
+        font-weight: 600;
+        padding: 12px 22px;
+        border-radius: 12px;
+    }
+    .btn-primary:hover { background: #2f6fe0; }
 
-        .btn {
-            background: #ececf5;
-            border: 1px solid #d8d8e8;
-            padding: 8px 14px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: 0.2s;
-        }
+    table {
+        width: 96%;
+        margin: 20px auto;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    }
 
-        .btn:hover {
-            background: #dcdcf0;
-        }
+    thead tr {
+        background: #eef3fb;
+        height: 50px;
+    }
 
-        .btn-primary {
-            background: #2d2f7f;
-            color: white;
-            border: none;
-        }
+    th, td {
+        padding: 14px 18px;
+        text-align: left;
+        border-bottom: 1px solid #eff2f5;
+    }
 
-        .btn-primary:hover {
-            background: #242668;
-        }
+    tbody tr:hover {
+        background: #f9fbff;
+    }
 
-        .btn-delete {
-            background: #e74a4a;
-            color: white;
-            border: none;
-            padding: 6px 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
+    .btn-delete {
+        background: #ff6464;
+        color: #fff;
+        border-radius: 10px;
+        border: none;
+        padding: 8px 12px;
+        cursor: pointer;
+        transition: 0.15s;
+    }
+    .btn-delete:hover { background: #e25555; }
 
-        .btn-delete:hover {
-            background: #c03939;
-        }
+    .severity-badge {
+        padding: 6px 10px;
+        border-radius: 10px;
+        font-weight: 600;
+        color: #fff;
+    }
+    .severity-low { background: #7dc97d; }
+    .severity-medium { background: #f5c542; }
+    .severity-high { background: #ff8b3d; }
+    .severity-critical { background: #ff5252; }
 
-        /* Таблица */
-        .table-wrapper {
-            background: white;
-            border-radius: 12px;
-            padding: 0;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-            overflow: hidden;
-        }
+    /* modal */
+    #modalOverlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.45);
+        display: none;
+        justify-content: center;
+        align-items: center;
+    }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+    #modalOverlay.active { display: flex; }
 
-        th {
-            background: #fafafb;
-            padding: 14px 18px;
-            text-align: left;
-            font-size: 14px;
-            font-weight: 600;
-            border-bottom: 1px solid #e5e5ef;
-            color: #555;
-        }
+    .modal {
+        background: white;
+        width: 480px;
+        border-radius: 14px;
+        padding: 25px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
 
-        td {
-            padding: 13px 18px;
-            border-bottom: 1px solid #ececf4;
-            font-size: 14px;
-        }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { font-size: 14px; display: block; margin-bottom: 5px; }
+    .form-group input {
+        width: 100%;
+        padding: 10px;
+        border-radius: 10px;
+        border: 1px solid #d5d9e1;
+    }
+</style>
 
-        tr:hover td {
-            background: #f5f6ff;
-        }
-
-        .severity-badge {
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 13px;
-        }
-
-        .severity-low { background: #e1f9e6; color: #0f7b1f; }
-        .severity-medium { background: #fff4d4; color: #916c00; }
-        .severity-high { background: #ffe1cf; color: #9c5224; }
-        .severity-critical { background: #ffd2d2; color: #b02626; }
-
-        /* Модалка */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.45);
-            display: none;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        .modal {
-            background: white;
-            padding: 26px;
-            border-radius: 10px;
-            width: 420px;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .modal h2 {
-            margin-top: 0;
-            font-size: 20px;
-        }
-
-        .modal .form-group {
-            margin-bottom: 14px;
-        }
-
-        .modal label {
-            display: block;
-            margin-bottom: 4px;
-            font-size: 13px;
-            color: #666;
-        }
-
-        .modal input {
-            width: 100%;
-            padding: 8px 10px;
-            border-radius: 6px;
-            border: 1px solid #d7d7e5;
-        }
-    </style>
 </head>
-
 <body>
 
-    <div class="topbar">
-        📊 Матрица рисков
-    </div>
+<h1>Матрица рисков</h1>
 
-    <div class="container">
-        <!-- КНОПКИ -->
-        <div class="actions">
-            <button class="btn" onclick="syncWithGitHub()">🔄 Синхронизировать</button>
-            <button class="btn-primary" onclick="openModal()">＋ Добавить риск</button>
-            <button class="btn" onclick="saveToJSON()">💾 Экспорт JSON</button>
+<div class="toolbar">
+    <button class="btn" id="syncBtn">🔄 Синхронизировать</button>
+    <button class="btn-primary" onclick="openModal()">+ Добавить риск</button>
+    <button class="btn" onclick="saveToJSON()">⬇ Экспорт JSON</button>
+    <button class="btn" onclick="document.getElementById('fileInput').click()">⬆ Импорт JSON</button>
+    <button class="btn" onclick="deleteSelected()">🗑 Массовое удаление</button>
+</div>
 
-            <button class="btn" id="loadJSONBtn">📂 Импорт JSON</button>
-            <input type="file" id="fileInput" style="display:none">
+<input type="file" id="fileInput" style="display:none">
+
+<table>
+    <thead>
+        <tr>
+            <th style="width:30px"><input type="checkbox" onclick="toggleSelectAll(this)"></th>
+            <th>Шаг</th>
+            <th>Команды</th>
+            <th>Основной риск</th>
+            <th>R</th>
+            <th>A</th>
+            <th>Вероятность</th>
+            <th>Влияние</th>
+            <th>Критичность</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody id="risksTableBody"></tbody>
+</table>
+
+<!-- МОДАЛКА -->
+<div id="modalOverlay" onclick="closeModalOnOverlay(event)">
+    <div class="modal">
+        <h2 id="modalTitle">Добавить риск</h2>
+
+        <div class="form-group">
+            <label>Шаг</label>
+            <input id="mStep">
         </div>
 
-        <!-- ТАБЛИЦА -->
-        <div class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>Шаг</th>
-                        <th>Команды</th>
-                        <th>Основной риск</th>
-                        <th>R</th>
-                        <th>A</th>
-                        <th>Вероятн.</th>
-                        <th>Влияние</th>
-                        <th>Критичность</th>
-                        <th>Действия</th>
-                    </tr>
-                </thead>
-                <tbody id="risksTableBody"></tbody>
-            </table>
+        <div class="form-group">
+            <label>Команды</label>
+            <input id="mTeams">
         </div>
-    </div>
 
-    <!-- МОДАЛЬНОЕ ОКНО -->
-    <div class="modal-overlay" id="modalOverlay" onclick="closeModalOnOverlay(event)">
-        <div class="modal" onclick="event.stopPropagation()">
-            <h2>Добавить риск</h2>
-
-            <form id="riskForm" onsubmit="addRisk(event)">
-                <div class="form-group">
-                    <label>Название сценария</label>
-                    <input type="text" id="scenarioName" required>
-                </div>
-
-                <div id="stepsContainer"></div>
-
-                <button type="button" class="btn" onclick="addStep()">＋ Добавить шаг</button>
-
-                <br><br>
-
-                <button type="submit" class="btn-primary">Сохранить</button>
-                <button type="button" class="btn" onclick="closeModal()">Отмена</button>
-            </form>
+        <div class="form-group">
+            <label>Основной риск</label>
+            <input id="mMainRisk">
         </div>
-    </div>
 
-    <script src="script.js"></script>
+        <div class="form-group">
+            <label>R</label>
+            <input id="mR">
+        </div>
+
+        <div class="form-group">
+            <label>A</label>
+            <input id="mA">
+        </div>
+
+        <div class="form-group">
+            <label>Вероятность (1–5)</label>
+            <input id="mProb" type="number" min="1" max="5">
+        </div>
+
+        <div class="form-group">
+            <label>Влияние (1–5)</label>
+            <input id="mImpact" type="number" min="1" max="5">
+        </div>
+
+        <button class="btn-primary" onclick="saveRisk()">Сохранить</button>
+    </div>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
