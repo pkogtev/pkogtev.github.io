@@ -6,7 +6,7 @@ let risks = [];
 let pendingDeleteId = null;
 
 /* ============================================================================
-    GITHUB STORAGE (READ = public RAW, WRITE = API + token)
+    GITHUB SETTINGS
 ============================================================================ */
 
 const RAW_JSON_URL =
@@ -17,9 +17,9 @@ const GITHUB_API_URL =
 
 let token = localStorage.getItem("github_token") || null;
 
-/* --------------------------------------------------------------------------
-    Токен: проверка + запрос
---------------------------------------------------------------------------- */
+/* ============================================================================
+    TOKEN VALIDATION
+============================================================================ */
 
 async function validateToken(token) {
     try {
@@ -34,17 +34,17 @@ async function validateToken(token) {
 
 async function requireToken() {
     if (!token) {
-        token = prompt("Введите GitHub токен (github_pat_...)");
+        token = prompt("Введите GitHub Token (github_pat_...)");
 
         if (!token) {
-            alert("Требуется токен для редактирования данных.");
+            alert("Редактирование невозможно без токена.");
             return false;
         }
     }
 
     const ok = await validateToken(token);
     if (!ok) {
-        alert("Неверный токен. Проверьте правильность или создайте новый.");
+        alert("Неверный токен. Проверьте правильность.");
         token = null;
         localStorage.removeItem("github_token");
         return false;
@@ -55,7 +55,7 @@ async function requireToken() {
 }
 
 /* ============================================================================
-    ЗАГРУЗКА ДАННЫХ (без токена)
+    LOAD RISKS (NO TOKEN REQUIRED)
 ============================================================================ */
 
 async function loadRisks() {
@@ -74,16 +74,14 @@ async function loadRisks() {
 }
 loadRisks();
 
-
 /* ============================================================================
-    СОХРАНЕНИЕ (только при наличии токена)
+    SAVE (TOKEN REQUIRED)
 ============================================================================ */
 
 async function saveToGitHub() {
     if (!(await requireToken())) return;
 
     try {
-        // получаем SHA
         const shaRes = await fetch(GITHUB_API_URL, {
             headers: { Authorization: `Bearer ${token}` }
         });
@@ -91,7 +89,6 @@ async function saveToGitHub() {
         const shaJson = await shaRes.json();
         const sha = shaJson.sha;
 
-        // кодируем JSON
         const content = btoa(
             unescape(
                 encodeURIComponent(JSON.stringify(risks, null, 2))
@@ -112,21 +109,18 @@ async function saveToGitHub() {
         });
 
         if (!res.ok) {
-            alert("Ошибка сохранения данных (проверьте токен)");
+            alert("Ошибка сохранения. Проверьте токен.");
             return;
         }
 
-        alert("Изменения сохранены!");
-
+        alert("Сохранено!");
     } catch (e) {
         console.error("Ошибка сохранения:", e);
-        alert("Ошибка сохранения файла.");
     }
 }
 
-
 /* ============================================================================
-    РЕНДЕР ТАБЛИЦЫ
+    RENDER TABLE (WITH FIXED EDITABLE CLICKS)
 ============================================================================ */
 
 function renderTable(filtered = null) {
@@ -147,21 +141,19 @@ function renderTable(filtered = null) {
         row.innerHTML = `
             <td><input type="checkbox" class="row-check" data-id="${risk.id}"></td>
 
-            <td class="editable" onclick="editField(${risk.id}, 'step')">${risk.step}</td>
-            <td class="editable" onclick="editField(${risk.id}, 'teams')">${risk.teams}</td>
-            <td class="editable" onclick="editField(${risk.id}, 'mainRisk')">${risk.mainRisk}</td>
-            <td class="editable" onclick="editField(${risk.id}, 'r')">${risk.r}</td>
-            <td class="editable" onclick="editField(${risk.id}, 'a')">${risk.a}</td>
+            <td class="editable" onclick="editField(event, ${risk.id}, 'step')">${risk.step}</td>
+            <td class="editable" onclick="editField(event, ${risk.id}, 'teams')">${risk.teams}</td>
+            <td class="editable" onclick="editField(event, ${risk.id}, 'mainRisk')">${risk.mainRisk}</td>
+            <td class="editable" onclick="editField(event, ${risk.id}, 'r')">${risk.r}</td>
+            <td class="editable" onclick="editField(event, ${risk.id}, 'a')">${risk.a}</td>
 
-            <td class="editable" onclick="editNumberField(${risk.id}, 'probability')">${risk.probability}</td>
-            <td class="editable" onclick="editNumberField(${risk.id}, 'impact')">${risk.impact}</td>
+            <td class="editable" onclick="editNumberField(event, ${risk.id}, 'probability')">${risk.probability}</td>
+            <td class="editable" onclick="editNumberField(event, ${risk.id}, 'impact')">${risk.impact}</td>
 
             <td><span class="severity-badge severity-${sevClass}">${severity}</span></td>
 
             <td>
-                <button class="btn-delete" onclick="askDelete(${risk.id})">
-                    🗑
-                </button>
+                <button class="btn-delete" onclick="askDelete(${risk.id})">🗑</button>
             </td>
         `;
 
@@ -169,16 +161,15 @@ function renderTable(filtered = null) {
     });
 }
 
-
 /* ============================================================================
-    INLINE РЕДАКТИРОВАНИЕ (только с токеном)
+    INLINE EDITING
 ============================================================================ */
 
-async function editField(id, field) {
+async function editField(event, id, field) {
     if (!(await requireToken())) return;
 
-    const risk = risks.find(r => r.id === id);
     const td = event.target;
+    const risk = risks.find(r => r.id === id);
 
     const input = document.createElement("input");
     input.value = risk[field];
@@ -187,18 +178,18 @@ async function editField(id, field) {
     td.replaceWith(input);
     input.focus();
 
-    input.addEventListener("blur", () => {
+    input.onblur = () => {
         risk[field] = input.value.trim();
         saveToGitHub();
         renderTable();
-    });
+    };
 }
 
-async function editNumberField(id, field) {
+async function editNumberField(event, id, field) {
     if (!(await requireToken())) return;
 
-    const risk = risks.find(r => r.id === id);
     const td = event.target;
+    const risk = risks.find(r => r.id === id);
 
     const input = document.createElement("input");
     input.type = "number";
@@ -210,16 +201,15 @@ async function editNumberField(id, field) {
     td.replaceWith(input);
     input.focus();
 
-    input.addEventListener("blur", () => {
+    input.onblur = () => {
         risk[field] = Number(input.value);
         saveToGitHub();
         renderTable();
-    });
+    };
 }
 
-
 /* ============================================================================
-    ДОБАВЛЕНИЕ РИСКА (только при токене)
+    ADD RISK (TOKEN REQUIRED)
 ============================================================================ */
 
 async function addRisk(e) {
@@ -261,9 +251,8 @@ async function addRisk(e) {
     closeModal();
 }
 
-
 /* ============================================================================
-    УДАЛЕНИЕ
+    DELETE FUNCTIONS
 ============================================================================ */
 
 function askDelete(id) {
@@ -291,3 +280,87 @@ async function deleteRisk(id) {
     renderTable();
 }
 
+/* ============================================================================
+    FILTERS (unchanged)
+============================================================================ */
+
+function fillFilters() {
+    const teamSet = new Set();
+    const typeSet = new Set();
+
+    risks.forEach(r => {
+        r.teams.split(",").map(x => x.trim()).forEach(t => teamSet.add(t));
+        typeSet.add(r.mainRisk);
+    });
+
+    const teamSelect = document.getElementById("filterTeam");
+    const typeSelect = document.getElementById("filterType");
+
+    teamSelect.innerHTML = `<option value="">Все</option>`;
+    typeSelect.innerHTML = `<option value="">Все</option>`;
+
+    [...teamSet].forEach(t => {
+        teamSelect.innerHTML += `<option value="${t}">${t}</option>`;
+    });
+
+    [...typeSet].forEach(t => {
+        typeSelect.innerHTML += `<option value="${t}">${t}</option>`;
+    });
+}
+
+function applyFilters() {
+    let filtered = [...risks];
+
+    const scenario = document.getElementById("searchScenario").value.toLowerCase();
+    const team = document.getElementById("filterTeam").value;
+    const type = document.getElementById("filterType").value;
+
+    if (scenario) {
+        filtered = filtered.filter(r =>
+            r.scenario.toLowerCase().includes(scenario)
+        );
+    }
+
+    if (team) {
+        filtered = filtered.filter(r =>
+            r.teams.includes(team)
+        );
+    }
+
+    if (type) {
+        filtered = filtered.filter(r =>
+            r.mainRisk === type
+        );
+    }
+
+    renderTable(filtered);
+}
+
+/* ============================================================================
+    MASS DELETE
+============================================================================ */
+
+async function deleteSelected() {
+    if (!(await requireToken())) return;
+
+    const selected = document.querySelectorAll(".row-check:checked");
+
+    if (selected.length === 0) {
+        alert("Не выбрано ни одного риска");
+        return;
+    }
+
+    if (!confirm(`Удалить выбранные (${selected.length}) риски?`)) return;
+
+    const ids = [...selected].map(x => Number(x.dataset.id));
+
+    risks = risks.filter(r => !ids.includes(r.id));
+    saveToGitHub();
+    renderTable();
+}
+
+function toggleSelectAll(source) {
+    document
+        .querySelectorAll(".row-check")
+        .forEach(cb => (cb.checked = source.checked));
+}
