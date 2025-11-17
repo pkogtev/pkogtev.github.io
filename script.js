@@ -1,9 +1,3 @@
-// script.js (исправленная версия под старый формат данных)
-// Поддерживает формат:
-// {
-//   id, scenario, step, teams, mainRisk, r, a, probability, impact, severity
-// }
-
 let risks = [];
 let stepCounter = 0;
 let riskCounter = 0;
