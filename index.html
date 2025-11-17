@@ -1,224 +1,190 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<title>Матрица рисков</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <title>Матрица рисков</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-<style>
-    body {
-        margin: 0;
-        font-family: Inter, Arial, sans-serif;
-        background: #f5f7fb;
-        color: #333;
-    }
+    <style>
+        body {
+            font-family: "Inter", sans-serif;
+            background: #f5f7fb;
+            margin: 0;
+            padding: 40px;
+            color: #333;
+        }
 
-    h1 {
-        padding: 20px 30px;
-        margin: 0;
-        font-size: 26px;
-        font-weight: 700;
-    }
+        .wrapper {
+            max-width: 1500px;
+            margin: 0 auto;
+        }
 
-    .toolbar {
-        display: flex;
-        gap: 12px;
-        padding: 0 30px 20px;
-    }
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            color: #2c3e50;
+        }
 
-    .btn {
-        padding: 10px 18px;
-        border-radius: 10px;
-        font-size: 15px;
-        border: none;
-        cursor: pointer;
-        background: #e9eef7;
-        color: #444;
-        transition: 0.15s;
-    }
-    .btn:hover { background: #dfe6f2; }
+        /* Панель кнопок */
+        .top-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
 
-    .btn-primary {
-        background: #377dff;
-        color: #fff;
-        font-weight: 600;
-        padding: 12px 22px;
-        border-radius: 12px;
-    }
-    .btn-primary:hover { background: #2f6fe0; }
+        .btn-primary {
+            padding: 12px 22px;
+            background: #2d7ff9;
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(45, 127, 249, 0.25);
+            cursor: pointer;
+            transition: 0.25s ease;
+        }
 
-    table {
-        width: 96%;
-        margin: 20px auto;
-        border-collapse: collapse;
-        background: white;
-        border-radius: 18px;
-        overflow: hidden;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    }
+        .btn-primary:hover {
+            background: #1f6fe0;
+            transform: translateY(-2px);
+        }
 
-    thead tr {
-        background: #eef3fb;
-        height: 50px;
-    }
+        .table-container {
+            background: white;
+            border-radius: 22px;
+            padding: 10px 0 0 0;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
 
-    th, td {
-        padding: 14px 18px;
-        text-align: left;
-        border-bottom: 1px solid #eff2f5;
-    }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
 
-    tbody tr:hover {
-        background: #f9fbff;
-    }
+        thead {
+            background: #eef3fb;
+        }
 
-    .btn-delete {
-    background: #f3f4f6;               /* спокойный серый фон */
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
-    border: none;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    transition: 0.25s ease;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
-}
+        thead th {
+            text-align: left;
+            font-size: 15px;
+            font-weight: 600;
+            padding: 18px 24px;
+            color: #6b7280;
+        }
 
-.btn-delete:hover {
-    background: #f8dede;               /* лёгкий красный оттенок, но не яркий */
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(255,60,60,0.15);
-}
+        tbody tr {
+            background: white;
+            transition: 0.2s;
+        }
 
-.btn-delete img {
-    width: 18px;
-    opacity: 0.7;
-}
+        tbody tr:hover {
+            background: #f8faff;
+        }
 
-.btn-delete:hover img {
-    opacity: 1;
-}
+        tbody td {
+            padding: 18px 24px;
+            font-size: 15px;
+            vertical-align: middle;
+            color: #444;
+            border-bottom: 1px solid #f0f0f0;
+        }
 
+        /* Кнопки действий */
+        .actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            transition: 0.2s ease;
+        }
 
-    .severity-badge {
-        padding: 6px 10px;
-        border-radius: 10px;
-        font-weight: 600;
-        color: #fff;
-    }
-    .severity-low { background: #7dc97d; }
-    .severity-medium { background: #f5c542; }
-    .severity-high { background: #ff8b3d; }
-    .severity-critical { background: #ff5252; }
+        tbody tr:hover .actions {
+            opacity: 1;
+        }
 
-    /* modal */
-    #modalOverlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,0.45);
-        display: none;
-        justify-content: center;
-        align-items: center;
-    }
+        .btn-action,
+        .btn-delete {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: none;
+            cursor: pointer;
+            transition: 0.25s;
+        }
 
-    #modalOverlay.active { display: flex; }
+        .btn-action {
+            background: #eef2f7;
+        }
+        .btn-action:hover {
+            background: #e2e8f0;
+            transform: translateY(-2px);
+        }
 
-    .modal {
-        background: white;
-        width: 480px;
-        border-radius: 14px;
-        padding: 25px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-    }
+        .btn-delete {
+            background: #f2f3f5;
+        }
+        .btn-delete:hover {
+            background: #ffeaea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(255, 80, 80, 0.18);
+        }
 
-    .form-group { margin-bottom: 15px; }
-    .form-group label { font-size: 14px; display: block; margin-bottom: 5px; }
-    .form-group input {
-        width: 100%;
-        padding: 10px;
-        border-radius: 10px;
-        border: 1px solid #d5d9e1;
-    }
-</style>
+        .btn-action img, .btn-delete img {
+            width: 18px;
+            opacity: 0.75;
+            transition: 0.2s;
+        }
+        .btn-action:hover img, .btn-delete:hover img {
+            opacity: 1;
+        }
+
+        td:last-child {
+            width: 130px;
+        }
+    </style>
 
 </head>
+
 <body>
+    <div class="wrapper">
+        <h1>Матрица рисков</h1>
 
-<h1>Матрица рисков</h1>
-
-<div class="toolbar">
-    <button class="btn-primary" onclick="openModal()">+ Добавить риск</button>
-    <button class="btn" onclick="saveToJSON()">⬇ Экспорт JSON</button>
-    <button class="btn" onclick="document.getElementById('fileInput').click()">⬆ Импорт JSON</button>
-    <button class="btn" onclick="deleteSelected()">🗑 Массовое удаление</button>
-</div>
-
-<input type="file" id="fileInput" style="display:none">
-
-<table>
-    <thead>
-        <tr>
-            <th style="width:30px"><input type="checkbox" onclick="toggleSelectAll(this)"></th>
-            <th>Шаг</th>
-            <th>Команды</th>
-            <th>Основной риск</th>
-            <th>R</th>
-            <th>A</th>
-            <th>Вероятность</th>
-            <th>Влияние</th>
-            <th>Критичность</th>
-            <th>Действия</th>
-        </tr>
-    </thead>
-    <tbody id="risksTableBody"></tbody>
-</table>
-
-<!-- МОДАЛКА -->
-<div id="modalOverlay" onclick="closeModalOnOverlay(event)">
-    <div class="modal">
-        <h2 id="modalTitle">Добавить риск</h2>
-
-        <div class="form-group">
-            <label>Шаг</label>
-            <input id="mStep">
+        <div class="top-bar">
+            <button class="btn-primary" onclick="openModal()">Добавить риск</button>
         </div>
 
-        <div class="form-group">
-            <label>Команды</label>
-            <input id="mTeams">
+        <div class="table-container">
+            <table id="riskTable">
+                <thead>
+                    <tr>
+                        <th>Шаг</th>
+                        <th>Команды</th>
+                        <th>Основной риск</th>
+                        <th>R</th>
+                        <th>A</th>
+                        <th>Вероятность</th>
+                        <th>Влияние</th>
+                        <th>Критичность</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody id="riskTableBody">
+                    <!-- JS вставит строки -->
+                </tbody>
+            </table>
         </div>
-
-        <div class="form-group">
-            <label>Основной риск</label>
-            <input id="mMainRisk">
-        </div>
-
-        <div class="form-group">
-            <label>R</label>
-            <input id="mR">
-        </div>
-
-        <div class="form-group">
-            <label>A</label>
-            <input id="mA">
-        </div>
-
-        <div class="form-group">
-            <label>Вероятность (1–5)</label>
-            <input id="mProb" type="number" min="1" max="5">
-        </div>
-
-        <div class="form-group">
-            <label>Влияние (1–5)</label>
-            <input id="mImpact" type="number" min="1" max="5">
-        </div>
-
-        <button class="btn-primary" onclick="saveRisk()">Сохранить</button>
     </div>
-</div>
 
-<script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
