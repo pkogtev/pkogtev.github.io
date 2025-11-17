@@ -563,32 +563,33 @@
     </div>
 
     <!-- Modal -->
-    <div class="modal-overlay" id="modalOverlay" onclick="closeModalOnOverlay(event)">
-        <div class="modal" onclick="event.stopPropagation()">
-            <div class="modal-header">
-                <h2>Добавить новый риск</h2>
-                <button class="close-btn" onclick="closeModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="riskForm" onsubmit="addRisk(event)">
-                    <div class="form-group">
-                        <label>Название сценария *</label>
-                        <input type="text" id="scenarioName" required placeholder="Например: Онбординг нового пользователя">
-                    </div>
+   <div class="modal-overlay" id="modalOverlay" onclick="closeModalOnOverlay(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h2>Добавить новый риск</h2>
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="riskForm" onsubmit="addRisk(event)">
+                <div class="form-group">
+                    <label>Название сценария *</label>
+                    <input type="text" id="scenarioName" required placeholder="Например: Онбординг нового пользователя">
+                </div>
 
-                    <div class="steps-container">
-                        <h3 style="margin-bottom: 15px;">Шаги сценария</h3>
-                        <div id="stepsContainer"></div>
-                        <button type="button" class="btn-primary btn-add-step" onclick="addStep()">+ Добавить шаг</button>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn-secondary" onclick="closeModal()">Отмена</button>
-                <button type="submit" form="riskForm" class="btn-success">Сохранить</button>
-            </div>
+                <div class="steps-container">
+                    <h3 style="margin-bottom: 15px;">Шаги сценария</h3>
+                    <div id="stepsContainer"></div>
+
+                    <button type="button" class="btn-primary btn-add-step" onclick="addStep()">+ Добавить шаг</button>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" onclick="closeModal()">Отмена</button>
+            <button type="submit" form="riskForm" class="btn-success">Сохранить</button>
         </div>
     </div>
+</div>
 
     <input type="file" id="fileInput" accept=".json" style="display: none;">
 
