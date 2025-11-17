@@ -1,38 +1,100 @@
-let risks = [
-    {
-        id: 1,
-        scenario: "Авторизация пользователя",
-        step: "Ввод логина и пароля",
-        teams: "Backend, Frontend",
-        type: "Технический",
-        probability: 3,
-        impact: 4,
-        severity: 12
-    },
-    {
-        id: 2,
-        scenario: "Оплата заказа",
-        step: "Интеграция с платёжной системой",
-        teams: "Backend, Payment",
-        type: "Бизнес",
-        probability: 4,
-        impact: 5,
-        severity: 20
-    },
-    {
-        id: 3,
-        scenario: "Загрузка файла",
-        step: "Валидация формата файла",
-        teams: "Backend, QA",
-        type: "Безопасность",
-        probability: 2,
-        impact: 3,
-        severity: 6
-    }
-];
-
+let risks = [];
 let stepCounter = 0;
 let riskCounter = 0;
+
+// API endpoints (замените на ваши реальные URL)
+const API_URL = 'http://localhost:3000/api/risks'; // Пример URL для вашего сервера
+
+// Для демонстрации используем localStorage как замену серверу
+// В реальном проекте замените эти функции на fetch запросы к серверу
+
+async function loadRisksFromServer() {
+    try {
+        // Попытка загрузить из localStorage (имитация сервера)
+        const savedData = localStorage.getItem('risks');
+        if (savedData) {
+            risks = JSON.parse(savedData);
+        } else {
+            // Начальные данные
+            risks = [
+                {
+                    id: 1,
+                    scenario: "Авторизация пользователя",
+                    step: "Ввод логина и пароля",
+                    teams: "Backend, Frontend",
+                    type: "Технический",
+                    probability: 3,
+                    impact: 4,
+                    severity: 12
+                },
+                {
+                    id: 2,
+                    scenario: "Оплата заказа",
+                    step: "Интеграция с платёжной системой",
+                    teams: "Backend, Payment",
+                    type: "Бизнес",
+                    probability: 4,
+                    impact: 5,
+                    severity: 20
+                },
+                {
+                    id: 3,
+                    scenario: "Оплата заказа",
+                    step: "Обработка ошибок оплаты",
+                    teams: "Backend, Frontend",
+                    type: "Бизнес",
+                    probability: 3,
+                    impact: 5,
+                    severity: 15
+                },
+                {
+                    id: 4,
+                    scenario: "Загрузка файла",
+                    step: "Валидация формата файла",
+                    teams: "Backend, QA",
+                    type: "Безопасность",
+                    probability: 2,
+                    impact: 3,
+                    severity: 6
+                }
+            ];
+            await saveRisksToServer();
+        }
+        
+        /* Для реального сервера используйте:
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error('Ошибка загрузки данных');
+        risks = await response.json();
+        */
+        
+    } catch (error) {
+        console.error('Ошибка загрузки рисков:', error);
+        risks = [];
+    }
+}
+
+async function saveRisksToServer() {
+    try {
+        // Сохранение в localStorage (имитация сервера)
+        localStorage.setItem('risks', JSON.stringify(risks));
+        
+        /* Для реального сервера используйте:
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(risks)
+        });
+        if (!response.ok) throw new Error('Ошибка сохранения данных');
+        */
+        
+        console.log('Данные сохранены на сервере');
+    } catch (error) {
+        console.error('Ошибка сохранения рисков:', error);
+        alert('Ошибка сохранения данных на сервере');
+    }
+}
 
 function renderTable() {
     const tbody = document.getElementById('risksTableBody');
@@ -41,7 +103,7 @@ function renderTable() {
     if (filteredRisks.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="8" class="empty-state">
+                <td colspan="7" class="empty-state">
                     <p style="font-size: 18px; margin-bottom: 10px;">Нет данных для отображения</p>
                     <p>Добавьте риски или измените фильтры</p>
                 </td>
@@ -50,23 +112,87 @@ function renderTable() {
         return;
     }
 
-    tbody.innerHTML = filteredRisks.map(risk => `
-        <tr>
-            <td><span class="editable" data-id="${risk.id}" data-field="scenario">${risk.scenario}</span></td>
-            <td><span class="editable" data-id="${risk.id}" data-field="step">${risk.step}</span></td>
-            <td><span class="editable" data-id="${risk.id}" data-field="teams">${risk.teams}</span></td>
-            <td><span class="editable" data-id="${risk.id}" data-field="type">${risk.type}</span></td>
-            <td><span class="editable number-input" data-id="${risk.id}" data-field="probability">${risk.probability}</span></td>
-            <td><span class="editable number-input" data-id="${risk.id}" data-field="impact">${risk.impact}</span></td>
-            <td><span class="severity-badge ${getSeverityClass(risk.severity)}">${risk.severity}</span></td>
-            <td>
-                <button class="btn-danger" onclick="deleteRisk(${risk.id})">Удалить</button>
-            </td>
-        </tr>
-    `).join('');
+    // Группируем риски по сценариям
+    const groupedRisks = {};
+    filteredRisks.forEach(risk => {
+        if (!groupedRisks[risk.scenario]) {
+            groupedRisks[risk.scenario] = [];
+        }
+        groupedRisks[risk.scenario].push(risk);
+    });
 
+    // Формируем HTML
+    let html = '';
+    for (const [scenario, scenarioRisks] of Object.entries(groupedRisks)) {
+        html += `
+            <tr class="scenario-header">
+                <td colspan="7">
+                    <span class="editable-scenario" data-scenario="${scenario}">${scenario}</span>
+                </td>
+            </tr>
+        `;
+        
+        scenarioRisks.forEach(risk => {
+            html += `
+                <tr>
+                    <td><span class="editable" data-id="${risk.id}" data-field="step">${risk.step}</span></td>
+                    <td><span class="editable" data-id="${risk.id}" data-field="teams">${risk.teams}</span></td>
+                    <td><span class="editable" data-id="${risk.id}" data-field="type">${risk.type}</span></td>
+                    <td><span class="editable number-input" data-id="${risk.id}" data-field="probability">${risk.probability}</span></td>
+                    <td><span class="editable number-input" data-id="${risk.id}" data-field="impact">${risk.impact}</span></td>
+                    <td><span class="severity-badge ${getSeverityClass(risk.severity)}">${risk.severity}</span></td>
+                    <td>
+                        <button class="btn-danger" onclick="deleteRisk(${risk.id})">Удалить</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    tbody.innerHTML = html;
     attachEditListeners();
+    attachScenarioEditListeners();
     updateFilters();
+}
+
+function attachScenarioEditListeners() {
+    document.querySelectorAll('.editable-scenario').forEach(el => {
+        el.addEventListener('click', function() {
+            const oldScenario = this.dataset.scenario;
+            const currentValue = this.textContent;
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'editable-input';
+            input.value = currentValue;
+            input.style.fontSize = '16px';
+            input.style.fontWeight = '600';
+
+            this.replaceWith(input);
+            input.focus();
+
+            const saveEdit = async () => {
+                const newScenario = input.value.trim();
+                if (newScenario && newScenario !== oldScenario) {
+                    // Обновляем все риски с этим сценарием
+                    risks.forEach(risk => {
+                        if (risk.scenario === oldScenario) {
+                            risk.scenario = newScenario;
+                        }
+                    });
+                    await saveRisksToServer();
+                }
+                renderTable();
+            };
+
+            input.addEventListener('blur', saveEdit);
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    saveEdit();
+                }
+            });
+        });
+    });
 }
 
 function attachEditListeners() {
@@ -89,7 +215,7 @@ function attachEditListeners() {
             this.replaceWith(input);
             input.focus();
 
-            const saveEdit = () => {
+            const saveEdit = async () => {
                 const newValue = input.value;
                 const risk = risks.find(r => r.id === id);
                 
@@ -100,7 +226,7 @@ function attachEditListeners() {
                     } else {
                         risk[field] = newValue;
                     }
-                    saveRisks();
+                    await saveRisksToServer();
                     renderTable();
                 }
             };
@@ -251,7 +377,7 @@ function removeRisk(riskId) {
     }
 }
 
-function addRisk(event) {
+async function addRisk(event) {
     event.preventDefault();
     
     const scenarioName = document.getElementById('scenarioName').value;
@@ -283,32 +409,21 @@ function addRisk(event) {
         });
     });
 
-    saveRisks();
+    await saveRisksToServer();
     renderTable();
     closeModal();
     document.getElementById('riskForm').reset();
 }
 
-function deleteRisk(id) {
+async function deleteRisk(id) {
     if (confirm('Вы уверены, что хотите удалить этот риск?')) {
         risks = risks.filter(r => r.id !== id);
-        saveRisks();
+        await saveRisksToServer();
         renderTable();
     }
 }
 
-function saveRisks() {
-    localStorage.setItem('risks', JSON.stringify(risks));
-}
-
-function loadRisks() {
-    const saved = localStorage.getItem('risks');
-    if (saved) {
-        risks = JSON.parse(saved);
-    }
-}
-
-function saveToJSON() {
+function downloadJSON() {
     const dataStr = JSON.stringify(risks, null, 2);
     const dataBlob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(dataBlob);
@@ -325,22 +440,22 @@ function loadFromJSON() {
 }
 
 // Инициализация при загрузке страницы
-document.addEventListener('DOMContentLoaded', () => {
-    loadRisks();
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadRisksFromServer();
     renderTable();
 
     // Обработчик для загрузки JSON файла
     const fileInput = document.getElementById('fileInput');
-    fileInput.addEventListener('change', (e) => {
+    fileInput.addEventListener('change', async (e) => {
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onload = (event) => {
+            reader.onload = async (event) => {
                 try {
                     const loadedRisks = JSON.parse(event.target.result);
                     if (Array.isArray(loadedRisks)) {
                         risks = loadedRisks;
-                        saveRisks();
+                        await saveRisksToServer();
                         renderTable();
                         alert('Данные успешно загружены!');
                     } else {
@@ -357,4 +472,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Обработчик кнопки загрузки JSON
     document.getElementById('loadJSONBtn').addEventListener('click', loadFromJSON);
+
+    // Автосохранение каждые 30 секунд
+    setInterval(async () => {
+        await saveRisksToServer();
+        console.log('Автосохранение выполнено');
+    }, 30000);
 });
