@@ -5,8 +5,8 @@
     "step": "Ввод логина и пароля",
     "teams": "Backend, Frontend",
     "mainRisk": "Неправильная валидация данных",
-    "r": "R1",
-    "a": "A1",
+    "r": "Я",
+    "a": "Не я",
     "probability": 3,
     "severity": 9,
     "impact": 3
@@ -17,9 +17,10 @@
     "step": "Ввод логина и пароля",
     "teams": "Backend, Frontend",
     "mainRisk": "Неправильная валидация данных",
-    "r": "R1",
-    "a": "A1",
+    "r": "я",
+    "a": "я",
     "probability": 3,
-    "severity": 12
+    "severity": 12,
+    "impact": 3
   }
 ]
