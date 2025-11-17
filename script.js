@@ -9,6 +9,13 @@ let pendingDeleteId = null;
     GITHUB API CONFIG
 ============================================================================ */
 
+// При первом запуске введите токен
+const token = localStorage.getItem('github_token') || prompt('Введите GitHub Token:');
+if (token) {
+    localStorage.setItem('github_token', token);
+    GITHUB_CONFIG.token = token;
+}
+
 const GITHUB_CONFIG = {
     owner: "pkogtev",
     repo: "pkogtev.github.io",
