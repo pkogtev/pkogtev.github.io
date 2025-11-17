@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Матрица рисков</title>
+
     <style>
+        /* -----------------------
+           ГЛОБАЛЬНЫЕ СТИЛИ
+        ------------------------ */
         * {
             margin: 0;
             padding: 0;
@@ -12,153 +16,150 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #F4F6F9;
-            color: #2F3A4C;
-            line-height: 1.6;
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #F6F7F9;
+            color: #1A1F36;
         }
 
-        .header {
-            background: #2F3A4C;
-            color: white;
-            padding: 20px 40px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .header h1 {
-            font-size: 28px;
+        h1, h2, h3, h4 {
             font-weight: 600;
         }
 
+        /* -----------------------
+           HEADER
+        ------------------------ */
+        .header {
+            background: white;
+            padding: 22px 40px;
+            border-bottom: 1px solid #E2E8F0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .header h1 {
+            font-size: 26px;
+            color: #1E293B;
+        }
+
         .container {
-            max-width: 1600px;
+            max-width: 1500px;
             margin: 0 auto;
             padding: 30px 20px;
         }
 
+        /* -----------------------
+               КНОПКИ
+        ------------------------ */
+
+        .btn {
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: 0.25s ease;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: #5C8DFF;
+            color: white;
+            box-shadow: 0 2px 6px rgba(92, 141, 255, 0.25);
+        }
+        .btn-primary:hover {
+            background: #477AF5;
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: #3AC28D;
+            color: white;
+            box-shadow: 0 2px 6px rgba(58, 194, 141, 0.25);
+        }
+        .btn-success:hover {
+            background: #2DA374;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #E5E7EB;
+            color: #374151;
+        }
+        .btn-secondary:hover {
+            background: #D1D5DB;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: #EF6060;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #E04343;
+        }
+
+        /* -----------------------
+           ПАНЕЛЬ УПРАВЛЕНИЯ
+        ------------------------ */
         .controls {
             background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: 14px;
             display: flex;
             flex-wrap: wrap;
             gap: 15px;
             align-items: center;
-        }
-
-        .btn-primary {
-            background: #5CAEFF;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 15px;
-            font-weight: 500;
-            transition: all 0.3s;
-            box-shadow: 0 2px 6px rgba(92, 174, 255, 0.3);
-        }
-
-        .btn-primary:hover {
-            background: #4A9EEF;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(92, 174, 255, 0.4);
-        }
-
-        .btn-success {
-            background: #2ECC71;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 15px;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-
-        .btn-success:hover {
-            background: #27AE60;
-        }
-
-        .btn-danger {
-            background: #E74C3C;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.3s;
-        }
-
-        .btn-danger:hover {
-            background: #C0392B;
-        }
-
-        .btn-secondary {
-            background: #6B7280;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.3s;
-        }
-
-        .btn-secondary:hover {
-            background: #4B5563;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            border: 1px solid #EAEEF5;
         }
 
         .filters {
             display: flex;
             gap: 15px;
-            flex: 1;
             flex-wrap: wrap;
+            flex: 1;
         }
 
         .filter-group {
             display: flex;
             flex-direction: column;
-            gap: 5px;
             min-width: 200px;
-            flex: 1;
         }
 
         .filter-group label {
             font-size: 13px;
             color: #6B7280;
-            font-weight: 500;
         }
 
         .filter-group input,
         .filter-group select {
             padding: 10px 12px;
-            border: 1px solid #E5E7EB;
-            border-radius: 6px;
+            border: 1px solid #DDE2EB;
+            background: #FAFBFC;
+            border-radius: 8px;
             font-size: 14px;
-            transition: all 0.3s;
+            transition: 0.25s ease;
         }
-
         .filter-group input:focus,
         .filter-group select:focus {
+            border-color: #5C8DFF;
             outline: none;
-            border-color: #5CAEFF;
-            box-shadow: 0 0 0 3px rgba(92, 174, 255, 0.1);
+            background: white;
         }
+
+        /* -----------------------
+              ТАБЛИЦА
+        ------------------------ */
 
         .table-container {
             background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-radius: 16px;
             overflow: hidden;
-        }
-
-        .table-wrapper {
-            overflow-x: auto;
+            border: 1px solid #E2E8F0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
         }
 
         table {
@@ -168,22 +169,20 @@
         }
 
         thead {
-            background: #2F3A4C;
-            color: white;
+            background: #F0F4FF;
         }
 
         th {
             padding: 16px 12px;
-            text-align: left;
-            font-weight: 600;
             font-size: 13px;
+            text-transform: uppercase;
+            color: #475569;
             letter-spacing: 0.5px;
-            white-space: nowrap;
         }
 
         td {
             padding: 14px 12px;
-            border-bottom: 1px solid #F4F6F9;
+            border-bottom: 1px solid #F5F7FA;
             font-size: 14px;
         }
 
@@ -191,407 +190,301 @@
             background: #F9FAFB;
         }
 
+        /* -----------------------
+           СЦЕНАРИЙ (ГРУППА)
+        ------------------------ */
+
         .scenario-header {
-            background: #5CAEFF !important;
-            color: white !important;
+            background: #DCEAFF !important;
+            color: #1E3A5F !important;
+            font-size: 15px;
             font-weight: 600;
-            font-size: 16px;
-            padding: 16px 12px;
         }
 
         .scenario-header:hover {
-            background: #4A9EEF !important;
+            background: #CFE1FA !important;
         }
+
+        /* -----------------------
+           INLINE РЕДАКТИРОВАНИЕ
+        ------------------------ */
 
         .editable {
             cursor: pointer;
             padding: 6px 8px;
-            border-radius: 4px;
-            transition: all 0.2s;
-            min-height: 20px;
-            display: inline-block;
-            min-width: 50px;
+            border-radius: 6px;
+            transition: 0.2s;
         }
-
         .editable:hover {
-            background: #F4F6F9;
+            background: #F1F5F9;
         }
-
+        
         .editable-input {
-            border: 2px solid #5CAEFF;
-            background: white;
-            padding: 6px 8px;
-            border-radius: 4px;
             width: 100%;
+            padding: 6px 8px;
+            border-radius: 6px;
+            border: 2px solid #5C8DFF;
             font-size: 14px;
         }
 
-        .editable-input:focus {
-            outline: none;
+        .number-input {
+            width: 80px !important;
+            text-align: center;
         }
+
+        /* -----------------------
+           BADGES
+        ------------------------ */
 
         .severity-badge {
-            display: inline-block;
             padding: 6px 12px;
-            border-radius: 6px;
-            font-weight: 600;
+            border-radius: 8px;
             font-size: 13px;
+            font-weight: 600;
         }
 
-        .severity-low { background: #D1FAE5; color: #065F46; }
-        .severity-medium { background: #FEF3C7; color: #92400E; }
-        .severity-high { background: #FEE2E2; color: #991B1B; }
-        .severity-critical { background: #DBEAFE; color: #1E3A8A; }
+        .severity-low { background: #E6FAE8; color: #256B2C; }
+        .severity-medium { background: #FFF4D6; color: #8B6700; }
+        .severity-high { background: #FFE4E4; color: #9B1C1C; }
+        .severity-critical { background: #E3EDFF; color: #1E40AF; }
 
-        /* Modal */
+        /* -----------------------
+              MODAL
+        ------------------------ */
+
         .modal-overlay {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.55);
+            justify-content: center;
+            align-items: center;
             z-index: 1000;
-            animation: fadeIn 0.3s;
         }
 
         .modal-overlay.active {
             display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
         }
 
         .modal {
-            background: white;
-            border-radius: 12px;
             width: 90%;
             max-width: 900px;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            animation: slideUp 0.3s;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            animation: fadeUp 0.25s ease;
+            overflow: hidden;
         }
 
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .modal-header {
-            padding: 25px 30px;
-            border-bottom: 1px solid #E5E7EB;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #2F3A4C;
+            padding: 24px 30px;
+            background: #1E293B;
             color: white;
-            border-radius: 12px 12px 0 0;
-        }
-
-        .modal-header h2 {
-            font-size: 22px;
-            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
         .close-btn {
             background: none;
             border: none;
             color: white;
-            font-size: 28px;
+            font-size: 30px;
             cursor: pointer;
-            line-height: 1;
-            padding: 0;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: all 0.3s;
+            transition: 0.2s ease;
         }
-
         .close-btn:hover {
-            background: rgba(255,255,255,0.1);
+            opacity: 0.7;
         }
 
         .modal-body {
-            padding: 30px;
+            padding: 28px 30px;
         }
 
+        .modal-footer {
+            padding: 20px 30px;
+            background: #F1F5F9;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        /* -----------------------
+             FORM ELEMENTS
+        ------------------------ */
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
 
         .form-group label {
+            font-size: 14px;
+            margin-bottom: 6px;
             display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #2F3A4C;
-            font-size: 14px;
+            color: #374151;
         }
 
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
+        .form-group input {
+            padding: 10px 12px;
             width: 100%;
-            padding: 12px 14px;
-            border: 1px solid #E5E7EB;
+            border: 1px solid #DDE2EB;
+            background: #FAFBFC;
             border-radius: 8px;
-            font-size: 14px;
-            transition: all 0.3s;
-            font-family: inherit;
+            transition: all 0.25s ease;
         }
 
-        .form-group textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
+        .form-group input:focus {
+            border-color: #5C8DFF;
+            background: white;
             outline: none;
-            border-color: #5CAEFF;
-            box-shadow: 0 0 0 3px rgba(92, 174, 255, 0.1);
         }
 
         .steps-container {
-            margin-top: 20px;
+            background: #F8FAFC;
             padding: 20px;
-            background: #F9FAFB;
-            border-radius: 8px;
+            border-radius: 10px;
+            border: 1px solid #E1E6EF;
         }
 
         .step-item {
             background: white;
             padding: 20px;
-            border-radius: 8px;
+            border-radius: 12px;
+            border: 1px solid #E5EAF3;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
             margin-bottom: 15px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
 
         .step-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
+            border-bottom: 1px solid #F0F2F7;
             padding-bottom: 10px;
-            border-bottom: 2px solid #F4F6F9;
-        }
-
-        .step-header h4 {
-            font-size: 16px;
-            color: #2F3A4C;
+            margin-bottom: 14px;
         }
 
         .risk-item {
-            background: #F9FAFB;
-            padding: 15px;
-            border-radius: 6px;
-            margin-top: 10px;
-            border-left: 3px solid #5CAEFF;
+            background: #F8FAFD;
+            padding: 16px;
+            border-left: 4px solid #5C8DFF;
+            border-radius: 10px;
+            margin-bottom: 15px;
         }
 
         .risk-item-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
             margin-bottom: 10px;
         }
 
-        .form-row {
+        .form-row,
+        .form-row-3 {
             display: grid;
-            grid-template-columns: 1fr 1fr;
             gap: 15px;
-            margin-top: 10px;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr 1fr;
         }
 
         .form-row-3 {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 15px;
-            margin-top: 10px;
+            grid-template-columns: repeat(3, 1fr);
         }
 
-        .modal-footer {
-            padding: 20px 30px;
-            border-top: 1px solid #E5E7EB;
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
-
-        .btn-add-step {
-            margin-top: 15px;
-            width: 100%;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #6B7280;
-        }
-
-        .action-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 6px 10px;
-            border-radius: 4px;
-            transition: all 0.2s;
-            font-size: 12px;
-        }
-
-        .action-btn:hover {
-            background: #F4F6F9;
-        }
-
-        .number-input {
-            width: 70px !important;
-            text-align: center;
-        }
-
-        @media (max-width: 768px) {
-            .header {
-                padding: 15px 20px;
-            }
-
-            .header h1 {
-                font-size: 22px;
-            }
-
-            .controls {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .filters {
-                flex-direction: column;
-            }
-
-            .filter-group {
-                min-width: 100%;
-            }
-
-            .modal {
-                width: 95%;
-                max-height: 95vh;
-            }
-
-            .modal-body {
-                padding: 20px;
-            }
-
-            .form-row,
-            .form-row-3 {
-                grid-template-columns: 1fr;
-            }
-
-            table {
-                font-size: 12px;
-            }
-
-            th, td {
-                padding: 10px 8px;
-            }
-        }
     </style>
 </head>
+
 <body>
+
     <header class="header">
         <h1>📊 Матрица рисков</h1>
     </header>
 
     <div class="container">
+
         <div class="controls">
-            <button class="btn-primary" onclick="syncWithGitHub()">🔄 Синхронизировать</button>
-            <button class="btn-primary" onclick="openModal()">+ Добавить риск</button>
-            <button class="btn-success" onclick="saveToJSON()">💾 Скачать JSON</button>
-            <button class="btn-secondary" id="loadJSONBtn">📁 Загрузить JSON</button>
+            <button class="btn btn-primary" onclick="syncWithGitHub(event)">🔄 Синхронизировать</button>
+            <button class="btn btn-primary" onclick="openModal()">+ Добавить риск</button>
+            <button class="btn btn-secondary" onclick="saveToJSON()">💾 Экспорт JSON</button>
+            <button class="btn btn-secondary" id="loadJSONBtn">📁 Импорт JSON</button>
+
             <div class="filters">
                 <div class="filter-group">
                     <label>Поиск по сценарию</label>
-                    <input type="text" id="searchScenario" placeholder="Введите название сценария..." oninput="applyFilters()">
+                    <input type="text" id="searchScenario" placeholder="Название сценария..." oninput="applyFilters()">
                 </div>
+
                 <div class="filter-group">
                     <label>Команда</label>
-                    <select id="filterTeam" onchange="applyFilters()">
-                        <option value="">Все команды</option>
-                    </select>
+                    <select id="filterTeam" onchange="applyFilters()"></select>
                 </div>
+
                 <div class="filter-group">
                     <label>Тип риска</label>
-                    <select id="filterType" onchange="applyFilters()">
-                        <option value="">Все типы</option>
-                    </select>
+                    <select id="filterType" onchange="applyFilters()"></select>
                 </div>
             </div>
         </div>
 
         <div class="table-container">
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Шаг пользователя</th>
-                            <th>Участвующие команды</th>
-                            <th>Основной риск</th>
-                            <th>R</th>
-                            <th>A</th>
-                            <th>Вероятность риска</th>
-                            <th>Критичность</th>
-                            <th>Действия</th>
-                        </tr>
-                    </thead>
-                    <tbody id="risksTableBody">
-                    </tbody>
-                </table>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Шаг пользователя</th>
+                        <th>Участвующие команды</th>
+                        <th>Основной риск</th>
+                        <th>R</th>
+                        <th>A</th>
+                        <th>Вероятность риска</th>
+                        <th>Влияние</th>
+                        <th>Критичность</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+
+                <tbody id="risksTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Модальное окно -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModalOnOverlay(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>Добавить новый риск</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <form id="riskForm" onsubmit="addRisk(event)">
+                    <div class="form-group">
+                        <label>Название сценария *</label>
+                        <input type="text" id="scenarioName" required placeholder="Например: Онбординг нового пользователя">
+                    </div>
+
+                    <div class="steps-container">
+                        <h3>Шаги сценария</h3>
+                        <div id="stepsContainer"></div>
+
+                        <button type="button" class="btn btn-primary" style="width:100%; margin-top:15px;" onclick="addStep()">
+                            + Добавить шаг
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">Отмена</button>
+                <button class="btn btn-success" form="riskForm">Сохранить</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal -->
-   <div class="modal-overlay" id="modalOverlay" onclick="closeModalOnOverlay(event)">
-    <div class="modal" onclick="event.stopPropagation()">
-        <div class="modal-header">
-            <h2>Добавить новый риск</h2>
-            <button class="close-btn" onclick="closeModal()">&times;</button>
-        </div>
-        <div class="modal-body">
-            <form id="riskForm" onsubmit="addRisk(event)">
-                <div class="form-group">
-                    <label>Название сценария *</label>
-                    <input type="text" id="scenarioName" required placeholder="Например: Онбординг нового пользователя">
-                </div>
-
-                <div class="steps-container">
-                    <h3 style="margin-bottom: 15px;">Шаги сценария</h3>
-                    <div id="stepsContainer"></div>
-
-                    <button type="button" class="btn-primary btn-add-step" onclick="addStep()">+ Добавить шаг</button>
-                </div>
-            </form>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn-secondary" onclick="closeModal()">Отмена</button>
-            <button type="submit" form="riskForm" class="btn-success">Сохранить</button>
-        </div>
-    </div>
-</div>
-
-    <input type="file" id="fileInput" accept=".json" style="display: none;">
+    <input type="file" id="fileInput" accept=".json" style="display:none">
 
     <script src="script.js"></script>
 </body>
