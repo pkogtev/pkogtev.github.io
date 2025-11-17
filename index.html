@@ -1,78 +1,1035 @@
-<!doctype html>
-<select id="typeFilter"><option value="">Все типы</option></select>
-<button id="exportBtn" class="small-btn">Экспорт JSON</button>
-<label class="file-row small">
-<button id="importBtn" class="small-btn">Импорт JSON</button>
-<input id="fileInput" type="file" accept="application/json" />
-</label>
-</div>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Матрица рисков</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #F4F6F9;
+            color: #2F3A4C;
+            line-height: 1.6;
+        }
 
-<div class="card" style="overflow:auto">
-<table id="riskTable">
-<thead id="tableHead"></thead>
-<tbody id="tableBody"></tbody>
-</table>
-</div>
-</div>
+        .header {
+            background: #2F3A4C;
+            color: white;
+            padding: 20px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
 
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+        }
 
-<aside class="side">
-<div class="card">
-<div style="display:flex;justify-content:space-between;align-items:center">
-<div>
-<div class="small">Быстрая панель</div>
-<div style="font-weight:700">Файлы и настройки</div>
-</div>
-</div>
-<div style="margin-top:12px" class="small">
-Сохраняйте/загружайте JSON. Для совместной работы поместите JSON в репозиторий GitHub и импортируйте файл другим участникам.
-</div>
-<div style="margin-top:12px;display:flex;gap:8px">
-<button id="downloadBtn" class="btn">Скачать JSON</button>
-<button id="clearBtn" class="small-btn">Очистить</button>
-</div>
-</div>
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
 
+        .controls {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            justify-content: space-between;
+        }
 
-<div class="card small">
-<div style="font-weight:600">Подробности</div>
-<div style="margin-top:8px">Критичность = Вероятность × Влияние. Редактируйте ячейки прямо в таблице. Модальное окно — добавление сценария с шагами (до 10).</div>
-</div>
-</aside>
-</div>
-</div>
-</div>
+        .controls-left {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            flex: 1;
+        }
 
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
 
-<!-- Modal -->
-<div id="modalBackdrop" class="modal-backdrop">
-<div class="modal" role="dialog" aria-modal="true">
-<div class="modal-head">
-<div>
-<div style="font-weight:700">Добавить сценарий</div>
-<div class="small">Название сценария и до 10 шагов внутри</div>
-</div>
-<div><button id="closeModal" class="small-btn">✕</button></div>
-</div>
-<div style="margin-top:12px">
-<input id="scenarioName" placeholder="Название сценария" style="width:100%;padding:10px;border-radius:8px;border:1px solid #e6e9ef" />
-<div class="steps" id="stepsContainer"></div>
-<div style="display:flex;gap:8px;margin-top:10px;align-items:center">
-<button id="addStep" class="small-btn">+ Добавить шаг</button>
-<div class="small">Шагов: <span id="stepCount">0</span>/10</div>
-</div>
+        .btn-primary {
+            background: #5CAEFF;
+            color: white;
+        }
 
+        .btn-primary:hover {
+            background: #4A9AE8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(92, 174, 255, 0.3);
+        }
 
-<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px">
-<button id="saveScenario" class="btn">Сохранить сценарий</button>
-<button id="cancelScenario" class="small-btn">Отмена</button>
-</div>
-</div>
-</div>
-</div>
+        .btn-success {
+            background: #2ECC71;
+            color: white;
+        }
 
+        .btn-success:hover {
+            background: #27AE60;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+        }
 
-<script src="app.js"></script>
+        .btn-secondary {
+            background: #6B7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4B5563;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            padding: 10px 15px;
+            border: 2px solid #E5E7EB;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+            min-width: 180px;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #5CAEFF;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #2F3A4C;
+            color: white;
+        }
+
+        th {
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid #F0F0F0;
+            font-size: 14px;
+        }
+
+        tbody tr {
+            transition: background 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: #F9FAFB;
+        }
+
+        .scenario-row {
+            background: #F4F6F9;
+            font-weight: 600;
+            color: #2F3A4C;
+        }
+
+        .scenario-row td {
+            padding: 12px 16px;
+            font-size: 15px;
+        }
+
+        .step-row td:first-child {
+            padding-left: 40px;
+        }
+
+        .editable {
+            cursor: pointer;
+            position: relative;
+            min-height: 20px;
+        }
+
+        .editable:hover {
+            background: #F0F9FF;
+            border-radius: 4px;
+        }
+
+        .editable input,
+        .editable select {
+            width: 100%;
+            padding: 6px 10px;
+            border: 2px solid #5CAEFF;
+            border-radius: 6px;
+            font-size: 14px;
+            min-width: auto;
+        }
+
+        .criticality {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .criticality-low {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+
+        .criticality-medium {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+
+        .criticality-high {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+
+        .criticality-critical {
+            background: #FECACA;
+            color: #7F1D1D;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 25px 30px;
+            border-bottom: 2px solid #F0F0F0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #2F3A4C;
+            color: white;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .modal-header h2 {
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: white;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: background 0.2s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2F3A4C;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #E5E7EB;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #5CAEFF;
+        }
+
+        .steps-container {
+            margin-top: 20px;
+        }
+
+        .step-item {
+            background: #F9FAFB;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 2px solid #E5E7EB;
+        }
+
+        .step-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .step-number {
+            font-weight: 700;
+            color: #5CAEFF;
+            font-size: 16px;
+        }
+
+        .btn-remove {
+            background: #EF4444;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background 0.2s ease;
+        }
+
+        .btn-remove:hover {
+            background: #DC2626;
+        }
+
+        .btn-add-step {
+            width: 100%;
+            padding: 12px;
+            background: #F0F9FF;
+            border: 2px dashed #5CAEFF;
+            border-radius: 8px;
+            color: #5CAEFF;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-add-step:hover {
+            background: #E0F2FE;
+            border-color: #0284C7;
+        }
+
+        .modal-footer {
+            padding: 20px 30px;
+            border-top: 2px solid #F0F0F0;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .risk-item {
+            background: #FFFFFF;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            border: 1px solid #E5E7EB;
+        }
+
+        .risk-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .risk-title {
+            font-weight: 600;
+            color: #2F3A4C;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6B7280;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .controls-left {
+                flex-direction: column;
+            }
+
+            input[type="text"],
+            select {
+                width: 100%;
+                min-width: auto;
+            }
+
+            .modal {
+                width: 95%;
+                max-height: 95vh;
+            }
+
+            .modal-body {
+                padding: 20px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 10px 8px;
+            }
+
+            .step-row td:first-child {
+                padding-left: 20px;
+            }
+        }
+
+        .file-info {
+            display: inline-block;
+            margin-left: 15px;
+            color: #6B7280;
+            font-size: 13px;
+            padding: 8px 12px;
+            background: #F9FAFB;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📊 Матрица рисков</h1>
+    </div>
+
+    <div class="container">
+        <div class="controls">
+            <div class="controls-left">
+                <button class="btn btn-primary" onclick="openModal()">+ Добавить сценарий</button>
+                <div class="input-group">
+                    <input type="text" id="searchInput" placeholder="🔍 Поиск по сценарию..." oninput="applyFilters()">
+                    <select id="teamFilter" onchange="applyFilters()">
+                        <option value="">Все команды</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <button class="btn btn-success" onclick="saveToFile()">💾 Сохранить</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">📂 Загрузить</button>
+                <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="loadFromFile(event)">
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table id="risksTable">
+                <thead>
+                    <tr>
+                        <th>Сценарий / Шаг пользователя</th>
+                        <th>Участвующие команды</th>
+                        <th>Критичность</th>
+                        <th>Основной риск</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <tr>
+                        <td colspan="4">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">📋</div>
+                                <p>Нет данных. Добавьте первый сценарий.</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modalTitle">Добавить сценарий</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Название сценария *</label>
+                    <input type="text" id="scenarioName" placeholder="Например: Регистрация пользователя">
+                </div>
+
+                <div class="steps-container">
+                    <label style="display: block; margin-bottom: 12px; font-weight: 600; color: #2F3A4C;">Шаги сценария</label>
+                    <div id="stepsContainer"></div>
+                    <button class="btn-add-step" onclick="addStep()">+ Добавить шаг</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">Отмена</button>
+                <button class="btn btn-success" onclick="saveScenario()">Сохранить сценарий</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let scenarios = [];
+        let editingIndex = -1;
+        let stepCounter = 0;
+
+        // Загрузка данных при старте
+        window.onload = function() {
+            loadFromLocalStorage();
+            renderTable();
+            updateTeamFilter();
+        };
+
+        function openModal(index = -1) {
+            editingIndex = index;
+            const modal = document.getElementById('modalOverlay');
+            const modalTitle = document.getElementById('modalTitle');
+            
+            if (index >= 0) {
+                modalTitle.textContent = 'Редактировать сценарий';
+                loadScenarioData(scenarios[index]);
+            } else {
+                modalTitle.textContent = 'Добавить сценарий';
+                document.getElementById('scenarioName').value = '';
+                document.getElementById('stepsContainer').innerHTML = '';
+                stepCounter = 0;
+                addStep();
+            }
+            
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+        }
+
+        function addStep() {
+            if (document.querySelectorAll('.step-item').length >= 10) {
+                alert('Максимум 10 шагов на сценарий');
+                return;
+            }
+
+            stepCounter++;
+            const stepsContainer = document.getElementById('stepsContainer');
+            const stepDiv = document.createElement('div');
+            stepDiv.className = 'step-item';
+            stepDiv.innerHTML = `
+                <div class="step-header">
+                    <span class="step-number">Шаг ${stepCounter}</span>
+                    <button class="btn-remove" onclick="removeStep(this)">Удалить</button>
+                </div>
+                <div class="form-group">
+                    <label>Шаг пользователя *</label>
+                    <input type="text" class="step-name" placeholder="Например: Ввод email и пароля">
+                </div>
+                <div class="form-group">
+                    <label>Участвующие команды</label>
+                    <input type="text" class="step-teams" placeholder="Например: Frontend, Backend">
+                </div>
+                <div class="form-group">
+                    <label>Критичность</label>
+                    <select class="step-criticality">
+                        <option value="Низкая">Низкая</option>
+                        <option value="Средняя">Средняя</option>
+                        <option value="Высокая">Высокая</option>
+                        <option value="Критическая">Критическая</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Основной риск</label>
+                    <textarea class="step-risk" placeholder="Опишите основные риски данного шага"></textarea>
+                </div>
+            `;
+            stepsContainer.appendChild(stepDiv);
+        }
+
+        function removeStep(btn) {
+            btn.closest('.step-item').remove();
+            renumberSteps();
+        }
+
+        function renumberSteps() {
+            const steps = document.querySelectorAll('.step-item');
+            steps.forEach((step, index) => {
+                step.querySelector('.step-number').textContent = `Шаг ${index + 1}`;
+            });
+            stepCounter = steps.length;
+        }
+
+        function saveScenario() {
+            const scenarioName = document.getElementById('scenarioName').value.trim();
+            if (!scenarioName) {
+                alert('Введите название сценария');
+                return;
+            }
+
+            const stepItems = document.querySelectorAll('.step-item');
+            if (stepItems.length === 0) {
+                alert('Добавьте хотя бы один шаг');
+                return;
+            }
+
+            const steps = [];
+            let hasError = false;
+
+            stepItems.forEach((item, index) => {
+                const stepName = item.querySelector('.step-name').value.trim();
+                if (!stepName) {
+                    alert(`Заполните название для шага ${index + 1}`);
+                    hasError = true;
+                    return;
+                }
+
+                steps.push({
+                    name: stepName,
+                    teams: item.querySelector('.step-teams').value.trim(),
+                    criticality: item.querySelector('.step-criticality').value,
+                    risk: item.querySelector('.step-risk').value.trim()
+                });
+            });
+
+            if (hasError) return;
+
+            const scenario = {
+                name: scenarioName,
+                steps: steps
+            };
+
+            if (editingIndex >= 0) {
+                scenarios[editingIndex] = scenario;
+            } else {
+                scenarios.push(scenario);
+            }
+
+            saveToLocalStorage();
+            renderTable();
+            updateTeamFilter();
+            closeModal();
+        }
+
+        function loadScenarioData(scenario) {
+            document.getElementById('scenarioName').value = scenario.name;
+            document.getElementById('stepsContainer').innerHTML = '';
+            stepCounter = 0;
+
+            scenario.steps.forEach(step => {
+                stepCounter++;
+                const stepsContainer = document.getElementById('stepsContainer');
+                const stepDiv = document.createElement('div');
+                stepDiv.className = 'step-item';
+                stepDiv.innerHTML = `
+                    <div class="step-header">
+                        <span class="step-number">Шаг ${stepCounter}</span>
+                        <button class="btn-remove" onclick="removeStep(this)">Удалить</button>
+                    </div>
+                    <div class="form-group">
+                        <label>Шаг пользователя *</label>
+                        <input type="text" class="step-name" value="${step.name}" placeholder="Например: Ввод email и пароля">
+                    </div>
+                    <div class="form-group">
+                        <label>Участвующие команды</label>
+                        <input type="text" class="step-teams" value="${step.teams || ''}" placeholder="Например: Frontend, Backend">
+                    </div>
+                    <div class="form-group">
+                        <label>Критичность</label>
+                        <select class="step-criticality">
+                            <option value="Низкая" ${step.criticality === 'Низкая' ? 'selected' : ''}>Низкая</option>
+                            <option value="Средняя" ${step.criticality === 'Средняя' ? 'selected' : ''}>Средняя</option>
+                            <option value="Высокая" ${step.criticality === 'Высокая' ? 'selected' : ''}>Высокая</option>
+                            <option value="Критическая" ${step.criticality === 'Критическая' ? 'selected' : ''}>Критическая</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Основной риск</label>
+                        <textarea class="step-risk" placeholder="Опишите основные риски данного шага">${step.risk || ''}</textarea>
+                    </div>
+                `;
+                stepsContainer.appendChild(stepDiv);
+            });
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const teamFilter = document.getElementById('teamFilter').value;
+
+            if (scenarios.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">📋</div>
+                                <p>Нет данных. Добавьте первый сценарий.</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = '';
+
+            scenarios.forEach((scenario, scenarioIndex) => {
+                const matchesSearch = scenario.name.toLowerCase().includes(searchTerm);
+                const matchesTeam = !teamFilter || scenario.steps.some(step => 
+                    step.teams.toLowerCase().includes(teamFilter.toLowerCase())
+                );
+
+                if (!matchesSearch && searchTerm) return;
+
+                const scenarioRow = document.createElement('tr');
+                scenarioRow.className = 'scenario-row';
+                scenarioRow.innerHTML = `
+                    <td colspan="4" class="editable" onclick="editScenarioName(${scenarioIndex}, this)">
+                        ${scenario.name}
+                    </td>
+                `;
+                tbody.appendChild(scenarioRow);
+
+                scenario.steps.forEach((step, stepIndex) => {
+                    const stepMatchesTeam = !teamFilter || step.teams.toLowerCase().includes(teamFilter.toLowerCase());
+                    if (!stepMatchesTeam) return;
+
+                    const stepRow = document.createElement('tr');
+                    stepRow.className = 'step-row';
+                    stepRow.innerHTML = `
+                        <td class="editable" onclick="editField(${scenarioIndex}, ${stepIndex}, 'name', this)">
+                            ${step.name}
+                        </td>
+                        <td class="editable" onclick="editField(${scenarioIndex}, ${stepIndex}, 'teams', this)">
+                            ${step.teams || '-'}
+                        </td>
+                        <td class="editable" onclick="editCriticality(${scenarioIndex}, ${stepIndex}, this)">
+                            <span class="criticality criticality-${getCriticalityClass(step.criticality)}">
+                                ${step.criticality}
+                            </span>
+                        </td>
+                        <td class="editable" onclick="editField(${scenarioIndex}, ${stepIndex}, 'risk', this)">
+                            ${step.risk || '-'}
+                        </td>
+                    `;
+                    tbody.appendChild(stepRow);
+                });
+            });
+        }
+
+        function getCriticalityClass(criticality) {
+            const map = {
+                'Низкая': 'low',
+                'Средняя': 'medium',
+                'Высокая': 'high',
+                'Критическая': 'critical'
+            };
+            return map[criticality] || 'low';
+        }
+
+        function editScenarioName(scenarioIndex, cell) {
+            const currentValue = scenarios[scenarioIndex].name;
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = currentValue;
+            input.onblur = function() {
+                const newValue = this.value.trim();
+                if (newValue && newValue !== currentValue) {
+                    scenarios[scenarioIndex].name = newValue;
+                    saveToLocalStorage();
+                }
+                renderTable();
+            };
+            input.onkeypress = function(e) {
+                if (e.key === 'Enter') {
+                    this.blur();
+                }
+            };
+            cell.innerHTML = '';
+            cell.appendChild(input);
+            input.focus();
+        }
+
+        function editField(scenarioIndex, stepIndex, field, cell) {
+            const currentValue = scenarios[scenarioIndex].steps[stepIndex][field];
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = currentValue || '';
+            input.onblur = function() {
+                const newValue = this.value.trim();
+                scenarios[scenarioIndex].steps[stepIndex][field] = newValue;
+                saveToLocalStorage();
+                renderTable();
+            };
+            input.onkeypress = function(e) {
+                if (e.key === 'Enter') {
+                    this.blur();
+                }
+            };
+            cell.innerHTML = '';
+            cell.appendChild(input);
+            input.focus();
+        }
+
+        function editCriticality(scenarioIndex, stepIndex, cell) {
+            const currentValue = scenarios[scenarioIndex].steps[stepIndex].criticality;
+            const select = document.createElement('select');
+            select.innerHTML = `
+                <option value="Низкая" ${currentValue === 'Низкая' ? 'selected' : ''}>Низкая</option>
+                <option value="Средняя" ${currentValue === 'Средняя' ? 'selected' : ''}>Средняя</option>
+                <option value="Высокая" ${currentValue === 'Высокая' ? 'selected' : ''}>Высокая</option>
+                <option value="Критическая" ${currentValue === 'Критическая' ? 'selected' : ''}>Критическая</option>
+            `;
+            select.onchange = function() {
+                scenarios[scenarioIndex].steps[stepIndex].criticality = this.value;
+                saveToLocalStorage();
+                renderTable();
+            };
+            select.onblur = function() {
+                renderTable();
+            };
+            cell.innerHTML = '';
+            cell.appendChild(select);
+            select.focus();
+        }
+
+        function applyFilters() {
+            renderTable();
+        }
+
+        function updateTeamFilter() {
+            const teamFilter = document.getElementById('teamFilter');
+            const currentValue = teamFilter.value;
+            const teams = new Set();
+
+            scenarios.forEach(scenario => {
+                scenario.steps.forEach(step => {
+                    if (step.teams) {
+                        step.teams.split(',').forEach(team => {
+                            teams.add(team.trim());
+                        });
+                    }
+                });
+            });
+
+            teamFilter.innerHTML = '<option value="">Все команды</option>';
+            Array.from(teams).sort().forEach(team => {
+                const option = document.createElement('option');
+                option.value = team;
+                option.textContent = team;
+                if (team === currentValue) {
+                    option.selected = true;
+                }
+                teamFilter.appendChild(option);
+            });
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('riskMatrix', JSON.stringify(scenarios));
+        }
+
+        function loadFromLocalStorage() {
+            const data = localStorage.getItem('riskMatrix');
+            if (data) {
+                try {
+                    scenarios = JSON.parse(data);
+                } catch (e) {
+                    console.error('Ошибка загрузки данных:', e);
+                    scenarios = [];
+                }
+            }
+        }
+
+        function saveToFile() {
+            const dataStr = JSON.stringify(scenarios, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `risk-matrix-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function loadFromFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (Array.isArray(data)) {
+                        scenarios = data;
+                        saveToLocalStorage();
+                        renderTable();
+                        updateTeamFilter();
+                        alert('Данные успешно загружены!');
+                    } else {
+                        alert('Неверный формат файла');
+                    }
+                } catch (error) {
+                    alert('Ошибка при чтении файла: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        // Закрытие модального окна при клике вне его
+        document.getElementById('modalOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Пример данных для старта
+        if (scenarios.length === 0) {
+            scenarios = [
+                {
+                    name: "Авторизация пользователя",
+                    steps: [
+                        {
+                            name: "Переход на страницу входа",
+                            teams: "Frontend",
+                            criticality: "Низкая",
+                            risk: "Недоступность страницы при высокой нагрузке"
+                        },
+                        {
+                            name: "Ввод учетных данных",
+                            teams: "Frontend, Backend",
+                            criticality: "Высокая",
+                            risk: "Утечка данных через уязвимости XSS, проблемы с валидацией"
+                        },
+                        {
+                            name: "Проверка прав доступа",
+                            teams: "Backend, Security",
+                            criticality: "Критическая",
+                            risk: "Несанкционированный доступ к данным"
+                        }
+                    ]
+                },
+                {
+                    name: "Оформление заказа",
+                    steps: [
+                        {
+                            name: "Добавление товара в корзину",
+                            teams: "Frontend",
+                            criticality: "Средняя",
+                            risk: "Потеря данных корзины при обновлении страницы"
+                        },
+                        {
+                            name: "Оплата заказа",
+                            teams: "Backend, Payment",
+                            criticality: "Критическая",
+                            risk: "Ошибки в процессинге платежей, дублирование транзакций"
+                        }
+                    ]
+                }
+            ];
+            saveToLocalStorage();
+        }
+    </script>
 </body>
 </html>
