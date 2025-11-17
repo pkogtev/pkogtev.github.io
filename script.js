@@ -4,8 +4,8 @@ let riskCounter = 0;
 
 // GitHub настройки
 const GITHUB_CONFIG = {
-    owner: 'your-username',  // Ваш GitHub username
-    repo: 'risks-matrix',    // Название репозитория
+    owner: 'pkogtev',  // Ваш GitHub username
+    repo: 'pkogtev.github.io',    // Название репозитория
     branch: 'main',          // Ветка (main или master)
     path: 'data/risks.json', // Путь к файлу данных
     token: ''  // GitHub Personal Access Token (оставьте пустым для публичного чтения)
