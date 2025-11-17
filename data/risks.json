@@ -1,36 +1,50 @@
 [
   {
-    "id": 1,
+    "id": 1711000000001,
     "scenario": "Авторизация пользователя",
     "step": "Ввод логина и пароля",
     "teams": "Backend, Frontend",
     "mainRisk": "Неправильная валидация данных",
-    "r": "Я",
-    "a": "Не я",
-    "probability": null,
-    "severity": null,
-    "impact": 3
-  },
-  {
-    "id": 2,
-    "scenario": "Авторизация пользователя",
-    "step": "Ввод логина и пароля",
-    "teams": "Backend, Frontend",
-    "mainRisk": "Неправильная валидация данных",
-    "r": "я",
-    "a": "я",
+    "r": "R1",
+    "a": "A1",
     "probability": 3,
-    "severity": 12,
-    "impact": 3
+    "impact": 4,
+    "severity": 12
   },
   {
-    "id": 1763377300123.9531,
-    "scenario": "2",
-    "step": "3",
-    "teams": "2",
-    "type": "1",
-    "probability": 2,
+    "id": 1711000000002,
+    "scenario": "Оплата заказа",
+    "step": "Интеграция с платёжной системой",
+    "teams": "Backend, Payment",
+    "mainRisk": "Потеря транзакции при сбое",
+    "r": "R2",
+    "a": "A2",
+    "probability": 4,
+    "impact": 5,
+    "severity": 20
+  },
+  {
+    "id": 1711000000003,
+    "scenario": "Оплата заказа",
+    "step": "Обработка ошибки оплаты",
+    "teams": "Frontend, Backend",
+    "mainRisk": "Некорректное отображение сообщения об ошибке",
+    "r": "R3",
+    "a": "A3",
+    "probability": 3,
     "impact": 3,
-    "severity": 6
+    "severity": 9
+  },
+  {
+    "id": 1711000000004,
+    "scenario": "Загрузка файла",
+    "step": "Валидация формата файла",
+    "teams": "Backend, QA",
+    "mainRisk": "Загрузка вредоносного файла",
+    "r": "R4",
+    "a": "A4",
+    "probability": 2,
+    "impact": 4,
+    "severity": 8
   }
 ]
