@@ -13,365 +13,516 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background-color: #F4F6F9;
+            background: #F4F6F9;
             color: #2F3A4C;
+            line-height: 1.6;
         }
 
-        header {
-            background-color: #2F3A4C;
+        .header {
+            background: #2F3A4C;
             color: white;
-            padding: 24px 32px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px 40px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
-        header h1 {
+        .header h1 {
             font-size: 28px;
             font-weight: 600;
         }
 
         .container {
-            display: flex;
-            gap: 24px;
-            padding: 32px;
-            max-width: 1800px;
+            max-width: 1400px;
             margin: 0 auto;
+            padding: 30px 20px;
         }
 
-        .main-content {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .card {
-            background: #FFFFFF;
+        .controls {
+            background: white;
+            padding: 25px;
             border-radius: 10px;
-            padding: 24px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-            margin-bottom: 24px;
-        }
-
-        .top-bar {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
             display: flex;
-            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
             align-items: center;
-            margin-bottom: 24px;
         }
 
         .btn-primary {
-            background-color: #5CAEFF;
+            background: #5CAEFF;
             color: white;
             border: none;
             padding: 12px 24px;
             border-radius: 8px;
+            cursor: pointer;
             font-size: 15px;
             font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(92, 174, 255, 0.3);
+            transition: all 0.3s;
+            box-shadow: 0 2px 6px rgba(92, 174, 255, 0.3);
         }
 
         .btn-primary:hover {
-            background-color: #4A9EEE;
-            transform: translateY(-1px);
+            background: #4A9EEF;
+            transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(92, 174, 255, 0.4);
         }
 
         .btn-success {
-            background-color: #2ECC71;
+            background: #2ECC71;
             color: white;
             border: none;
             padding: 12px 24px;
             border-radius: 8px;
+            cursor: pointer;
             font-size: 15px;
             font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-            margin-top: 16px;
+            transition: all 0.3s;
         }
 
         .btn-success:hover {
-            background-color: #27AE60;
-            transform: translateY(-1px);
+            background: #27AE60;
         }
 
-        .btn-secondary {
-            background-color: #6B7280;
+        .btn-danger {
+            background: #E74C3C;
             color: white;
             border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 6px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            margin-left: 8px;
+            font-size: 13px;
+            transition: all 0.3s;
         }
 
-        .btn-secondary:hover {
-            background-color: #4B5563;
+        .btn-danger:hover {
+            background: #C0392B;
         }
 
         .filters {
             display: flex;
-            gap: 16px;
-            margin-bottom: 24px;
+            gap: 15px;
+            flex: 1;
             flex-wrap: wrap;
         }
 
         .filter-group {
-            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
             min-width: 200px;
+            flex: 1;
         }
 
         .filter-group label {
-            display: block;
-            font-size: 14px;
-            font-weight: 500;
+            font-size: 13px;
             color: #6B7280;
-            margin-bottom: 8px;
+            font-weight: 500;
         }
 
         .filter-group input,
         .filter-group select {
-            width: 100%;
-            padding: 10px 14px;
-            border: 2px solid #E8EAED;
-            border-radius: 8px;
+            padding: 10px 12px;
+            border: 1px solid #E5E7EB;
+            border-radius: 6px;
             font-size: 14px;
-            transition: border-color 0.3s ease;
+            transition: all 0.3s;
         }
 
         .filter-group input:focus,
         .filter-group select:focus {
             outline: none;
             border-color: #5CAEFF;
+            box-shadow: 0 0 0 3px rgba(92, 174, 255, 0.1);
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
+            min-width: 1000px;
         }
 
         thead {
-            background-color: #F4F6F9;
+            background: #2F3A4C;
+            color: white;
         }
 
         th {
-            padding: 14px 16px;
+            padding: 16px 12px;
             text-align: left;
-            font-size: 13px;
             font-weight: 600;
-            color: #6B7280;
+            font-size: 13px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         td {
-            padding: 16px;
+            padding: 14px 12px;
             border-bottom: 1px solid #F4F6F9;
             font-size: 14px;
         }
 
-        tbody tr {
-            transition: background-color 0.2s ease;
+        tr:hover {
+            background: #F9FAFB;
         }
 
-        tbody tr:hover {
-            background-color: #F9FAFB;
+        .editable {
+            cursor: pointer;
+            padding: 6px 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            min-height: 20px;
+            display: inline-block;
+            min-width: 50px;
+        }
+
+        .editable:hover {
+            background: #F4F6F9;
+        }
+
+        .editable-input {
+            border: 2px solid #5CAEFF;
+            background: white;
+            padding: 6px 8px;
+            border-radius: 4px;
+            width: 100%;
+            font-size: 14px;
+        }
+
+        .editable-input:focus {
+            outline: none;
         }
 
         .severity-badge {
             display: inline-block;
             padding: 6px 12px;
             border-radius: 6px;
+            font-weight: 600;
             font-size: 13px;
-            font-weight: 600;
         }
 
-        .severity-low {
-            background-color: #D1FAE5;
-            color: #065F46;
+        .severity-low { background: #D1FAE5; color: #065F46; }
+        .severity-medium { background: #FEF3C7; color: #92400E; }
+        .severity-high { background: #FEE2E2; color: #991B1B; }
+        .severity-critical { background: #DBEAFE; color: #1E3A8A; }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            animation: fadeIn 0.3s;
         }
 
-        .severity-medium {
-            background-color: #FEF3C7;
-            color: #92400E;
+        .modal-overlay.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        .severity-high {
-            background-color: #FEE2E2;
-            color: #991B1B;
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
-        .sidebar {
-            width: 360px;
-            background: #FFFFFF;
-            border-radius: 10px;
-            padding: 24px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-            position: sticky;
-            top: 32px;
-            height: fit-content;
-            max-height: calc(100vh - 64px);
+        .modal {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
             overflow-y: auto;
-            transform: translateX(400px);
-            opacity: 0;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s;
         }
 
-        .sidebar.visible {
-            transform: translateX(0);
-            opacity: 1;
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .sidebar h2 {
-            font-size: 20px;
+        .modal-header {
+            padding: 25px 30px;
+            border-bottom: 1px solid #E5E7EB;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #2F3A4C;
+            color: white;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .modal-header h2 {
+            font-size: 22px;
             font-weight: 600;
-            margin-bottom: 24px;
-            color: #2F3A4C;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .close-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .modal-body {
+            padding: 30px;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .form-group label {
             display: block;
-            font-size: 14px;
-            font-weight: 500;
-            color: #6B7280;
             margin-bottom: 8px;
+            font-weight: 500;
+            color: #2F3A4C;
+            font-size: 14px;
         }
 
         .form-group input,
-        .form-group select,
-        .form-group textarea {
+        .form-group select {
             width: 100%;
-            padding: 10px 14px;
-            border: 2px solid #E8EAED;
+            padding: 12px 14px;
+            border: 1px solid #E5E7EB;
             border-radius: 8px;
             font-size: 14px;
-            font-family: inherit;
-            transition: border-color 0.3s ease;
+            transition: all 0.3s;
         }
 
         .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
+        .form-group select:focus {
             outline: none;
             border-color: #5CAEFF;
+            box-shadow: 0 0 0 3px rgba(92, 174, 255, 0.1);
         }
 
-        .form-group textarea {
-            resize: vertical;
-            min-height: 80px;
+        .steps-container {
+            margin-top: 20px;
+            padding: 20px;
+            background: #F9FAFB;
+            border-radius: 8px;
+        }
+
+        .step-item {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .step-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .step-header h4 {
+            font-size: 16px;
+            color: #2F3A4C;
+        }
+
+        .risk-item {
+            background: #F9FAFB;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 10px;
+            border-left: 3px solid #5CAEFF;
+        }
+
+        .risk-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .btn-secondary {
+            background: #6B7280;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: #4B5563;
+        }
+
+        .modal-footer {
+            padding: 20px 30px;
+            border-top: 1px solid #E5E7EB;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn-add-step {
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px 20px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filters {
+                flex-direction: column;
+            }
+
+            .filter-group {
+                min-width: 100%;
+            }
+
+            .modal {
+                width: 95%;
+                max-height: 95vh;
+            }
+
+            .modal-body {
+                padding: 20px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 10px 8px;
+            }
         }
 
         .empty-state {
             text-align: center;
-            padding: 48px 24px;
+            padding: 60px 20px;
             color: #6B7280;
         }
 
-        .empty-state-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
             opacity: 0.5;
         }
 
-        .btn-delete {
-            background-color: transparent;
-            color: #EF4444;
+        .btn-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            background: none;
             border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 13px;
             cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .btn-delete:hover {
-            background-color: #FEE2E2;
-        }
-
-        @media (max-width: 1200px) {
-            .container {
-                flex-direction: column;
-            }
-
-            .sidebar {
-                width: 100%;
-                position: fixed;
-                top: 0;
-                right: 0;
-                height: 100vh;
-                max-height: 100vh;
-                border-radius: 0;
-                z-index: 1000;
-                transform: translateX(100%);
-            }
-
-            .sidebar.visible {
-                transform: translateX(0);
-            }
-        }
-
-        .sync-status {
+            padding: 6px 10px;
+            border-radius: 4px;
+            transition: all 0.2s;
             font-size: 12px;
-            color: #6B7280;
-            padding: 8px 12px;
-            background-color: #F4F6F9;
-            border-radius: 6px;
-            display: inline-block;
         }
 
-        .sync-status.synced {
-            color: #2ECC71;
+        .action-btn:hover {
+            background: #F4F6F9;
         }
 
-        .sync-status.error {
-            color: #EF4444;
+        .number-input {
+            width: 60px !important;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <header>
+    <header class="header">
         <h1>📊 Матрица рисков</h1>
     </header>
 
     <div class="container">
-        <div class="main-content">
-            <div class="top-bar">
-                <button class="btn-primary" onclick="openSidebar()">+ Добавить риск</button>
-                <div>
-                    <span class="sync-status" id="syncStatus">🔄 Синхронизация...</span>
-                    <button class="btn-secondary" onclick="exportToJSON()">📥 Экспорт JSON</button>
-                    <button class="btn-secondary" onclick="document.getElementById('importFile').click()">📤 Импорт JSON</button>
-                    <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importFromJSON(event)">
+        <div class="controls">
+            <button class="btn-primary" onclick="openModal()">+ Добавить риск</button>
+            <button class="btn-success" onclick="saveToJSON()">💾 Сохранить в JSON</button>
+            <button class="btn-secondary" id="loadJSONBtn">📁 Загрузить JSON</button>
+            <div class="filters">
+                <div class="filter-group">
+                    <label>Поиск по сценарию</label>
+                    <input type="text" id="searchScenario" placeholder="Введите название сценария..." oninput="applyFilters()">
+                </div>
+                <div class="filter-group">
+                    <label>Команда</label>
+                    <select id="filterTeam" onchange="applyFilters()">
+                        <option value="">Все команды</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Тип риска</label>
+                    <select id="filterType" onchange="applyFilters()">
+                        <option value="">Все типы</option>
+                    </select>
                 </div>
             </div>
+        </div>
 
-            <div class="card">
-                <div class="filters">
-                    <div class="filter-group">
-                        <label>🔍 Поиск по сценарию</label>
-                        <input type="text" id="searchScenario" placeholder="Введите название сценария..." oninput="applyFilters()">
-                    </div>
-                    <div class="filter-group">
-                        <label>👥 Команда</label>
-                        <select id="filterTeam" onchange="applyFilters()">
-                            <option value="">Все команды</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label>🏷️ Тип риска</label>
-                        <select id="filterType" onchange="applyFilters()">
-                            <option value="">Все типы</option>
-                        </select>
-                    </div>
-                </div>
-
+        <div class="table-container">
+            <div class="table-wrapper">
                 <table>
                     <thead>
                         <tr>
@@ -379,60 +530,49 @@
                             <th>Шаг</th>
                             <th>Команды</th>
                             <th>Тип риска</th>
-                            <th style="text-align: center;">Вероятность</th>
-                            <th style="text-align: center;">Влияние</th>
-                            <th style="text-align: center;">Критичность</th>
-                            <th></th>
+                            <th>Вероятность</th>
+                            <th>Влияние</th>
+                            <th>Критичность</th>
+                            <th>Действия</th>
                         </tr>
                     </thead>
-                    <tbody id="riskTableBody">
+                    <tbody id="risksTableBody">
                     </tbody>
                 </table>
-                <div id="emptyState" class="empty-state" style="display: none;">
-                    <div class="empty-state-icon">📋</div>
-                    <p>Нет рисков для отображения</p>
-                </div>
             </div>
-        </div>
-
-        <div class="sidebar" id="sidebar">
-            <h2>Новый риск</h2>
-            <form id="riskForm" onsubmit="saveRisk(event)">
-                <div class="form-group">
-                    <label>Сценарий *</label>
-                    <input type="text" id="scenario" required placeholder="Например: Авторизация пользователя">
-                </div>
-
-                <div class="form-group">
-                    <label>Шаг *</label>
-                    <textarea id="step" required placeholder="Опишите конкретный шаг..."></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>Команды *</label>
-                    <input type="text" id="teams" required placeholder="Например: Backend, Frontend">
-                </div>
-
-                <div class="form-group">
-                    <label>Тип риска *</label>
-                    <input type="text" id="type" required placeholder="Например: Технический">
-                </div>
-
-                <div class="form-group">
-                    <label>Вероятность (1-5) *</label>
-                    <input type="number" id="probability" required min="1" max="5" placeholder="От 1 до 5">
-                </div>
-
-                <div class="form-group">
-                    <label>Влияние (1-5) *</label>
-                    <input type="number" id="impact" required min="1" max="5" placeholder="От 1 до 5">
-                </div>
-
-                <button type="submit" class="btn-success">✓ Сохранить риск</button>
-            </form>
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <!-- Modal -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModalOnOverlay(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>Добавить новый риск</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="riskForm" onsubmit="addRisk(event)">
+                    <div class="form-group">
+                        <label>Название сценария *</label>
+                        <input type="text" id="scenarioName" required placeholder="Например: Онбординг нового пользователя">
+                    </div>
+
+                    <div class="steps-container">
+                        <h3 style="margin-bottom: 15px;">Шаги сценария</h3>
+                        <div id="stepsContainer"></div>
+                        <button type="button" class="btn-primary btn-add-step" onclick="addStep()">+ Добавить шаг</button>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeModal()">Отмена</button>
+                <button type="submit" form="riskForm" class="btn-success">Сохранить</button>
+            </div>
+        </div>
+    </div>
+
+    <input type="file" id="fileInput" accept=".json" style="display: none;">
+
+    <script src="script.js"></script>
 </body>
 </html>
