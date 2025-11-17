@@ -34,45 +34,49 @@ async function loadRisksFromGitHub() {
         // Начальные данные
         risks = [
             {
-                id: 1,
-                scenario: "Авторизация пользователя",
-                step: "Ввод логина и пароля",
-                teams: "Backend, Frontend",
-                type: "Технический",
-                probability: 3,
-                impact: 4,
-                severity: 12
-            },
-            {
-                id: 2,
-                scenario: "Оплата заказа",
-                step: "Интеграция с платёжной системой",
-                teams: "Backend, Payment",
-                type: "Бизнес",
-                probability: 4,
-                impact: 5,
-                severity: 20
-            },
-            {
-                id: 3,
-                scenario: "Оплата заказа",
-                step: "Обработка ошибок оплаты",
-                teams: "Backend, Frontend",
-                type: "Бизнес",
-                probability: 3,
-                impact: 5,
-                severity: 15
-            },
-            {
-                id: 4,
-                scenario: "Загрузка файла",
-                step: "Валидация формата файла",
-                teams: "Backend, QA",
-                type: "Безопасность",
-                probability: 2,
-                impact: 3,
-                severity: 6
-            }
+                    id: 1,
+                    scenario: "Авторизация пользователя",
+                    step: "Ввод логина и пароля",
+                    teams: "Backend, Frontend",
+                    mainRisk: "Неправильная валидация данных",
+                    r: "R1",
+                    a: "A1",
+                    probability: 3,
+                    severity: 12
+                },
+                {
+                    id: 2,
+                    scenario: "Оплата заказа",
+                    step: "Интеграция с платёжной системой",
+                    teams: "Backend, Payment",
+                    mainRisk: "Потеря транзакции при сбое",
+                    r: "R2",
+                    a: "A2",
+                    probability: 4,
+                    severity: 20
+                },
+                {
+                    id: 3,
+                    scenario: "Оплата заказа",
+                    step: "Обработка ошибок оплаты",
+                    teams: "Backend, Frontend",
+                    mainRisk: "Некорректное отображение ошибки",
+                    r: "R3",
+                    a: "A3",
+                    probability: 3,
+                    severity: 15
+                },
+                {
+                    id: 4,
+                    scenario: "Загрузка файла",
+                    step: "Валидация формата файла",
+                    teams: "Backend, QA",
+                    mainRisk: "Загрузка вредоносного файла",
+                    r: "R4",
+                    a: "A4",
+                    probability: 2,
+                    severity: 8
+                }
         ];
         
         // Сохраняем в localStorage
