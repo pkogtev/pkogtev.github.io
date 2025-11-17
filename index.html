@@ -73,15 +73,34 @@
     }
 
     .btn-delete {
-        background: #ff6464;
-        color: #fff;
-        border-radius: 10px;
-        border: none;
-        padding: 8px 12px;
-        cursor: pointer;
-        transition: 0.15s;
-    }
-    .btn-delete:hover { background: #e25555; }
+    background: #f3f4f6;               /* спокойный серый фон */
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: 0.25s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+}
+
+.btn-delete:hover {
+    background: #f8dede;               /* лёгкий красный оттенок, но не яркий */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(255,60,60,0.15);
+}
+
+.btn-delete img {
+    width: 18px;
+    opacity: 0.7;
+}
+
+.btn-delete:hover img {
+    opacity: 1;
+}
+
 
     .severity-badge {
         padding: 6px 10px;
