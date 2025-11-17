@@ -2,33 +2,18 @@ let risks = [];
 let stepCounter = 0;
 let riskCounter = 0;
 
-// GitHub Configuration
-const GITHUB_CONFIG = {
-    owner: 'your-username',  // Замените на ваш GitHub username
-    repo: 'risks-matrix',    // Замените на название репозитория
-    branch: 'main',
-    path: 'data/risks.json',
-    token: ''  // Personal Access Token (опционально для записи)
-};
+// API endpoints
+const API_URL = 'http://localhost:3000/api/risks';
 
-// URL для чтения из GitHub
-const RAW_URL = `https://raw.githubusercontent.com/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/${GITHUB_CONFIG.branch}/${GITHUB_CONFIG.path}`;
-const API_URL = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`;
-
-async function loadRisksFromGitHub() {
+async function loadRisksFromServer() {
     try {
-        const response = await fetch(RAW_URL + '?t=' + Date.now());
-        
-        if (response.ok) {
-            risks = await response.json();
-            console.log('Данные загружены из GitHub:', risks.length, 'рисков');
-            saveToLocalStorage();
-        } else {
-            throw new Error('Файл не найден');
-        }
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error('Ошибка загрузки данных');
+        risks = await response.json();
+        console.log('Данные загружены с сервера:', risks.length, 'рисков');
     } catch (error) {
-        console.warn('Не удалось загрузить из GitHub, используем localStorage:', error);
-        
+        console.error('Ошибка загрузки рисков:', error);
+        // Загружаем из localStorage если сервер недоступен
         const saved = localStorage.getItem('risks');
         if (saved) {
             risks = JSON.parse(saved);
@@ -40,10 +25,9 @@ async function loadRisksFromGitHub() {
                     scenario: "Авторизация пользователя",
                     step: "Ввод логина и пароля",
                     teams: "Backend, Frontend",
-                    mainRisk: "Неправильная валидация данных",
-                    r: "R1",
-                    a: "A1",
+                    type: "Технический",
                     probability: 3,
+                    impact: 4,
                     severity: 12
                 },
                 {
@@ -51,10 +35,9 @@ async function loadRisksFromGitHub() {
                     scenario: "Оплата заказа",
                     step: "Интеграция с платёжной системой",
                     teams: "Backend, Payment",
-                    mainRisk: "Потеря транзакции при сбое",
-                    r: "R2",
-                    a: "A2",
+                    type: "Бизнес",
                     probability: 4,
+                    impact: 5,
                     severity: 20
                 },
                 {
@@ -62,10 +45,9 @@ async function loadRisksFromGitHub() {
                     scenario: "Оплата заказа",
                     step: "Обработка ошибок оплаты",
                     teams: "Backend, Frontend",
-                    mainRisk: "Некорректное отображение ошибки",
-                    r: "R3",
-                    a: "A3",
+                    type: "Бизнес",
                     probability: 3,
+                    impact: 5,
                     severity: 15
                 },
                 {
@@ -73,14 +55,14 @@ async function loadRisksFromGitHub() {
                     scenario: "Загрузка файла",
                     step: "Валидация формата файла",
                     teams: "Backend, QA",
-                    mainRisk: "Загрузка вредоносного файла",
-                    r: "R4",
-                    a: "A4",
+                    type: "Безопасность",
                     probability: 2,
-                    severity: 8
+                    impact: 3,
+                    severity: 6
                 }
             ];
         }
+        // Сохраняем в localStorage
         saveToLocalStorage();
     }
 }
@@ -89,58 +71,25 @@ function saveToLocalStorage() {
     localStorage.setItem('risks', JSON.stringify(risks));
 }
 
-async function saveRisksToGitHub() {
-    if (!GITHUB_CONFIG.token) {
-        console.warn('GitHub token не настроен, сохранение только в localStorage');
-        saveToLocalStorage();
-        return;
-    }
-
+async function saveRisksToServer() {
     try {
-        // Получаем текущий SHA файла
-        const getResponse = await fetch(API_URL, {
+        const response = await fetch(`${API_URL}/bulk`, {
+            method: 'POST',
             headers: {
-                'Authorization': `token ${GITHUB_CONFIG.token}`,
-                'Accept': 'application/vnd.github.v3+json'
-            }
-        });
-
-        let sha = null;
-        if (getResponse.ok) {
-            const data = await getResponse.json();
-            sha = data.sha;
-        }
-
-        // Конвертируем данные в base64
-        const content = btoa(unescape(encodeURIComponent(JSON.stringify(risks, null, 2))));
-
-        // Создаем или обновляем файл
-        const updateResponse = await fetch(API_URL, {
-            method: 'PUT',
-            headers: {
-                'Authorization': `token ${GITHUB_CONFIG.token}`,
-                'Accept': 'application/vnd.github.v3+json',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                message: `Update risks data - ${new Date().toISOString()}`,
-                content: content,
-                sha: sha,
-                branch: GITHUB_CONFIG.branch
-            })
+            body: JSON.stringify(risks)
         });
-
-        if (updateResponse.ok) {
-            console.log('✅ Данные сохранены в GitHub');
-        } else {
-            throw new Error('Ошибка сохранения в GitHub');
-        }
+        
+        if (!response.ok) throw new Error('Ошибка сохранения данных');
+        
+        const result = await response.json();
+        console.log('Данные сохранены на сервере:', result.message);
     } catch (error) {
-        console.error('Ошибка сохранения в GitHub:', error);
+        console.error('Ошибка сохранения рисков:', error);
+        // Сохраняем локально если сервер недоступен
+        saveToLocalStorage();
     }
-    
-    // Всегда сохраняем локально
-    saveToLocalStorage();
 }
 
 function renderTable() {
@@ -150,7 +99,7 @@ function renderTable() {
     if (filteredRisks.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="8" class="empty-state">
+                <td colspan="7" class="empty-state">
                     <p style="font-size: 18px; margin-bottom: 10px;">Нет данных для отображения</p>
                     <p>Добавьте риски или измените фильтры</p>
                 </td>
@@ -173,8 +122,8 @@ function renderTable() {
     for (const [scenario, scenarioRisks] of Object.entries(groupedRisks)) {
         html += `
             <tr class="scenario-header">
-                <td colspan="8">
-                    <span class="editable-scenario" data-scenario="${scenario}">Сценарий: ${scenario}</span>
+                <td colspan="7">
+                    <span class="editable-scenario" data-scenario="${scenario}">${scenario}</span>
                 </td>
             </tr>
         `;
@@ -184,10 +133,9 @@ function renderTable() {
                 <tr>
                     <td><span class="editable" data-id="${risk.id}" data-field="step">${risk.step}</span></td>
                     <td><span class="editable" data-id="${risk.id}" data-field="teams">${risk.teams}</span></td>
-                    <td><span class="editable" data-id="${risk.id}" data-field="mainRisk">${risk.mainRisk || ''}</span></td>
-                    <td><span class="editable" data-id="${risk.id}" data-field="r">${risk.r || ''}</span></td>
-                    <td><span class="editable" data-id="${risk.id}" data-field="a">${risk.a || ''}</span></td>
+                    <td><span class="editable" data-id="${risk.id}" data-field="type">${risk.type}</span></td>
                     <td><span class="editable number-input" data-id="${risk.id}" data-field="probability">${risk.probability}</span></td>
+                    <td><span class="editable number-input" data-id="${risk.id}" data-field="impact">${risk.impact}</span></td>
                     <td><span class="severity-badge ${getSeverityClass(risk.severity)}">${risk.severity}</span></td>
                     <td>
                         <button class="btn-danger" onclick="deleteRisk(${risk.id})">Удалить</button>
@@ -207,7 +155,7 @@ function attachScenarioEditListeners() {
     document.querySelectorAll('.editable-scenario').forEach(el => {
         el.addEventListener('click', function() {
             const oldScenario = this.dataset.scenario;
-            const currentValue = this.textContent.replace('Сценарий: ', '');
+            const currentValue = this.textContent;
 
             const input = document.createElement('input');
             input.type = 'text';
@@ -227,7 +175,7 @@ function attachScenarioEditListeners() {
                             risk.scenario = newScenario;
                         }
                     });
-                    await saveRisksToGitHub();
+                    await saveRisksToServer();
                 }
                 renderTable();
             };
@@ -250,7 +198,7 @@ function attachEditListeners() {
             const currentValue = this.textContent;
 
             const input = document.createElement('input');
-            input.type = field === 'probability' ? 'number' : 'text';
+            input.type = ['probability', 'impact'].includes(field) ? 'number' : 'text';
             input.className = 'editable-input';
             input.value = currentValue;
 
@@ -269,14 +217,11 @@ function attachEditListeners() {
                 if (risk) {
                     if (input.type === 'number') {
                         risk[field] = parseInt(newValue);
-                        // Пересчитываем severity если изменилась вероятность
-                        if (field === 'probability') {
-                            risk.severity = risk.probability * (risk.impact || 4);
-                        }
+                        risk.severity = risk.probability * risk.impact;
                     } else {
                         risk[field] = newValue;
                     }
-                    await saveRisksToGitHub();
+                    await saveRisksToServer();
                     renderTable();
                 }
             };
@@ -306,14 +251,14 @@ function getFilteredRisks() {
     return risks.filter(risk => {
         const matchSearch = risk.scenario.toLowerCase().includes(searchTerm);
         const matchTeam = !teamFilter || risk.teams.includes(teamFilter);
-        const matchType = !typeFilter || (risk.mainRisk && risk.mainRisk.includes(typeFilter));
+        const matchType = !typeFilter || risk.type === typeFilter;
         return matchSearch && matchTeam && matchType;
     });
 }
 
 function updateFilters() {
     const teams = [...new Set(risks.flatMap(r => r.teams.split(',').map(t => t.trim())))];
-    const types = [...new Set(risks.map(r => r.mainRisk).filter(Boolean))];
+    const types = [...new Set(risks.map(r => r.type))];
 
     const teamSelect = document.getElementById('filterTeam');
     const typeSelect = document.getElementById('filterType');
@@ -368,11 +313,11 @@ function addStep() {
             <button type="button" class="btn-danger" onclick="removeStep(${stepCounter})">Удалить шаг</button>
         </div>
         <div class="form-group">
-            <label>Название шага пользователя *</label>
+            <label>Название шага *</label>
             <input type="text" class="step-name" required placeholder="Например: Проверка прав доступа">
         </div>
         <div class="risks-container" id="risks-${stepCounter}">
-            <label style="display: block; margin-bottom: 10px; font-weight: 500; font-size: 15px;">Риски данного шага</label>
+            <label style="display: block; margin-bottom: 10px; font-weight: 500;">Риски</label>
         </div>
         <button type="button" class="btn-secondary" onclick="addRiskToStep(${stepCounter})">+ Добавить риск</button>
     `;
@@ -399,26 +344,22 @@ function addRiskToStep(stepId) {
             <button type="button" class="action-btn" onclick="removeRisk(${riskCounter})">❌</button>
         </div>
         <div class="form-group">
-            <label>Участвующие команды *</label>
+            <label>Команды *</label>
             <input type="text" class="risk-teams" required placeholder="Например: Backend, Frontend">
         </div>
         <div class="form-group">
-            <label>Основной риск *</label>
-            <textarea class="risk-main" required placeholder="Опишите основной риск"></textarea>
+            <label>Тип риска *</label>
+            <input type="text" class="risk-type" required placeholder="Например: Технический">
         </div>
         <div class="form-row">
             <div class="form-group">
-                <label>R</label>
-                <input type="text" class="risk-r" placeholder="R1, R2...">
+                <label>Вероятность (1-5) *</label>
+                <input type="number" class="risk-probability" min="1" max="5" required>
             </div>
             <div class="form-group">
-                <label>A</label>
-                <input type="text" class="risk-a" placeholder="A1, A2...">
+                <label>Влияние (1-5) *</label>
+                <input type="number" class="risk-impact" min="1" max="5" required>
             </div>
-        </div>
-        <div class="form-group">
-            <label>Вероятность риска (1-5) *</label>
-            <input type="number" class="risk-probability" min="1" max="5" required value="3">
         </div>
     `;
     risksContainer.appendChild(riskDiv);
@@ -443,11 +384,9 @@ async function addRisk(event) {
 
         riskItems.forEach(riskItem => {
             const teams = riskItem.querySelector('.risk-teams').value;
-            const mainRisk = riskItem.querySelector('.risk-main').value;
-            const r = riskItem.querySelector('.risk-r').value;
-            const a = riskItem.querySelector('.risk-a').value;
+            const type = riskItem.querySelector('.risk-type').value;
             const probability = parseInt(riskItem.querySelector('.risk-probability').value);
-            const impact = 4; // Базовое значение для расчёта
+            const impact = parseInt(riskItem.querySelector('.risk-impact').value);
             const severity = probability * impact;
 
             const newRisk = {
@@ -455,9 +394,7 @@ async function addRisk(event) {
                 scenario: scenarioName,
                 step: stepName,
                 teams: teams,
-                mainRisk: mainRisk,
-                r: r,
-                a: a,
+                type: type,
                 probability: probability,
                 impact: impact,
                 severity: severity
@@ -467,10 +404,67 @@ async function addRisk(event) {
         });
     });
 
-    await saveRisksToGitHub();
+    await saveRisksToServer();
     renderTable();
     closeModal();
     document.getElementById('riskForm').reset();
 }
 
 async function deleteRisk(id) {
+    if (confirm('Вы уверены, что хотите удалить этот риск?')) {
+        risks = risks.filter(r => r.id !== id);
+        await saveRisksToServer();
+        renderTable();
+    }
+}
+
+function saveToJSON() {
+    const dataStr = JSON.stringify(risks, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `risks_${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+}
+
+function loadFromJSON() {
+    const input = document.getElementById('fileInput');
+    input.click();
+}
+
+// Инициализация при загрузке страницы
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadRisksFromServer();
+    renderTable();
+
+    // Обработчик для загрузки JSON файла
+    const fileInput = document.getElementById('fileInput');
+    fileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                try {
+                    const loadedRisks = JSON.parse(event.target.result);
+                    if (Array.isArray(loadedRisks)) {
+                        risks = loadedRisks;
+                        await saveRisksToServer();
+                        renderTable();
+                        alert('Данные успешно загружены!');
+                    } else {
+                        alert('Неверный формат файла');
+                    }
+                } catch (error) {
+                    alert('Ошибка загрузки файла: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+        fileInput.value = '';
+    });
+
+    // Обработчик кнопки загрузки JSON
+    document.getElementById('loadJSONBtn').addEventListener('click', loadFromJSON);
+});
