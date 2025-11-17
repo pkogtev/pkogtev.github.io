@@ -166,14 +166,14 @@ function renderTable() {
     const filteredRisks = getFilteredRisks();
 
     if (filteredRisks.length === 0) {
-        tbody.innerHTML = `
+        tbody.innerHTML = '
             <tr>
                 <td colspan="8" class="empty-state">
                     <p style="font-size: 18px; margin-bottom: 10px;">Нет данных для отображения</p>
                     <p>Добавьте риски или измените фильтры</p>
                 </td>
             </tr>
-        `;
+        ';
         return;
     }
 
