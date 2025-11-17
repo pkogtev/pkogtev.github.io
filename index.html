@@ -98,6 +98,21 @@
             background: #C0392B;
         }
 
+        .btn-secondary {
+            background: #6B7280;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: #4B5563;
+        }
+
         .filters {
             display: flex;
             gap: 15px;
@@ -172,20 +187,20 @@
             font-size: 14px;
         }
 
-        tr:hover {
+        tbody tr:hover {
             background: #F9FAFB;
         }
 
         .scenario-header {
-            background: #5CAEFF;
-            color: white;
+            background: #5CAEFF !important;
+            color: white !important;
             font-weight: 600;
             font-size: 16px;
             padding: 16px 12px;
         }
 
         .scenario-header:hover {
-            background: #5CAEFF !important;
+            background: #4A9EEF !important;
         }
 
         .editable {
@@ -393,21 +408,6 @@
             margin-top: 10px;
         }
 
-        .btn-secondary {
-            background: #6B7280;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.3s;
-        }
-
-        .btn-secondary:hover {
-            background: #4B5563;
-        }
-
         .modal-footer {
             padding: 20px 30px;
             border-top: 1px solid #E5E7EB;
@@ -419,6 +419,31 @@
         .btn-add-step {
             margin-top: 15px;
             width: 100%;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6B7280;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            font-size: 12px;
+        }
+
+        .action-btn:hover {
+            background: #F4F6F9;
+        }
+
+        .number-input {
+            width: 60px !important;
+            text-align: center;
         }
 
         @media (max-width: 768px) {
@@ -464,60 +489,6 @@
                 padding: 10px 8px;
             }
         }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #6B7280;
-        }
-
-        .empty-state svg {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 8px;
-        }
-
-        .action-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 6px 10px;
-            border-radius: 4px;
-            transition: all 0.2s;
-            font-size: 12px;
-        }
-
-        .action-btn:hover {
-            background: #F4F6F9;
-        }
-
-        .number-input {
-            width: 60px !important;
-            text-align: center;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #6B7280;
-        }
-
-        .loading::after {
-            content: '...';
-            animation: dots 1.5s steps(4, end) infinite;
-        }
-
-        @keyframes dots {
-            0%, 20% { content: '.'; }
-            40% { content: '..'; }
-            60%, 100% { content: '...'; }
-        }
     </style>
 </head>
 <body>
@@ -528,7 +499,7 @@
     <div class="container">
         <div class="controls">
             <button class="btn-primary" onclick="openModal()">+ Добавить риск</button>
-            <button class="btn-success" onclick="downloadJSON()">💾 Скачать JSON</button>
+            <button class="btn-success" onclick="saveToJSON()">💾 Сохранить в JSON</button>
             <button class="btn-secondary" id="loadJSONBtn">📁 Загрузить JSON</button>
             <div class="filters">
                 <div class="filter-group">
@@ -555,8 +526,8 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Шаг</th>
-                            <th>Команды</th>
+                            <th>Шаг пользователя</th>
+                            <th>Участвующие команды</th>
                             <th>Тип риска</th>
                             <th>Вероятность</th>
                             <th>Влияние</th>
@@ -565,9 +536,6 @@
                         </tr>
                     </thead>
                     <tbody id="risksTableBody">
-                        <tr>
-                            <td colspan="7" class="loading">Загрузка данных</td>
-                        </tr>
                     </tbody>
                 </table>
             </div>
