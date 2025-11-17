@@ -13,7 +13,7 @@ const GITHUB_CONFIG = {
     owner: "pkogtev",
     repo: "pkogtev.github.io",
     path: "data/risks.json",
-    token: "YOUR_GITHUB_TOKEN_HERE"  // <-- ВСТАВЬ ТОКЕН
+    token: "YOUR_GITHUB_TOKEN_HERE" // <-- ВСТАВЬ ТОКЕН
 };
 
 const GITHUB_API_URL =
@@ -21,27 +21,44 @@ const GITHUB_API_URL =
 
 
 /* ============================================================================
-    ЗАГРУЗКА ДАННЫХ
+    ЗАГРУЗКА ДАННЫХ ИЗ GITHUB (исправлено!)
 ============================================================================ */
 
 async function loadRisks() {
     try {
         const response = await fetch(GITHUB_API_URL, {
             headers: {
-                "Accept": "application/vnd.github.v3.raw",
-                "Authorization": `Bearer ${GITHUB_CONFIG.token}`
+                "Authorization": `Bearer ${GITHUB_CONFIG.token}`,
+                "Accept": "application/vnd.github+json"
             }
         });
 
-        if (!response.ok) throw new Error("Ошибка загрузки файла");
+        if (!response.ok) {
+            console.error("Ошибка загрузки файла:", response.status);
+            return;
+        }
 
-        risks = await response.json();
+        const data = await response.json();
+
+        if (!data || !data.content) {
+            console.warn("Файл пустой или повреждён.");
+            risks = [];
+            renderTable();
+            return;
+        }
+
+        // GitHub content → base64 → json
+        const decoded = decodeURIComponent(escape(atob(data.content)));
+        risks = JSON.parse(decoded);
+
         renderTable();
         fillFilters();
+
     } catch (e) {
-        console.error(e);
+        console.error("Ошибка loadRisks():", e);
     }
 }
+
 loadRisks();
 
 
@@ -49,35 +66,40 @@ loadRisks();
     СОХРАНЕНИЕ НА GITHUB
 ============================================================================ */
 
-async function saveToGitHub() {
-    const content = btoa(unescape(encodeURIComponent(JSON.stringify(risks, null, 2))));
-    const sha = await getCurrentSHA();
-
-    await fetch(GITHUB_API_URL, {
-        method: "PUT",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${GITHUB_CONFIG.token}`
-        },
-        body: JSON.stringify({
-            message: "Update risks.json",
-            content,
-            sha
-        })
-    });
-}
-
 async function getCurrentSHA() {
     const response = await fetch(GITHUB_API_URL, {
-        headers: {
-            "Authorization": `Bearer ${GITHUB_CONFIG.token}`
-        }
+        headers: { "Authorization": `Bearer ${GITHUB_CONFIG.token}` }
     });
 
-    if (!response.ok) throw new Error("Не удалось получить SHA");
+    if (!response.ok) {
+        throw new Error("Не удалось получить SHA");
+    }
 
     const data = await response.json();
     return data.sha;
+}
+
+async function saveToGitHub() {
+    try {
+        const sha = await getCurrentSHA();
+        const content = btoa(unescape(encodeURIComponent(JSON.stringify(risks, null, 2))));
+
+        await fetch(GITHUB_API_URL, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${GITHUB_CONFIG.token}`
+            },
+            body: JSON.stringify({
+                message: "Update risks.json",
+                content,
+                sha
+            })
+        });
+
+    } catch (e) {
+        console.error("Ошибка сохранения на GitHub:", e);
+    }
 }
 
 
@@ -91,26 +113,26 @@ function renderTable(filtered = null) {
     body.innerHTML = "";
 
     list.forEach(risk => {
-        const severity = risk.probability * risk.impact;
+        const severity = (risk.probability || 0) * (risk.impact || 0);
 
         let sevClass =
             severity <= 5 ? "low" :
             severity <= 10 ? "medium" :
             severity <= 15 ? "high" : "critical";
 
-        const row = document.createElement("tr");
+        const tr = document.createElement("tr");
 
-        row.innerHTML = `
+        tr.innerHTML = `
             <td><input type="checkbox" class="row-check" data-id="${risk.id}"></td>
 
-            <td class="editable" onclick="editField(${risk.id}, 'step')">${risk.step}</td>
-            <td class="editable" onclick="editField(${risk.id}, 'teams')">${risk.teams}</td>
-            <td class="editable" onclick="editField(${risk.id}, 'mainRisk')">${risk.mainRisk}</td>
-            <td class="editable" onclick="editField(${risk.id}, 'r')">${risk.r}</td>
-            <td class="editable" onclick="editField(${risk.id}, 'a')">${risk.a}</td>
+            <td class="editable" onclick="editField(${risk.id}, 'step')">${risk.step || ""}</td>
+            <td class="editable" onclick="editField(${risk.id}, 'teams')">${risk.teams || ""}</td>
+            <td class="editable" onclick="editField(${risk.id}, 'mainRisk')">${risk.mainRisk || ""}</td>
+            <td class="editable" onclick="editField(${risk.id}, 'r')">${risk.r || ""}</td>
+            <td class="editable" onclick="editField(${risk.id}, 'a')">${risk.a || ""}</td>
 
-            <td class="editable" onclick="editNumberField(${risk.id}, 'probability')">${risk.probability}</td>
-            <td class="editable" onclick="editNumberField(${risk.id}, 'impact')">${risk.impact}</td>
+            <td class="editable" onclick="editNumberField(${risk.id}, 'probability')">${risk.probability || 0}</td>
+            <td class="editable" onclick="editNumberField(${risk.id}, 'impact')">${risk.impact || 0}</td>
 
             <td><span class="severity-badge severity-${sevClass}">${severity}</span></td>
 
@@ -119,24 +141,29 @@ function renderTable(filtered = null) {
                     <img class="delete-icon" 
                         src="data:image/svg+xml;utf8,
                         <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='currentColor'>
-                            <path d='M5.5 5.5a.5.5 0 0 1 .5.5v6a.5.5 0 
-                            0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 
-                            0a.5.5 0 0 1 .5.5v6a.5.5 0 
-                            1-1 0V6a.5.5 0 0 1 .5-.5zm-6-2A1.5 
-                            1.5 0 0 1 4 2h8a1.5 1.5 0 0 1 
-                            1.5 1.5V4h-11v-.5z'/>
+                            <path d='M5.5 5.5a.5.5 0 0 1 .5.5v6
+                            a.5.5 0 0 1-1 0V6a.5.5 0 
+                            0 1 .5-.5zm3 0a.5.5 0 0 1 
+                            .5.5v6a.5.5 0 1-1 0V6a.5.5 0 
+                            0 1 .5-.5zm-6-2A1.5 1.5 0 0 1 4 2h8
+                            a1.5 1.5 0 0 1 1.5 1.5V4h-11V3.5z'/>
                         </svg>">
                 </button>
             </td>
         `;
 
-        body.appendChild(row);
+        body.appendChild(tr);
     });
+
+    // если подключён дашборд → обновляем графики
+    if (typeof renderCharts === "function") {
+        renderCharts();
+    }
 }
 
 
 /* ============================================================================
-    INLINE РЕДАКТИРОВАНИЕ
+    INLINE EDIT
 ============================================================================ */
 
 function editField(id, field) {
@@ -144,7 +171,7 @@ function editField(id, field) {
     const td = event.target;
 
     const input = document.createElement("input");
-    input.value = risk[field];
+    input.value = risk[field] || "";
     input.className = "editable-input";
 
     td.replaceWith(input);
@@ -165,7 +192,7 @@ function editNumberField(id, field) {
     input.type = "number";
     input.min = 1;
     input.max = 5;
-    input.value = risk[field];
+    input.value = risk[field] || 0;
     input.className = "editable-input number-input";
 
     td.replaceWith(input);
@@ -173,7 +200,6 @@ function editNumberField(id, field) {
 
     input.addEventListener("blur", () => {
         risk[field] = Number(input.value);
-
         saveToGitHub();
         renderTable();
     });
@@ -181,7 +207,7 @@ function editNumberField(id, field) {
 
 
 /* ============================================================================
-    ДОБАВЛЕНИЕ РИСКА (модалка)
+    МОДАЛКА — ДОБАВЛЕНИЕ
 ============================================================================ */
 
 function openModal() {
@@ -279,8 +305,9 @@ function addRiskItem(btn) {
     list.appendChild(div);
 }
 
+
 /* ============================================================================
-    СОХРАНЕНИЕ РИСКОВ (submit формы)
+    СОХРАНЕНИЕ НОВЫХ РИСКОВ
 ============================================================================ */
 
 function addRisk(e) {
@@ -330,41 +357,43 @@ function fillFilters() {
     const typeSet = new Set();
 
     risks.forEach(r => {
-        r.teams.split(",").map(x => x.trim()).forEach(t => teamSet.add(t));
+        (r.teams || "").split(",").map(x => x.trim()).forEach(t => teamSet.add(t));
         typeSet.add(r.mainRisk);
     });
 
     const teamSelect = document.getElementById("filterTeam");
     const typeSelect = document.getElementById("filterType");
 
+    if (!teamSelect || !typeSelect) return;
+
     teamSelect.innerHTML = `<option value="">Все</option>`;
     typeSelect.innerHTML = `<option value="">Все</option>`;
 
     [...teamSet].forEach(t => {
-        teamSelect.innerHTML += `<option value="${t}">${t}</option>`;
+        if (t) teamSelect.innerHTML += `<option value="${t}">${t}</option>`;
     });
 
     [...typeSet].forEach(t => {
-        typeSelect.innerHTML += `<option value="${t}">${t}</option>`;
+        if (t) typeSelect.innerHTML += `<option value="${t}">${t}</option>`;
     });
 }
 
 function applyFilters() {
     let filtered = [...risks];
 
-    const scenario = document.getElementById("searchScenario").value.toLowerCase();
-    const team = document.getElementById("filterTeam").value;
-    const type = document.getElementById("filterType").value;
+    const scenario = (document.getElementById("searchScenario")?.value || "").toLowerCase();
+    const team = document.getElementById("filterTeam")?.value;
+    const type = document.getElementById("filterType")?.value;
 
     if (scenario) {
         filtered = filtered.filter(r =>
-            r.scenario.toLowerCase().includes(scenario)
+            (r.scenario || "").toLowerCase().includes(scenario)
         );
     }
 
     if (team) {
         filtered = filtered.filter(r =>
-            r.teams.includes(team)
+            (r.teams || "").includes(team)
         );
     }
 
@@ -379,7 +408,7 @@ function applyFilters() {
 
 
 /* ============================================================================
-    УДАЛЕНИЕ (popup)
+    УДАЛЕНИЕ
 ============================================================================ */
 
 function askDelete(id) {
@@ -435,35 +464,40 @@ function toggleSelectAll(source) {
 
 
 /* ============================================================================
-    ИМПОРТ / ЭКСПОРТ JSON
+    ИМПОРТ / ЭКСПОРТ JSON (исправлено!)
 ============================================================================ */
+
+// проверка для избежания ошибок
+const loadBtn = document.getElementById("loadJSONBtn");
+const fileInput = document.getElementById("fileInput");
+
+if (loadBtn && fileInput) {
+    loadBtn.onclick = () => fileInput.click();
+
+    fileInput.addEventListener("change", function () {
+        const file = this.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            risks = JSON.parse(reader.result);
+            renderTable();
+        };
+        reader.readAsText(file);
+    });
+}
 
 function saveToJSON() {
     const blob = new Blob([JSON.stringify(risks, null, 2)], {
         type: "application/json"
     });
-    const url = URL.createObjectURL(blob);
 
+    const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
     a.download = "risks.json";
     a.click();
 }
-
-document.getElementById("loadJSONBtn").onclick = () =>
-    document.getElementById("fileInput").click();
-
-document.getElementById("fileInput").addEventListener("change", function () {
-    const file = this.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = () => {
-        risks = JSON.parse(reader.result);
-        renderTable();
-    };
-    reader.readAsText(file);
-});
 
 
 /* ============================================================================
