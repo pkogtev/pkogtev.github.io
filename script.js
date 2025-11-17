@@ -2,66 +2,79 @@ let risks = [];
 let stepCounter = 0;
 let riskCounter = 0;
 
-// API endpoints
-const API_URL = 'http://localhost:3000/api/risks';
+// GitHub настройки
+const GITHUB_CONFIG = {
+    owner: 'your-username',  // Ваш GitHub username
+    repo: 'risks-matrix',    // Название репозитория
+    branch: 'main',          // Ветка (main или master)
+    path: 'data/risks.json', // Путь к файлу данных
+    token: ''  // GitHub Personal Access Token (оставьте пустым для публичного чтения)
+};
 
-async function loadRisksFromServer() {
+// URL для GitHub API
+const GITHUB_API_URL = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`;
+
+// Для простоты используем raw.githubusercontent.com для чтения
+const RAW_URL = `https://raw.githubusercontent.com/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/${GITHUB_CONFIG.branch}/${GITHUB_CONFIG.path}`;
+
+async function loadRisksFromGitHub() {
     try {
-        const response = await fetch(API_URL);
-        if (!response.ok) throw new Error('Ошибка загрузки данных');
-        risks = await response.json();
-        console.log('Данные загружены с сервера:', risks.length, 'рисков');
-    } catch (error) {
-        console.error('Ошибка загрузки рисков:', error);
-        // Загружаем из localStorage если сервер недоступен
-        const saved = localStorage.getItem('risks');
-        if (saved) {
-            risks = JSON.parse(saved);
+        // Пробуем загрузить из GitHub
+        const response = await fetch(RAW_URL + '?t=' + Date.now()); // добавляем timestamp для обхода кеша
+        
+        if (response.ok) {
+            risks = await response.json();
+            console.log('Данные загружены из GitHub:', risks.length, 'рисков');
         } else {
-            // Начальные данные
-            risks = [
-                {
-                    id: 1,
-                    scenario: "Авторизация пользователя",
-                    step: "Ввод логина и пароля",
-                    teams: "Backend, Frontend",
-                    type: "Технический",
-                    probability: 3,
-                    impact: 4,
-                    severity: 12
-                },
-                {
-                    id: 2,
-                    scenario: "Оплата заказа",
-                    step: "Интеграция с платёжной системой",
-                    teams: "Backend, Payment",
-                    type: "Бизнес",
-                    probability: 4,
-                    impact: 5,
-                    severity: 20
-                },
-                {
-                    id: 3,
-                    scenario: "Оплата заказа",
-                    step: "Обработка ошибок оплаты",
-                    teams: "Backend, Frontend",
-                    type: "Бизнес",
-                    probability: 3,
-                    impact: 5,
-                    severity: 15
-                },
-                {
-                    id: 4,
-                    scenario: "Загрузка файла",
-                    step: "Валидация формата файла",
-                    teams: "Backend, QA",
-                    type: "Безопасность",
-                    probability: 2,
-                    impact: 3,
-                    severity: 6
-                }
-            ];
+            throw new Error('Файл не найден');
         }
+    } catch (error) {
+        console.warn('Не удалось загрузить из GitHub, используем начальные данные:', error);
+        
+        // Начальные данные
+        risks = [
+            {
+                id: 1,
+                scenario: "Авторизация пользователя",
+                step: "Ввод логина и пароля",
+                teams: "Backend, Frontend",
+                type: "Технический",
+                probability: 3,
+                impact: 4,
+                severity: 12
+            },
+            {
+                id: 2,
+                scenario: "Оплата заказа",
+                step: "Интеграция с платёжной системой",
+                teams: "Backend, Payment",
+                type: "Бизнес",
+                probability: 4,
+                impact: 5,
+                severity: 20
+            },
+            {
+                id: 3,
+                scenario: "Оплата заказа",
+                step: "Обработка ошибок оплаты",
+                teams: "Backend, Frontend",
+                type: "Бизнес",
+                probability: 3,
+                impact: 5,
+                severity: 15
+            },
+            {
+                id: 4,
+                scenario: "Загрузка файла",
+                step: "Валидация формата файла",
+                teams: "Backend, QA",
+                type: "Безопасность",
+                probability: 2,
+                impact: 3,
+                severity: 6
+            }
+        ];
+        
         // Сохраняем в localStorage
         saveToLocalStorage();
     }
@@ -69,26 +82,71 @@ async function loadRisksFromServer() {
 
 function saveToLocalStorage() {
     localStorage.setItem('risks', JSON.stringify(risks));
+    console.log('Данные сохранены в localStorage');
 }
 
-async function saveRisksToServer() {
-    try {
-        const response = await fetch(`${API_URL}/bulk`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(risks)
-        });
-        
-        if (!response.ok) throw new Error('Ошибка сохранения данных');
-        
-        const result = await response.json();
-        console.log('Данные сохранены на сервере:', result.message);
-    } catch (error) {
-        console.error('Ошибка сохранения рисков:', error);
-        // Сохраняем локально если сервер недоступен
+function loadFromLocalStorage() {
+    const saved = localStorage.getItem('risks');
+    if (saved) {
+        risks = JSON.parse(saved);
+        console.log('Данные загружены из localStorage');
+        return true;
+    }
+    return false;
+}
+
+async function saveRisksToGitHub() {
+    if (!GITHUB_CONFIG.token) {
+        console.warn('GitHub token не настроен, сохранение только в localStorage');
         saveToLocalStorage();
+        alert('💾 Данные сохранены локально.\n\nДля сохранения в GitHub:\n1. Создайте Personal Access Token\n2. Добавьте его в GITHUB_CONFIG.token');
+        return;
+    }
+
+    try {
+        // Получаем текущий SHA файла (нужен для обновления)
+        const getResponse = await fetch(GITHUB_API_URL, {
+            headers: {
+                'Authorization': `token ${GITHUB_CONFIG.token}`,
+                'Accept': 'application/vnd.github.v3+json'
+            }
+        });
+
+        let sha = null;
+        if (getResponse.ok) {
+            const data = await getResponse.json();
+            sha = data.sha;
+        }
+
+        // Конвертируем данные в base64
+        const content = btoa(unescape(encodeURIComponent(JSON.stringify(risks, null, 2))));
+
+        // Создаем или обновляем файл
+        const updateResponse = await fetch(GITHUB_API_URL, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `token ${GITHUB_CONFIG.token}`,
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                message: `Update risks data - ${new Date().toISOString()}`,
+                content: content,
+                sha: sha,
+                branch: GITHUB_CONFIG.branch
+            })
+        });
+
+        if (updateResponse.ok) {
+            console.log('✅ Данные успешно сохранены в GitHub');
+            saveToLocalStorage(); // Дублируем в localStorage
+        } else {
+            throw new Error('Ошибка сохранения в GitHub');
+        }
+    } catch (error) {
+        console.error('Ошибка сохранения в GitHub:', error);
+        saveToLocalStorage(); // Сохраняем хотя бы локально
+        alert('⚠️ Не удалось сохранить в GitHub, данные сохранены локально');
     }
 }
 
@@ -175,7 +233,7 @@ function attachScenarioEditListeners() {
                             risk.scenario = newScenario;
                         }
                     });
-                    await saveRisksToServer();
+                    await saveRisksToGitHub();
                 }
                 renderTable();
             };
@@ -193,7 +251,7 @@ function attachScenarioEditListeners() {
 function attachEditListeners() {
     document.querySelectorAll('.editable').forEach(el => {
         el.addEventListener('click', function() {
-            const id = parseFloat(this.dataset.id);
+            const id = parseInt(this.dataset.id);
             const field = this.dataset.field;
             const currentValue = this.textContent;
 
@@ -221,7 +279,7 @@ function attachEditListeners() {
                     } else {
                         risk[field] = newValue;
                     }
-                    await saveRisksToServer();
+                    await saveRisksToGitHub();
                     renderTable();
                 }
             };
@@ -404,7 +462,7 @@ async function addRisk(event) {
         });
     });
 
-    await saveRisksToServer();
+    await saveRisksToGitHub();
     renderTable();
     closeModal();
     document.getElementById('riskForm').reset();
@@ -413,12 +471,12 @@ async function addRisk(event) {
 async function deleteRisk(id) {
     if (confirm('Вы уверены, что хотите удалить этот риск?')) {
         risks = risks.filter(r => r.id !== id);
-        await saveRisksToServer();
+        await saveRisksToGitHub();
         renderTable();
     }
 }
 
-function saveToJSON() {
+function downloadJSON() {
     const dataStr = JSON.stringify(risks, null, 2);
     const dataBlob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(dataBlob);
@@ -434,9 +492,28 @@ function loadFromJSON() {
     input.click();
 }
 
+async function syncWithGitHub() {
+    const btn = event.target;
+    btn.disabled = true;
+    btn.textContent = '🔄 Синхронизация...';
+    
+    await loadRisksFromGitHub();
+    renderTable();
+    
+    btn.disabled = false;
+    btn.textContent = '🔄 Синхронизировать';
+}
+
 // Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', async () => {
-    await loadRisksFromServer();
+    // Сначала пробуем загрузить из localStorage (быстро)
+    const hasLocal = loadFromLocalStorage();
+    if (hasLocal) {
+        renderTable();
+    }
+    
+    // Затем пробуем обновить из GitHub (медленнее)
+    await loadRisksFromGitHub();
     renderTable();
 
     // Обработчик для загрузки JSON файла
@@ -450,7 +527,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const loadedRisks = JSON.parse(event.target.result);
                     if (Array.isArray(loadedRisks)) {
                         risks = loadedRisks;
-                        await saveRisksToServer();
+                        await saveRisksToGitHub();
                         renderTable();
                         alert('Данные успешно загружены!');
                     } else {
