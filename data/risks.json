@@ -22,5 +22,15 @@
     "probability": 3,
     "severity": 12,
     "impact": 3
+  },
+  {
+    "id": 1763377300123.9531,
+    "scenario": "2",
+    "step": "3",
+    "teams": "2",
+    "type": "1",
+    "probability": 2,
+    "impact": 3,
+    "severity": 6
   }
 ]
