@@ -364,3 +364,78 @@ function toggleSelectAll(source) {
         .querySelectorAll(".row-check")
         .forEach(cb => (cb.checked = source.checked));
 }
+/* ============================================================================
+    MODAL FUNCTIONS (MISSING EARLIER)
+============================================================================ */
+
+function openModal() {
+    document.getElementById("modalOverlay").classList.add("active");
+    document.getElementById("riskForm").reset();
+    document.getElementById("stepsContainer").innerHTML = "";
+    addStep(); // добавить первый шаг
+}
+
+function closeModal() {
+    document.getElementById("modalOverlay").classList.remove("active");
+}
+
+function closeModalOnOverlay(e) {
+    if (e.target.id === "modalOverlay") {
+        closeModal();
+    }
+}
+
+/* ============================================================================
+    ADD STEP / ADD RISK BLOCKS
+============================================================================ */
+
+function addStep() {
+    const container = document.getElementById("stepsContainer");
+
+    const stepId = "step_" + Date.now();
+
+    const block = document.createElement("div");
+    block.className = "step-item";
+    block.style.marginBottom = "20px";
+    block.innerHTML = `
+        <div class="form-group">
+            <label>Шаг сценария</label>
+            <input type="text" class="step-name" required placeholder="Например: Ввод логина">
+        </div>
+
+        <div class="risk-item" style="padding-left: 10px; border-left: 2px solid rgba(255,255,255,0.4); margin-bottom: 15px;">
+            <div class="form-group">
+                <label>Команды</label>
+                <input type="text" class="risk-teams" required placeholder="Backend, Frontend">
+            </div>
+
+            <div class="form-group">
+                <label>Основной риск</label>
+                <input type="text" class="risk-main" required placeholder="Ошибка отображения">
+            </div>
+
+            <div class="form-group">
+                <label>R</label>
+                <input type="text" class="risk-r" required placeholder="R1">
+            </div>
+
+            <div class="form-group">
+                <label>A</label>
+                <input type="text" class="risk-a" required placeholder="A1">
+            </div>
+
+            <div class="form-group">
+                <label>Вероятность (1–5)</label>
+                <input type="number" class="risk-probability" min="1" max="5" value="3" required>
+            </div>
+
+            <div class="form-group">
+                <label>Влияние (1–5)</label>
+                <input type="number" class="risk-impact" min="1" max="5" value="3" required>
+            </div>
+        </div>
+    `;
+
+    container.appendChild(block);
+}
+
