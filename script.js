@@ -23,6 +23,12 @@ const GITHUB_CONFIG = {
     token: "YOUR_GITHUB_TOKEN_HERE" // <-- ВСТАВЬ ТОКЕН
 };
 
+const token = localStorage.getItem('github_token') || prompt('Введите GitHub Token:');
+if (token) {
+    localStorage.setItem('github_token', token);
+    GITHUB_CONFIG.token = token;
+}
+
 const GITHUB_API_URL =
     `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`;
 
