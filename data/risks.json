@@ -10,5 +10,16 @@
     "probability": 3,
     "impact": 4,
     "severity": 12
+  },
+  {
+    "id": 1763390511294.455,
+    "scenario": "222",
+    "step": "123",
+    "teams": "123",
+    "mainRisk": "123",
+    "r": "123",
+    "a": "123",
+    "probability": 3,
+    "impact": 3
   }
 ]
