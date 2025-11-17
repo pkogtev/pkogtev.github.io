@@ -13,16 +13,16 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: #f0f4f8;
+            background: #fdf0d5;
             color: #333333;
             line-height: 1.6;
         }
 
         .header {
-            background: linear-gradient(135deg, #a8d8ea 0%, #aa96da 100%);
-            color: #4a4a4a;
+            background: linear-gradient(135deg, #669bbc 0%, #85a8c9 100%);
+            color: white;
             padding: 40px 30px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             position: relative;
             overflow: hidden;
         }
@@ -34,18 +34,18 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
             animation: pulse 15s ease-in-out infinite;
         }
 
         @keyframes pulse {
             0%, 100% {
                 transform: translate(0, 0) scale(1);
-                opacity: 0.3;
+                opacity: 0.2;
             }
             50% {
                 transform: translate(10%, 10%) scale(1.1);
-                opacity: 0.5;
+                opacity: 0.3;
             }
         }
 
@@ -78,15 +78,15 @@
             font-size: 36px;
             font-weight: 700;
             letter-spacing: -0.5px;
-            color: #2c3e50;
+            color: white;
         }
 
         .header-subtitle {
             font-size: 15px;
-            opacity: 0.8;
+            opacity: 0.9;
             margin-top: 8px;
             font-weight: 400;
-            color: #34495e;
+            color: rgba(255, 255, 255, 0.9);
         }
 
         .container {
@@ -101,7 +101,7 @@
             border-radius: 16px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.05);
             margin-bottom: 25px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid rgba(102, 155, 188, 0.1);
         }
 
         .controls-row {
@@ -134,50 +134,50 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #a8d8ea 0%, #aa96da 100%);
-            color: #2c3e50;
+            background: linear-gradient(135deg, #669bbc 0%, #85a8c9 100%);
+            color: white;
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(168, 216, 234, 0.3);
+            box-shadow: 0 6px 15px rgba(102, 155, 188, 0.3);
         }
 
         .btn-success {
-            background: linear-gradient(135deg, #d4f1f4 0%, #a8e8e5 100%);
-            color: #2c3e50;
+            background: linear-gradient(135deg, #8ac926 0%, #a3d944 100%);
+            color: white;
         }
 
         .btn-success:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(212, 241, 244, 0.3);
+            box-shadow: 0 6px 15px rgba(138, 201, 38, 0.3);
         }
 
         .btn-secondary {
-            background: linear-gradient(135deg, #f0e6f6 0%, #d9d0e6 100%);
-            color: #2c3e50;
+            background: linear-gradient(135deg, #bc4749 0%, #d16666 100%);
+            color: white;
         }
 
         .btn-secondary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(240, 230, 246, 0.3);
+            box-shadow: 0 6px 15px rgba(188, 71, 73, 0.3);
         }
 
         .btn-danger {
-            background: linear-gradient(135deg, #f8c4d0 0%, #f4a6b4 100%);
-            color: #2c3e50;
+            background: linear-gradient(135deg, #bc4749 0%, #d16666 100%);
+            color: white;
             padding: 8px 16px;
             font-size: 13px;
         }
 
         .btn-danger:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(248, 196, 208, 0.3);
+            box-shadow: 0 4px 12px rgba(188, 71, 73, 0.3);
         }
 
         .btn-edit {
-            background: linear-gradient(135deg, #fce3ce 0%, #f9d5b3 100%);
-            color: #2c3e50;
+            background: linear-gradient(135deg, #f4a261 0%, #e76f51 100%);
+            color: white;
             padding: 8px 16px;
             font-size: 13px;
             margin-right: 5px;
@@ -185,7 +185,7 @@
 
         .btn-edit:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(252, 227, 206, 0.3);
+            box-shadow: 0 4px 12px rgba(244, 162, 97, 0.3);
         }
 
         .input-group {
@@ -199,7 +199,7 @@
         select,
         textarea {
             padding: 12px 16px;
-            border: 2px solid #e2e8f0;
+            border: 2px solid #e9ecef;
             border-radius: 10px;
             font-size: 14px;
             transition: all 0.3s ease;
@@ -212,8 +212,8 @@
         select:focus,
         textarea:focus {
             outline: none;
-            border-color: #a8d8ea;
-            box-shadow: 0 0 0 3px rgba(168, 216, 234, 0.2);
+            border-color: #669bbc;
+            box-shadow: 0 0 0 3px rgba(102, 155, 188, 0.2);
         }
 
         .table-container {
@@ -221,7 +221,7 @@
             border-radius: 16px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.05);
             overflow: hidden;
-            border: 1px solid #e2e8f0;
+            border: 1px solid rgba(102, 155, 188, 0.1);
         }
 
         .table-wrapper {
@@ -235,8 +235,8 @@
         }
 
         thead {
-            background: linear-gradient(135deg, #d6e4f0 0%, #c3d3e8 100%);
-            color: #2c3e50;
+            background: linear-gradient(135deg, #669bbc 0%, #85a8c9 100%);
+            color: white;
         }
 
         th {
@@ -261,12 +261,12 @@
         }
 
         tbody tr:hover {
-            background: #f8fafc;
+            background: rgba(102, 155, 188, 0.05);
             transform: scale(1.001);
         }
 
         .scenario-row {
-            background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
+            background: linear-gradient(135deg, #e9f0f7 0%, #d4e1ed 100%);
             font-weight: 700;
             color: #2d3748;
         }
@@ -278,7 +278,7 @@
         }
 
         .scenario-row:hover {
-            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e0 100%);
+            background: linear-gradient(135deg, #d4e1ed 0%, #c1d2e3 100%);
         }
 
         .step-row td:first-child {
@@ -303,7 +303,7 @@
         }
 
         .editable:hover {
-            background: linear-gradient(135deg, #f0f9ff 0%, #e6f4ff 100%);
+            background: rgba(102, 155, 188, 0.1);
         }
 
         .editable input,
@@ -311,7 +311,7 @@
         .editable textarea {
             width: 100%;
             padding: 8px 12px;
-            border: 2px solid #a8d8ea;
+            border: 2px solid #669bbc;
             border-radius: 8px;
             font-size: 14px;
             min-width: auto;
@@ -410,8 +410,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: linear-gradient(135deg, #d6e4f0 0%, #c3d3e8 100%);
-            color: #2c3e50;
+            background: linear-gradient(135deg, #669bbc 0%, #85a8c9 100%);
+            color: white;
             border-radius: 20px 20px 0 0;
         }
 
@@ -421,10 +421,10 @@
         }
 
         .close-btn {
-            background: rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.2);
             border: none;
             font-size: 28px;
-            color: #2c3e50;
+            color: white;
             cursor: pointer;
             padding: 0;
             width: 40px;
@@ -437,7 +437,7 @@
         }
 
         .close-btn:hover {
-            background: rgba(255,255,255,0.5);
+            background: rgba(255,255,255,0.3);
             transform: rotate(90deg);
         }
 
@@ -462,7 +462,7 @@
         .form-group textarea {
             width: 100%;
             padding: 12px 16px;
-            border: 2px solid #e2e8f0;
+            border: 2px solid #e9ecef;
             border-radius: 10px;
             font-size: 14px;
             font-family: inherit;
@@ -478,8 +478,8 @@
         .form-group select:focus,
         .form-group textarea:focus {
             outline: none;
-            border-color: #a8d8ea;
-            box-shadow: 0 0 0 3px rgba(168, 216, 234, 0.2);
+            border-color: #669bbc;
+            box-shadow: 0 0 0 3px rgba(102, 155, 188, 0.2);
         }
 
         .steps-container {
@@ -496,8 +496,8 @@
         }
 
         .step-item:hover {
-            border-color: #a8d8ea;
-            box-shadow: 0 4px 12px rgba(168, 216, 234, 0.1);
+            border-color: #669bbc;
+            box-shadow: 0 4px 12px rgba(102, 155, 188, 0.1);
         }
 
         .step-header {
@@ -509,16 +509,16 @@
 
         .step-number {
             font-weight: 700;
-            background: linear-gradient(135deg, #a8d8ea 0%, #aa96da 100%);
-            color: #2c3e50;
+            background: linear-gradient(135deg, #669bbc 0%, #85a8c9 100%);
+            color: white;
             padding: 8px 16px;
             border-radius: 20px;
             font-size: 14px;
         }
 
         .btn-remove {
-            background: linear-gradient(135deg, #f8c4d0 0%, #f4a6b4 100%);
-            color: #2c3e50;
+            background: linear-gradient(135deg, #bc4749 0%, #d16666 100%);
+            color: white;
             padding: 8px 16px;
             border-radius: 8px;
             border: none;
@@ -530,14 +530,14 @@
 
         .btn-remove:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(248, 196, 208, 0.3);
+            box-shadow: 0 4px 12px rgba(188, 71, 73, 0.3);
         }
 
         .btn-add-step {
             width: 100%;
             padding: 16px;
             background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-            border: 2px dashed #a8d8ea;
+            border: 2px dashed #669bbc;
             border-radius: 12px;
             color: #2c3e50;
             cursor: pointer;
@@ -548,9 +548,9 @@
 
         .btn-add-step:hover {
             background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
-            border-color: #78c5e7;
+            border-color: #4a7ba7;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(168, 216, 234, 0.2);
+            box-shadow: 0 4px 12px rgba(102, 155, 188, 0.2);
         }
 
         .modal-footer {
