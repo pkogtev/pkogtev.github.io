@@ -1,52 +1,98 @@
+// script.js (исправленная версия под старый формат данных)
+// Поддерживает формат:
+// {
+//   id, scenario, step, teams, mainRisk, r, a, probability, impact, severity
+// }
+
 let risks = [];
 let stepCounter = 0;
 let riskCounter = 0;
 
 // GitHub настройки
 const GITHUB_CONFIG = {
-    owner: 'pkogtev', // Ваш GitHub username
-    repo: 'pkogtev.github.io', // Название репозитория
-    branch: 'main', // Ветка (main или master)
+    owner: 'pkogtev',  // Ваш GitHub username
+    repo: 'pkogtev.github.io',    // Название репозитория
+    branch: 'main',          // Ветка (main или master)
     path: 'data/risks.json', // Путь к файлу данных
-    token: '' // GitHub Personal Access Token (оставьте пустым для публичного чтения)
+    token: ''  // GitHub Personal Access Token (оставьте пустым для публичного чтения)
 };
 
-// При первом запуске введите токен
-const token = localStorage.getItem('github_token') || prompt('Введите GitHub Token:');
-if (token) {
-    localStorage.setItem('github_token', token);
-    GITHUB_CONFIG.token = token;
+// При первом запуске просим токен (если его нет в localStorage)
+const storedToken = localStorage.getItem('github_token') || '';
+if (!storedToken) {
+    // не показываем prompt автоматически если уже установлен токен в коде
+    // но если в localStorage нет — спрашиваем один раз
+    const tokenPrompt = prompt('Введите GitHub Personal Access Token (оставьте пустым для только чтения):') || '';
+    if (tokenPrompt) {
+        localStorage.setItem('github_token', tokenPrompt);
+        GITHUB_CONFIG.token = tokenPrompt;
+    } else if (storedToken) {
+        GITHUB_CONFIG.token = storedToken;
+    }
+} else {
+    GITHUB_CONFIG.token = storedToken;
 }
 
-// URL для GitHub API
+// API URL
 const GITHUB_API_URL = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`;
-
-// Для простоты используем raw.githubusercontent.com для чтения
+// raw URL kept only as fallback (но мы предпочитаем API)
 const RAW_URL = `https://raw.githubusercontent.com/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/${GITHUB_CONFIG.branch}/${GITHUB_CONFIG.path}`;
+
+function saveToLocalStorage() {
+    try {
+        localStorage.setItem('risks', JSON.stringify(risks));
+        console.log('Данные сохранены в localStorage');
+    } catch (e) {
+        console.error('Ошибка сохранения в localStorage', e);
+    }
+}
+
+function loadFromLocalStorage() {
+    try {
+        const saved = localStorage.getItem('risks');
+        if (saved) {
+            risks = JSON.parse(saved);
+            console.log('Данные загружены из localStorage');
+            return true;
+        }
+    } catch (e) {
+        console.warn('Ошибка чтения localStorage', e);
+    }
+    return false;
+}
 
 async function loadRisksFromGitHub() {
     try {
-        // Пробуем загрузить из GitHub
-        const response = await fetch(GITHUB_API_URL, {
-    headers: {
-        'Accept': 'application/vnd.github.v3.raw',
-        'Authorization': `Bearer ${GITHUB_CONFIG.token}`
-    }
-}); // добавляем timestamp для обхода кеша
+        // используем GitHub API, Accept: raw — чтобы получить свежий контент и избежать CDN-кэша
+        const headers = { 'Accept': 'application/vnd.github.v3.raw' };
+        if (GITHUB_CONFIG.token) headers['Authorization'] = `Bearer ${GITHUB_CONFIG.token}`;
+
+        const response = await fetch(GITHUB_API_URL + '?t=' + Date.now(), { headers });
 
         if (response.ok) {
-            risks = await response.json();
-            console.log('Данные загружены из GitHub:', risks.length, 'рисков');
+            const text = await response.text();
+            // Пытаемся распарсить как JSON
+            const parsed = JSON.parse(text);
+            if (Array.isArray(parsed)) {
+                risks = parsed;
+                console.log('Данные загружены из GitHub:', risks.length, 'рисков');
+                saveToLocalStorage();
+                return;
+            } else {
+                console.warn('Формат данных из GitHub не массив, используем локальные данные');
+            }
         } else {
-            throw new Error('Файл не найден');
+            console.warn('Не удалось загрузить из GitHub, статус:', response.status);
         }
     } catch (error) {
-        console.warn('Не удалось загрузить из GitHub, используем начальные данные:', error);
+        console.warn('Ошибка при загрузке из GitHub:', error);
+    }
 
-        // Начальные данные
+    // fallback: если нет данных из GitHub и нет localStorage — используем demo-набор
+    if (!loadFromLocalStorage()) {
         risks = [
             {
-                id: 1,
+                id: Date.now() + Math.random(),
                 scenario: "Авторизация пользователя",
                 step: "Ввод логина и пароля",
                 teams: "Backend, Frontend",
@@ -54,10 +100,11 @@ async function loadRisksFromGitHub() {
                 r: "R1",
                 a: "A1",
                 probability: 3,
+                impact: 4,
                 severity: 12
             },
             {
-                id: 2,
+                id: Date.now() + Math.random(),
                 scenario: "Оплата заказа",
                 step: "Интеграция с платёжной системой",
                 teams: "Backend, Payment",
@@ -65,256 +112,115 @@ async function loadRisksFromGitHub() {
                 r: "R2",
                 a: "A2",
                 probability: 4,
+                impact: 5,
                 severity: 20
-            },
-            {
-                id: 3,
-                scenario: "Оплата заказа",
-                step: "Обработка ошибок оплаты",
-                teams: "Backend, Frontend",
-                mainRisk: "Некорректное отображение ошибки",
-                r: "R3",
-                a: "A3",
-                probability: 3,
-                severity: 15
-            },
-            {
-                id: 4,
-                scenario: "Загрузка файла",
-                step: "Валидация формата файла",
-                teams: "Backend, QA",
-                mainRisk: "Загрузка вредоносного файла",
-                r: "R4",
-                a: "A4",
-                probability: 2,
-                severity: 8
             }
         ];
-
-        // Сохраняем в localStorage
         saveToLocalStorage();
     }
 }
 
-function saveToLocalStorage() {
-    localStorage.setItem('risks', JSON.stringify(risks));
-    console.log('Данные сохранены в localStorage');
-}
+async function getFileShaFromGitHub() {
+    try {
+        const headers = { 'Accept': 'application/vnd.github.v3+json' };
+        if (GITHUB_CONFIG.token) headers['Authorization'] = `Bearer ${GITHUB_CONFIG.token}`;
 
-function loadFromLocalStorage() {
-    const saved = localStorage.getItem('risks');
-    if (saved) {
-        risks = JSON.parse(saved);
-        console.log('Данные загружены из localStorage');
-        return true;
+        const resp = await fetch(GITHUB_API_URL, { headers });
+        if (resp.ok) {
+            const data = await resp.json();
+            return data.sha || null;
+        } else if (resp.status === 404) {
+            return null; // файла нет - создадим
+        } else {
+            console.warn('Не удалось получить SHA файла, статус:', resp.status);
+            return null;
+        }
+    } catch (e) {
+        console.error('Ошибка получения SHA файла', e);
+        return null;
     }
-    return false;
 }
 
 async function saveRisksToGitHub() {
+    // Всегда сначала сохраняем в localStorage
+    saveToLocalStorage();
+
+    // Если токен не задан — сохраняем только локально и информируем
     if (!GITHUB_CONFIG.token) {
-        console.warn('GitHub token не настроен, сохранение только в localStorage');
-        saveToLocalStorage();
-        alert('💾 Данные сохранены локально.\n\nДля сохранения в GitHub:\n1. Создайте Personal Access Token\n2. Добавьте его в GITHUB_CONFIG.token');
+        console.warn('GitHub token не настроен — сохранение только в localStorage');
         return;
     }
 
     try {
-        // Получаем текущий SHA файла (нужен для обновления)
-        const getResponse = await fetch(GITHUB_API_URL, {
-            headers: {
-                'Authorization': `Bearer ${GITHUB_CONFIG.token}`,
-                'Accept': 'application/vnd.github.v3+json'
-            }
-        });
+        const sha = await getFileShaFromGitHub();
 
-        let sha = null;
-        if (getResponse.ok) {
-            const data = await getResponse.json();
-            sha = data.sha;
-        }
+        // Подготавливаем контент
+        const contentStr = JSON.stringify(risks, null, 2);
+        // base64 encode (utf-8 safe)
+        const contentBase64 = btoa(unescape(encodeURIComponent(contentStr)));
 
-        // Конвертируем данные в base64
-        const content = btoa(unescape(encodeURIComponent(JSON.stringify(risks, null, 2))));
+        const body = {
+            message: `Update risks data - ${new Date().toISOString()}`,
+            content: contentBase64,
+            branch: GITHUB_CONFIG.branch
+        };
+        if (sha) body.sha = sha;
 
-        // Создаём или обновляем файл
-        const updateResponse = await fetch(GITHUB_API_URL, {
+        const resp = await fetch(GITHUB_API_URL, {
             method: 'PUT',
             headers: {
-                'Authorization': `token ${GITHUB_CONFIG.token}`,
+                'Authorization': `Bearer ${GITHUB_CONFIG.token}`,
                 'Accept': 'application/vnd.github.v3+json',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                message: `Update risks data - ${new Date().toISOString()}`,
-                content: content,
-                sha: sha,
-                branch: GITHUB_CONFIG.branch
-            })
+            body: JSON.stringify(body)
         });
 
-        if (updateResponse.ok) {
+        if (resp.ok) {
             console.log('✅ Данные успешно сохранены в GitHub');
-            saveToLocalStorage(); // Дублируем в localStorage
+            // обновим localStorage на случай, если GitHub привёл файл к другому формату
+            saveToLocalStorage();
         } else {
-            throw new Error('Ошибка сохранения в GitHub');
+            const text = await resp.text();
+            throw new Error(`GitHub save failed: ${resp.status} ${text}`);
         }
     } catch (error) {
         console.error('Ошибка сохранения в GitHub:', error);
-        saveToLocalStorage(); // Сохраняем хотя бы локально
-        alert('⚠️ Не удалось сохранить в GitHub, данные сохранены локально');
+        alert('⚠️ Не удалось сохранить в GitHub. Данные сохранены локально.');
     }
 }
 
-function renderTable() {
-    const tbody = document.getElementById('risksTableBody');
-    const filteredRisks = getFilteredRisks();
-
-    if (filteredRisks.length === 0) {
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="8" class="empty-state">
-                    <p style="font-size: 18px; margin-bottom: 10px;">Нет данных для отображения</p>
-                    <p>Добавьте риски или измените фильтры</p>
-                </td>
-            </tr>
-        `;
-        return;
-    }
-
-    // Группируем риски по сценариям
-    const groupedRisks = {};
-    filteredRisks.forEach(risk => {
-        if (!groupedRisks[risk.scenario]) {
-            groupedRisks[risk.scenario] = [];
-        }
-        groupedRisks[risk.scenario].push(risk);
-    });
-
-    // Формируем HTML
-    let html = '';
-    for (const [scenario, scenarioRisks] of Object.entries(groupedRisks)) {
-        html += `
-            <tr class="scenario-header">
-                <td colspan="8">
-                    <span class="editable-scenario" data-scenario="${scenario}">${scenario}</span>
-                </td>
-            </tr>
-        `;
-
-        scenarioRisks.forEach(risk => {
-            html += `
-                <tr>
-                    <td><span class="editable" data-id="${risk.id}" data-field="step">${risk.step}</span></td>
-                    <td><span class="editable" data-id="${risk.id}" data-field="teams">${risk.teams}</span></td>
-                    <td><span class="editable" data-id="${risk.id}" data-field="mainRisk">${risk.mainRisk}</span></td>
-                    <td><span class="editable" data-id="${risk.id}" data-field="r">${risk.r}</span></td>
-                    <td><span class="editable" data-id="${risk.id}" data-field="a">${risk.a}</span></td>
-                    <td><span class="editable number-input" data-id="${risk.id}" data-field="probability">${risk.probability}</span></td>
-                    <td><span class="severity-badge ${getSeverityClass(risk.severity)}">${risk.severity}</span></td>
-                    <td>
-                        <button class="btn-danger" onclick="deleteRisk(${risk.id})">Удалить</button>
-                    </td>
-                </tr>
-            `;
-        });
-    }
-
-    tbody.innerHTML = html;
-    attachEditListeners();
-    attachScenarioEditListeners();
-    updateFilters();
+function ensureUniqueId() {
+    let id;
+    do {
+        id = Date.now() + Math.random();
+    } while (risks.some(r => r.id === id));
+    return id;
 }
 
-function attachScenarioEditListeners() {
-    document.querySelectorAll('.editable-scenario').forEach(el => {
-        el.addEventListener('click', function() {
-            const oldScenario = this.dataset.scenario;
-            const currentValue = this.textContent;
+/* ----------------- Rendering / Table ----------------- */
+function getSeverityClass(severity) {
+    if (severity === null || severity === undefined) return 'severity-medium';
+    if (severity <= 5) return 'severity-low';
+    if (severity <= 12) return 'severity-medium';
+    if (severity <= 20) return 'severity-high';
+    return 'severity-critical';
+}
 
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.className = 'editable-input';
-            input.value = currentValue;
-            input.style.fontSize = '16px';
-            input.style.fontWeight = '600';
+function getFilteredRisks() {
+    const searchTerm = (document.getElementById('searchScenario')?.value || '').toLowerCase();
+    const teamFilter = document.getElementById('filterTeam')?.value || '';
+    const typeFilter = document.getElementById('filterType')?.value || '';
 
-            this.replaceWith(input);
-            input.focus();
-
-            const saveEdit = async () => {
-                const newScenario = input.value.trim();
-                if (newScenario && newScenario !== oldScenario) {
-                    risks.forEach(risk => {
-                        if (risk.scenario === oldScenario) {
-                            risk.scenario = newScenario;
-                        }
-                    });
-                    await saveRisksToGitHub();
-                }
-                renderTable();
-            };
-
-            input.addEventListener('blur', saveEdit);
-            input.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    saveEdit();
-                }
-            });
-        });
+    return risks.filter(risk => {
+        const matchSearch = (risk.scenario || '').toLowerCase().includes(searchTerm);
+        const matchTeam = !teamFilter || (risk.teams || '').includes(teamFilter);
+        // typeFilter in old format may be absent; skip if none
+        const matchType = !typeFilter || (risk.type === typeFilter);
+        return matchSearch && matchTeam && matchType;
     });
 }
 
-function attachEditListeners() {
-    document.querySelectorAll('.editable').forEach(el => {
-        el.addEventListener('click', function() {
-            const id = parseInt(this.dataset.id);
-            const field = this.dataset.field;
-            const currentValue = this.textContent;
-
-            const input = document.createElement('input');
-            input.type = ['probability', 'impact'].includes(field) ? 'number' : 'text';
-            input.className = 'editable-input';
-            input.value = currentValue;
-
-            if (input.type === 'number') {
-                input.min = 1;
-                input.max = 5;
-            }
-
-            this.replaceWith(input);
-            input.focus();
-
-            const saveEdit = async () => {
-                const newValue = input.value;
-                const risk = risks.find(r => r.id === id);
-
-                if (risk) {
-                    if (input.type === 'number') {
-                        risk[field] = parseInt(newValue);
-                        risk.severity = risk.probability * risk.impact;
-                    } else {
-                        risk[field] = newValue;
-                    }
-                    await saveRisksToGitHub();
-                    renderTable();
-                }
-            };
-
-            input.addEventListener('blur', saveEdit);
-            input.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    saveEdit();
-                }
-            });
-        });
-    });
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    loadRisksFromGitHub().then(() => {
-        renderTable();
-    }).catch(error => {
-        console.error('Ошибка при инициализации:', error);
-    });
-});
+function updateFilters() {
+    // teams: split by comma in each risk
+    const teams = [...new Set(risks.flatMap(r => (]()
