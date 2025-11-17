@@ -8,8 +8,8 @@
     "r": "R1",
     "a": "A1",
     "probability": 3,
-    "severity": 3,
-    "impact": 1
+    "severity": 9,
+    "impact": 3
   },
   {
     "id": 1,
