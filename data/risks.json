@@ -46,5 +46,17 @@
     "probability": 2,
     "impact": 4,
     "severity": 8
+  },
+  {
+    "id": 1763378922278.157,
+    "scenario": "2",
+    "step": "3",
+    "teams": "1",
+    "mainRisk": "2",
+    "r": "4",
+    "a": "4",
+    "probability": 2,
+    "impact": 1,
+    "severity": 2
   }
 ]
