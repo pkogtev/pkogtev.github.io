@@ -12,13 +12,21 @@ window.onload = function() {
     document.addEventListener('click', function(e) {
         if (!e.target.closest('.dropdown')) {
             document.getElementById('exportDropdown').classList.remove('show');
+            document.getElementById('importDropdown').classList.remove('show');
         }
     });
 };
 
 function toggleExportDropdown() {
     event.stopPropagation();
+    document.getElementById('importDropdown').classList.remove('show');
     document.getElementById('exportDropdown').classList.toggle('show');
+}
+
+function toggleImportDropdown() {
+    event.stopPropagation();
+    document.getElementById('exportDropdown').classList.remove('show');
+    document.getElementById('importDropdown').classList.toggle('show');
 }
 
 function openModal(index = -1) {
@@ -495,6 +503,140 @@ function exportToCSV() {
     document.getElementById('exportDropdown').classList.remove('show');
 }
 
+function importFromCSV(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const text = e.target.result;
+            const lines = text.split('\n');
+            
+            // Пропускаем BOM если есть
+            let startIndex = 0;
+            if (lines[0].charCodeAt(0) === 0xFEFF) {
+                lines[0] = lines[0].substring(1);
+            }
+            
+            // Проверяем заголовок
+            const header = lines[0].toLowerCase();
+            if (!header.includes('сценарий') || !header.includes('шаг')) {
+                alert('Неверный формат CSV файла. Убедитесь, что первая строка содержит заголовки.');
+                return;
+            }
+            
+            const importedScenarios = [];
+            let currentScenario = null;
+            
+            // Парсим данные начиная со второй строки
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+                
+                // Парсим CSV строку с учетом кавычек
+                const values = parseCSVLine(line);
+                if (values.length < 7) continue;
+                
+                const [scenarioName, stepName, teams, criticality, risk, r, a] = values;
+                
+                // Если есть название сценария, создаем новый сценарий
+                if (scenarioName && scenarioName.trim()) {
+                    if (currentScenario) {
+                        importedScenarios.push(currentScenario);
+                    }
+                    currentScenario = {
+                        name: scenarioName.trim(),
+                        steps: []
+                    };
+                }
+                
+                // Добавляем шаг к текущему сценарию
+                if (currentScenario && stepName && stepName.trim()) {
+                    currentScenario.steps.push({
+                        name: stepName.trim(),
+                        teams: teams.trim(),
+                        criticality: criticality.trim() || 'Низкая',
+                        risk: risk.trim(),
+                        r: r.trim(),
+                        a: a.trim()
+                    });
+                }
+            }
+            
+            // Добавляем последний сценарий
+            if (currentScenario && currentScenario.steps.length > 0) {
+                importedScenarios.push(currentScenario);
+            }
+            
+            if (importedScenarios.length === 0) {
+                alert('Не удалось импортировать данные. Проверьте формат файла.');
+                return;
+            }
+            
+            // Спрашиваем, заменить или добавить данные
+            const replace = confirm(
+                `Найдено сценариев: ${importedScenarios.length}\n\n` +
+                'Нажмите "ОК" чтобы ЗАМЕНИТЬ текущие данные\n' +
+                'Нажмите "Отмена" чтобы ДОБАВИТЬ к текущим данным'
+            );
+            
+            if (replace) {
+                scenarios = importedScenarios;
+            } else {
+                scenarios = scenarios.concat(importedScenarios);
+            }
+            
+            saveToLocalStorage();
+            renderTable();
+            updateTeamFilter();
+            alert(`Успешно импортировано ${importedScenarios.length} сценариев!`);
+            
+        } catch (error) {
+            alert('Ошибка при импорте CSV: ' + error.message);
+            console.error(error);
+        }
+    };
+    
+    reader.readAsText(file, 'UTF-8');
+    event.target.value = '';
+    document.getElementById('importDropdown').classList.remove('show');
+}
+
+// Функция для парсинга CSV строки с учетом кавычек
+function parseCSVLine(line) {
+    const result = [];
+    let current = '';
+    let inQuotes = false;
+    
+    for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        const nextChar = line[i + 1];
+        
+        if (char === '"') {
+            if (inQuotes && nextChar === '"') {
+                // Двойная кавычка внутри значения
+                current += '"';
+                i++;
+            } else {
+                // Начало или конец значения в кавычках
+                inQuotes = !inQuotes;
+            }
+        } else if (char === ',' && !inQuotes) {
+            // Разделитель вне кавычек
+            result.push(current);
+            current = '';
+        } else {
+            current += char;
+        }
+    }
+    
+    // Добавляем последнее значение
+    result.push(current);
+    
+    return result;
+}
+
 function loadFromFile(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -504,7 +646,18 @@ function loadFromFile(event) {
         try {
             const data = JSON.parse(e.target.result);
             if (Array.isArray(data)) {
-                scenarios = data;
+                const replace = confirm(
+                    `Найдено сценариев: ${data.length}\n\n` +
+                    'Нажмите "ОК" чтобы ЗАМЕНИТЬ текущие данные\n' +
+                    'Нажмите "Отмена" чтобы ДОБАВИТЬ к текущим данным'
+                );
+                
+                if (replace) {
+                    scenarios = data;
+                } else {
+                    scenarios = scenarios.concat(data);
+                }
+                
                 saveToLocalStorage();
                 renderTable();
                 updateTeamFilter();
@@ -518,6 +671,7 @@ function loadFromFile(event) {
     };
     reader.readAsText(file);
     event.target.value = '';
+    document.getElementById('importDropdown').classList.remove('show');
 }
 
 // Закрытие модального окна при клике вне его
