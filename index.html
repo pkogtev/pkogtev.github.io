@@ -250,28 +250,32 @@
         }
 
         .btn-danger {
-            background: #e74c3c;
-            color: white;
+            background: #f8f9fa;
+            color: #95a5a6;
             padding: 8px 14px;
             font-size: 13px;
+            border: 1px solid #e8ecef;
         }
 
         .btn-danger:hover {
-            background: #c0392b;
-            box-shadow: 0 2px 6px rgba(231,76,60,0.3);
+            background: #e8ecef;
+            color: #6c757d;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
         }
 
         .btn-edit {
-            background: #f39c12;
-            color: white;
+            background: #e8ecef;
+            color: #6c757d;
             padding: 8px 14px;
             font-size: 13px;
             margin-right: 5px;
+            border: 1px solid #dfe4e8;
         }
 
         .btn-edit:hover {
-            background: #e67e22;
-            box-shadow: 0 2px 6px rgba(243,156,18,0.3);
+            background: #dfe4e8;
+            color: #495057;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
         }
 
         /* Inputs */
@@ -292,7 +296,7 @@
             transition: all 0.2s ease;
             min-width: 200px;
             background: white;
-            color: #2c3e50;
+            color: #6c757d;
         }
 
         input[type="text"]:focus,
@@ -302,6 +306,11 @@
             outline: none;
             border-color: #6ba5a3;
             box-shadow: 0 0 0 3px rgba(107,165,163,0.1);
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: #b0bec5;
         }
 
         /* Table */
@@ -335,14 +344,14 @@
             font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 0.8px;
-            color: #95a5a6;
+            color: #b0bec5;
         }
 
         td {
             padding: 18px;
             border-bottom: 1px solid #f1f3f5;
             font-size: 14px;
-            color: #2c3e50;
+            color: #6c757d;
         }
 
         tbody tr {
@@ -356,13 +365,14 @@
         .scenario-row {
             background: #f8f9fa;
             font-weight: 600;
-            color: #2c3e50;
+            color: #495057;
         }
 
         .scenario-row td {
             padding: 18px;
             font-size: 15px;
             border-bottom: 1px solid #e8ecef;
+            color: #495057;
         }
 
         .scenario-row:hover {
@@ -388,6 +398,7 @@
             min-height: 20px;
             border-radius: 4px;
             transition: all 0.2s ease;
+            color: #6c757d;
         }
 
         .editable:hover {
@@ -543,7 +554,7 @@
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
-            color: #2c3e50;
+            color: #495057;
             font-size: 13px;
         }
 
@@ -558,6 +569,7 @@
             font-family: inherit;
             transition: all 0.2s ease;
             background: white;
+            color: #6c757d;
         }
 
         .form-group textarea {
@@ -600,7 +612,7 @@
 
         .step-number {
             font-weight: 600;
-            background: #6ba5a3;
+            background: #95a5a6;
             color: white;
             padding: 6px 14px;
             border-radius: 16px;
@@ -608,11 +620,11 @@
         }
 
         .btn-remove {
-            background: #e74c3c;
-            color: white;
+            background: #f8f9fa;
+            color: #95a5a6;
             padding: 6px 12px;
             border-radius: 6px;
-            border: none;
+            border: 1px solid #e8ecef;
             cursor: pointer;
             font-size: 12px;
             font-weight: 500;
@@ -620,8 +632,9 @@
         }
 
         .btn-remove:hover {
-            background: #c0392b;
-            box-shadow: 0 2px 6px rgba(231,76,60,0.3);
+            background: #e8ecef;
+            color: #6c757d;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
         }
 
         .btn-add-step {
@@ -701,7 +714,7 @@
         .empty-state {
             text-align: center;
             padding: 80px 20px;
-            color: #95a5a6;
+            color: #b0bec5;
         }
 
         .empty-state-icon {
@@ -712,7 +725,7 @@
 
         .empty-state p {
             font-size: 15px;
-            color: #95a5a6;
+            color: #b0bec5;
         }
 
         /* Responsive */
@@ -872,7 +885,7 @@
                 </div>
 
                 <div class="steps-container">
-                    <label style="display: block; margin-bottom: 12px; font-weight: 600; color: #2c3e50;">Шаги сценария</label>
+                    <label style="display: block; margin-bottom: 12px; font-weight: 600; color: #495057;">Шаги сценария</label>
                     <div id="stepsContainer"></div>
                     <button class="btn-add-step" onclick="addStep()">➕ Добавить шаг</button>
                 </div>
@@ -896,9 +909,6 @@
             document.getElementById('sidebar').classList.remove('open');
             document.getElementById('sidebarOverlay').classList.remove('active');
         }
-
-        // Remove old dropdown functions if they exist in app.js
-        // These are now handled by sidebar
     </script>
 </body>
 </html>
