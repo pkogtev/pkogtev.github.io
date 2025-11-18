@@ -406,7 +406,6 @@
         }
 
         .editable input,
-        .editable select,
         .editable textarea {
             width: 100%;
             padding: 8px 12px;
@@ -419,6 +418,93 @@
         .editable textarea {
             min-height: 80px;
             resize: vertical;
+        }
+
+        /* Inline editing для select */
+        td.editing {
+            padding: 8px !important;
+            background: white;
+            position: relative;
+            z-index: 100;
+        }
+
+        .editable select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #6ba5a3;
+            border-radius: 6px;
+            font-size: 14px;
+            min-width: 150px;
+            background: white;
+            cursor: pointer;
+            appearance: menulist;
+            -webkit-appearance: menulist;
+            -moz-appearance: menulist;
+        }
+
+        .editable select:focus {
+            outline: none;
+            border-color: #5a9d9b;
+            box-shadow: 0 0 0 3px rgba(107,165,163,0.2);
+        }
+
+        /* Custom dropdown для критичности */
+        .criticality-dropdown {
+            position: relative;
+            width: 100%;
+        }
+
+        .criticality-dropdown-btn {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #6ba5a3;
+            border-radius: 6px;
+            background: white;
+            text-align: left;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .criticality-dropdown-btn:hover {
+            background: #f8f9fa;
+        }
+
+        .criticality-dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #6ba5a3;
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            z-index: 1000;
+            max-height: 200px;
+            overflow-y: auto;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: none;
+        }
+
+        .criticality-dropdown-menu.show {
+            display: block;
+        }
+
+        .criticality-dropdown-item {
+            padding: 10px 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .criticality-dropdown-item:hover {
+            background: #f8f9fa;
+        }
+
+        .criticality-dropdown-item.selected {
+            background: #f0f9f9;
+            font-weight: 600;
         }
 
         /* Criticality badges */
