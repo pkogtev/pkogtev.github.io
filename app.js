@@ -602,7 +602,17 @@ function importFromCSV(event) {
     event.target.value = '';
     document.getElementById('importDropdown').classList.remove('show');
 }
-
+// fix sidebar toggle
+const sidebar = document.getElementById('sidebar');
+const toggle = document.getElementById('sidebarToggle');
+toggle.onclick = () => {
+  sidebar.classList.toggle('open');
+};
+// close button for sidebar
+const sidebarClose = document.getElementById('sidebarClose');
+sidebarClose.onclick = () => {
+  sidebar.classList.remove('open');
+};
 // Функция для парсинга CSV строки с учетом кавычек
 function parseCSVLine(line) {
     const result = [];
