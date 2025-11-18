@@ -1,8 +1,13 @@
+// ============================================
+// State Management
+// ============================================
 let scenarios = [];
 let editingIndex = -1;
 let stepCounter = 0;
 
-// Загрузка данных при старте
+// ============================================
+// Initialization
+// ============================================
 window.onload = function() {
     loadFromLocalStorage();
     renderTable();
@@ -11,24 +16,149 @@ window.onload = function() {
     // Закрытие dropdown при клике вне его
     document.addEventListener('click', function(e) {
         if (!e.target.closest('.dropdown')) {
-            document.getElementById('exportDropdown').classList.remove('show');
-            document.getElementById('importDropdown').classList.remove('show');
+            // Нет dropdown в новом дизайне
+        }
+        
+        // Закрываем кастомные dropdown для критичности
+        if (!e.target.closest('.criticality-dropdown')) {
+            document.querySelectorAll('.criticality-dropdown-menu').forEach(menu => {
+                menu.classList.remove('show');
+            });
         }
     });
 };
 
-function toggleExportDropdown() {
-    event.stopPropagation();
-    document.getElementById('importDropdown').classList.remove('show');
-    document.getElementById('exportDropdown').classList.toggle('show');
+// ============================================
+// LocalStorage Functions
+// ============================================
+function saveToLocalStorage() {
+    try {
+        localStorage.setItem('riskMatrix', JSON.stringify(scenarios));
+        console.log('💾 Данные сохранены в LocalStorage');
+    } catch (e) {
+        console.error('❌ Ошибка сохранения в LocalStorage:', e);
+    }
 }
 
-function toggleImportDropdown() {
-    event.stopPropagation();
-    document.getElementById('exportDropdown').classList.remove('show');
-    document.getElementById('importDropdown').classList.toggle('show');
+function loadFromLocalStorage() {
+    const data = localStorage.getItem('riskMatrix');
+    if (data) {
+        try {
+            scenarios = JSON.parse(data);
+            console.log('📦 Данные загружены из LocalStorage:', scenarios.length, 'сценариев');
+        } catch (e) {
+            console.error('❌ Ошибка загрузки из LocalStorage:', e);
+            scenarios = getDefaultScenarios();
+        }
+    } else {
+        scenarios = getDefaultScenarios();
+        saveToLocalStorage();
+    }
 }
 
+function getDefaultScenarios() {
+    return [
+        {
+            id: 1,
+            name: "Покупка нативной подписки с использованием платёжного виджета",
+            steps: [
+                {
+                    id: 1,
+                    name: "Запрос оффера",
+                    teams: "Команда привлечения",
+                    criticality: "Низкая",
+                    risk: "Недоступность страницы при высокой нагрузке",
+                    r: "",
+                    a: ""
+                },
+                {
+                    id: 2,
+                    name: "Выдача пользователю оффера",
+                    teams: "Команда тарифной сетки",
+                    criticality: "Высокая",
+                    risk: "Утечка данных через уязвимости XSS, проблемы с валидацией",
+                    r: "",
+                    a: ""
+                },
+                {
+                    id: 3,
+                    name: "Получение текстов оффера",
+                    teams: "Команда привлечения",
+                    criticality: "Высокая",
+                    risk: "Утечка данных через уязвимости XSS, проблемы с валидацией",
+                    r: "",
+                    a: ""
+                }
+            ]
+        },
+        {
+            id: 2,
+            name: "Авторизация пользователя",
+            steps: [
+                {
+                    id: 1,
+                    name: "Переход на страницу входа",
+                    teams: "Frontend",
+                    criticality: "Низкая",
+                    risk: "Недоступность страницы при высокой нагрузке",
+                    r: "",
+                    a: ""
+                },
+                {
+                    id: 2,
+                    name: "Ввод учетных данных",
+                    teams: "Frontend, Backend",
+                    criticality: "Высокая",
+                    risk: "Утечка данных через уязвимости XSS, проблемы с валидацией",
+                    r: "",
+                    a: ""
+                },
+                {
+                    id: 3,
+                    name: "Проверка прав доступа",
+                    teams: "Backend, Security",
+                    criticality: "Критическая",
+                    risk: "Несанкционированный доступ к данным",
+                    r: "",
+                    a: ""
+                }
+            ]
+        },
+        {
+            id: 3,
+            name: "Оформление заказа",
+            steps: [
+                {
+                    id: 1,
+                    name: "Добавление товара в корзину",
+                    teams: "Frontend",
+                    criticality: "Средняя",
+                    risk: "Потеря данных корзины при обновлении страницы",
+                    r: "",
+                    a: ""
+                },
+                {
+                    id: 2,
+                    name: "Оплата заказа",
+                    teams: "Backend, Payment",
+                    criticality: "Критическая",
+                    risk: "Ошибки в процессинге платежей, дублирование транзакций",
+                    r: "",
+                    a: ""
+                }
+            ]
+        }
+    ];
+}
+
+function generateId() {
+    if (scenarios.length === 0) return 1;
+    return Math.max(...scenarios.map(s => s.id || 0)) + 1;
+}
+
+// ============================================
+// Modal Functions
+// ============================================
 function openModal(index = -1) {
     editingIndex = index;
     const modal = document.getElementById('modalOverlay');
@@ -52,6 +182,9 @@ function closeModal() {
     document.getElementById('modalOverlay').classList.remove('active');
 }
 
+// ============================================
+// Step Management
+// ============================================
 function addStep() {
     if (document.querySelectorAll('.step-item').length >= 10) {
         alert('Максимум 10 шагов на сценарий');
@@ -113,6 +246,9 @@ function renumberSteps() {
     stepCounter = steps.length;
 }
 
+// ============================================
+// Save Scenario (Create or Update)
+// ============================================
 function saveScenario() {
     const scenarioName = document.getElementById('scenarioName').value.trim();
     if (!scenarioName) {
@@ -138,6 +274,7 @@ function saveScenario() {
         }
 
         steps.push({
+            id: index + 1,
             name: stepName,
             teams: item.querySelector('.step-teams').value.trim(),
             criticality: item.querySelector('.step-criticality').value,
@@ -149,17 +286,21 @@ function saveScenario() {
 
     if (hasError) return;
 
-    const scenario = {
+    const scenarioData = {
         name: scenarioName,
         steps: steps
     };
 
     if (editingIndex >= 0) {
-        scenarios[editingIndex] = scenario;
+        scenarios[editingIndex] = {
+            ...scenarios[editingIndex],
+            ...scenarioData
+        };
     } else {
-        scenarios.push(scenario);
+        scenarioData.id = generateId();
+        scenarios.push(scenarioData);
     }
-
+    
     saveToLocalStorage();
     renderTable();
     updateTeamFilter();
@@ -215,6 +356,9 @@ function loadScenarioData(scenario) {
     });
 }
 
+// ============================================
+// Render Table
+// ============================================
 function renderTable() {
     const tbody = document.getElementById('tableBody');
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
@@ -239,7 +383,7 @@ function renderTable() {
     scenarios.forEach((scenario, scenarioIndex) => {
         const matchesSearch = scenario.name.toLowerCase().includes(searchTerm);
         const matchesTeam = !teamFilter || scenario.steps.some(step => 
-            step.teams.toLowerCase().includes(teamFilter.toLowerCase())
+            step.teams && step.teams.toLowerCase().includes(teamFilter.toLowerCase())
         );
 
         if (!matchesSearch && searchTerm) return;
@@ -258,7 +402,7 @@ function renderTable() {
         tbody.appendChild(scenarioRow);
 
         scenario.steps.forEach((step, stepIndex) => {
-            const stepMatchesTeam = !teamFilter || step.teams.toLowerCase().includes(teamFilter.toLowerCase());
+            const stepMatchesTeam = !teamFilter || (step.teams && step.teams.toLowerCase().includes(teamFilter.toLowerCase()));
             if (!stepMatchesTeam) return;
 
             const stepRow = document.createElement('tr');
@@ -303,15 +447,19 @@ function getCriticalityClass(criticality) {
     return map[criticality] || 'low';
 }
 
+// ============================================
+// Inline Editing Functions
+// ============================================
 function editScenarioName(scenarioIndex, cell) {
-    const currentValue = scenarios[scenarioIndex].name;
+    const scenario = scenarios[scenarioIndex];
+    const currentValue = scenario.name;
     const input = document.createElement('input');
     input.type = 'text';
     input.value = currentValue;
     input.onblur = function() {
         const newValue = this.value.trim();
         if (newValue && newValue !== currentValue) {
-            scenarios[scenarioIndex].name = newValue;
+            scenario.name = newValue;
             saveToLocalStorage();
         }
         renderTable();
@@ -327,13 +475,15 @@ function editScenarioName(scenarioIndex, cell) {
 }
 
 function editField(scenarioIndex, stepIndex, field, cell) {
-    const currentValue = scenarios[scenarioIndex].steps[stepIndex][field];
+    const scenario = scenarios[scenarioIndex];
+    const step = scenario.steps[stepIndex];
+    const currentValue = step[field];
     const input = document.createElement('input');
     input.type = 'text';
     input.value = currentValue || '';
     input.onblur = function() {
         const newValue = this.value.trim();
-        scenarios[scenarioIndex].steps[stepIndex][field] = newValue;
+        step[field] = newValue;
         saveToLocalStorage();
         renderTable();
     };
@@ -348,12 +498,14 @@ function editField(scenarioIndex, stepIndex, field, cell) {
 }
 
 function editFieldTextarea(scenarioIndex, stepIndex, field, cell) {
-    const currentValue = scenarios[scenarioIndex].steps[stepIndex][field];
+    const scenario = scenarios[scenarioIndex];
+    const step = scenario.steps[stepIndex];
+    const currentValue = step[field];
     const textarea = document.createElement('textarea');
     textarea.value = currentValue || '';
     textarea.onblur = function() {
         const newValue = this.value.trim();
-        scenarios[scenarioIndex].steps[stepIndex][field] = newValue;
+        step[field] = newValue;
         saveToLocalStorage();
         renderTable();
     };
@@ -363,27 +515,77 @@ function editFieldTextarea(scenarioIndex, stepIndex, field, cell) {
 }
 
 function editCriticality(scenarioIndex, stepIndex, cell) {
-    const currentValue = scenarios[scenarioIndex].steps[stepIndex].criticality;
-    const select = document.createElement('select');
-    select.innerHTML = `
-        <option value="Низкая" ${currentValue === 'Низкая' ? 'selected' : ''}>Низкая</option>
-        <option value="Средняя" ${currentValue === 'Средняя' ? 'selected' : ''}>Средняя</option>
-        <option value="Высокая" ${currentValue === 'Высокая' ? 'selected' : ''}>Высокая</option>
-        <option value="Критическая" ${currentValue === 'Критическая' ? 'selected' : ''}>Критическая</option>
+    const scenario = scenarios[scenarioIndex];
+    const step = scenario.steps[stepIndex];
+    const currentValue = step.criticality;
+    
+    cell.classList.add('editing');
+    
+    // Создаём кастомный dropdown
+    const container = document.createElement('div');
+    container.className = 'criticality-dropdown';
+    
+    const button = document.createElement('button');
+    button.className = 'criticality-dropdown-btn';
+    button.type = 'button';
+    button.innerHTML = `
+        <span>${currentValue}</span>
+        <span style="color: #6ba5a3;">▼</span>
     `;
-    select.onchange = function() {
-        scenarios[scenarioIndex].steps[stepIndex].criticality = this.value;
-        saveToLocalStorage();
-        renderTable();
+    
+    const dropdown = document.createElement('div');
+    dropdown.className = 'criticality-dropdown-menu';
+    
+    const options = ['Низкая', 'Средняя', 'Высокая', 'Критическая'];
+    options.forEach(option => {
+        const item = document.createElement('div');
+        item.className = 'criticality-dropdown-item';
+        if (option === currentValue) {
+            item.classList.add('selected');
+        }
+        item.textContent = option;
+        item.onclick = function() {
+            step.criticality = option;
+            saveToLocalStorage();
+            cell.classList.remove('editing');
+            renderTable();
+        };
+        dropdown.appendChild(item);
+    });
+    
+    button.onclick = function(e) {
+        e.stopPropagation();
+        dropdown.classList.toggle('show');
     };
-    select.onblur = function() {
-        renderTable();
+    
+    // Закрытие при клике вне dropdown
+    const closeDropdown = function(e) {
+        if (!container.contains(e.target)) {
+            cell.classList.remove('editing');
+            renderTable();
+            document.removeEventListener('click', closeDropdown);
+        }
     };
+    
+    setTimeout(() => {
+        document.addEventListener('click', closeDropdown);
+    }, 0);
+    
+    container.appendChild(button);
+    container.appendChild(dropdown);
+    
     cell.innerHTML = '';
-    cell.appendChild(select);
-    select.focus();
+    cell.appendChild(container);
+    
+    // Открываем dropdown автоматически
+    setTimeout(() => {
+        dropdown.classList.add('show');
+    }, 0);
 }
 
+// ============================================
+// Delete Functions
+// ============================================
 function deleteScenario(scenarioIndex) {
     if (confirm('Вы уверены, что хотите удалить этот сценарий со всеми шагами?')) {
         scenarios.splice(scenarioIndex, 1);
@@ -396,15 +598,20 @@ function deleteScenario(scenarioIndex) {
 function deleteStep(scenarioIndex, stepIndex) {
     if (confirm('Вы уверены, что хотите удалить этот шаг?')) {
         scenarios[scenarioIndex].steps.splice(stepIndex, 1);
+        
         if (scenarios[scenarioIndex].steps.length === 0) {
             scenarios.splice(scenarioIndex, 1);
         }
+        
         saveToLocalStorage();
         renderTable();
         updateTeamFilter();
     }
 }
 
+// ============================================
+// Filter Functions
+// ============================================
 function applyFilters() {
     renderTable();
 }
@@ -436,22 +643,9 @@ function updateTeamFilter() {
     });
 }
 
-function saveToLocalStorage() {
-    localStorage.setItem('riskMatrix', JSON.stringify(scenarios));
-}
-
-function loadFromLocalStorage() {
-    const data = localStorage.getItem('riskMatrix');
-    if (data) {
-        try {
-            scenarios = JSON.parse(data);
-        } catch (e) {
-            console.error('Ошибка загрузки данных:', e);
-            scenarios = [];
-        }
-    }
-}
-
+// ============================================
+// Export/Import Functions
+// ============================================
 function saveToFile() {
     const dataStr = JSON.stringify(scenarios, null, 2);
     const blob = new Blob([dataStr], { type: 'application/json' });
@@ -463,7 +657,6 @@ function saveToFile() {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    document.getElementById('exportDropdown').classList.remove('show');
 }
 
 function exportToCSV() {
@@ -472,8 +665,7 @@ function exportToCSV() {
         return;
     }
 
-    // Формируем CSV
-    let csv = '\uFEFF'; // BOM для корректного отображения кириллицы в Excel
+    let csv = '\uFEFF';
     csv += 'Сценарий,Шаг пользователя,Участвующие команды,Критичность,Основной риск,R (Ответственный),A (Утверждающий)\n';
 
     scenarios.forEach(scenario => {
@@ -490,7 +682,6 @@ function exportToCSV() {
         });
     });
 
-    // Создаем и скачиваем файл
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -500,7 +691,6 @@ function exportToCSV() {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    document.getElementById('exportDropdown').classList.remove('show');
 }
 
 function importFromCSV(event) {
@@ -513,47 +703,42 @@ function importFromCSV(event) {
             const text = e.target.result;
             const lines = text.split('\n');
             
-            // Пропускаем BOM если есть
-            let startIndex = 0;
             if (lines[0].charCodeAt(0) === 0xFEFF) {
                 lines[0] = lines[0].substring(1);
             }
             
-            // Проверяем заголовок
             const header = lines[0].toLowerCase();
             if (!header.includes('сценарий') || !header.includes('шаг')) {
-                alert('Неверный формат CSV файла. Убедитесь, что первая строка содержит заголовки.');
+                alert('Неверный формат CSV файла.');
                 return;
             }
             
             const importedScenarios = [];
             let currentScenario = null;
             
-            // Парсим данные начиная со второй строки
             for (let i = 1; i < lines.length; i++) {
                 const line = lines[i].trim();
                 if (!line) continue;
                 
-                // Парсим CSV строку с учетом кавычек
                 const values = parseCSVLine(line);
                 if (values.length < 7) continue;
                 
                 const [scenarioName, stepName, teams, criticality, risk, r, a] = values;
                 
-                // Если есть название сценария, создаем новый сценарий
                 if (scenarioName && scenarioName.trim()) {
                     if (currentScenario) {
                         importedScenarios.push(currentScenario);
                     }
                     currentScenario = {
+                        id: generateId() + importedScenarios.length,
                         name: scenarioName.trim(),
                         steps: []
                     };
                 }
                 
-                // Добавляем шаг к текущему сценарию
                 if (currentScenario && stepName && stepName.trim()) {
                     currentScenario.steps.push({
+                        id: currentScenario.steps.length + 1,
                         name: stepName.trim(),
                         teams: teams.trim(),
                         criticality: criticality.trim() || 'Низкая',
@@ -564,17 +749,15 @@ function importFromCSV(event) {
                 }
             }
             
-            // Добавляем последний сценарий
             if (currentScenario && currentScenario.steps.length > 0) {
                 importedScenarios.push(currentScenario);
             }
             
             if (importedScenarios.length === 0) {
-                alert('Не удалось импортировать данные. Проверьте формат файла.');
+                alert('Не удалось импортировать данные.');
                 return;
             }
             
-            // Спрашиваем, заменить или добавить данные
             const replace = confirm(
                 `Найдено сценариев: ${importedScenarios.length}\n\n` +
                 'Нажмите "ОК" чтобы ЗАМЕНИТЬ текущие данные\n' +
@@ -600,20 +783,8 @@ function importFromCSV(event) {
     
     reader.readAsText(file, 'UTF-8');
     event.target.value = '';
-    document.getElementById('importDropdown').classList.remove('show');
 }
-// fix sidebar toggle
-const sidebar = document.getElementById('sidebar');
-const toggle = document.getElementById('sidebarToggle');
-toggle.onclick = () => {
-  sidebar.classList.toggle('open');
-};
-// close button for sidebar
-const sidebarClose = document.getElementById('sidebarClose');
-sidebarClose.onclick = () => {
-  sidebar.classList.remove('open');
-};
-// Функция для парсинга CSV строки с учетом кавычек
+
 function parseCSVLine(line) {
     const result = [];
     let current = '';
@@ -625,15 +796,12 @@ function parseCSVLine(line) {
         
         if (char === '"') {
             if (inQuotes && nextChar === '"') {
-                // Двойная кавычка внутри значения
                 current += '"';
                 i++;
             } else {
-                // Начало или конец значения в кавычках
                 inQuotes = !inQuotes;
             }
         } else if (char === ',' && !inQuotes) {
-            // Разделитель вне кавычек
             result.push(current);
             current = '';
         } else {
@@ -641,9 +809,7 @@ function parseCSVLine(line) {
         }
     }
     
-    // Добавляем последнее значение
     result.push(current);
-    
     return result;
 }
 
@@ -661,6 +827,12 @@ function loadFromFile(event) {
                     'Нажмите "ОК" чтобы ЗАМЕНИТЬ текущие данные\n' +
                     'Нажмите "Отмена" чтобы ДОБАВИТЬ к текущим данным'
                 );
+                
+                data.forEach((scenario, index) => {
+                    if (!scenario.id) {
+                        scenario.id = generateId() + index;
+                    }
+                });
                 
                 if (replace) {
                     scenarios = data;
@@ -681,121 +853,13 @@ function loadFromFile(event) {
     };
     reader.readAsText(file);
     event.target.value = '';
-    document.getElementById('importDropdown').classList.remove('show');
 }
 
-// Закрытие модального окна при клике вне его
+// ============================================
+// Event Listeners
+// ============================================
 document.getElementById('modalOverlay').addEventListener('click', function(e) {
     if (e.target === this) {
         closeModal();
     }
 });
-
-// Пример данных для старта
-if (scenarios.length === 0) {
-    scenarios = [
-        {
-            name: "Покупка нативной подписки с использованием платёжного виджета",
-            steps: [
-                {
-                    name: "Запрос оффера",
-                    teams: "Команда привлечения",
-                    criticality: "Низкая",
-                    risk: "Недоступность страницы при высокой нагрузке",
-                    r: "",
-                    a: ""
-                },
-                {
-                    name: "Выдача пользователю оффера",
-                    teams: "Команда тарифной сетки",
-                    criticality: "Высокая",
-                    risk: "Утечка данных через уязвимости XSS, проблемы с валидацией",
-                    r: "",
-                    a: ""
-                },
-                {
-                    name: "Получение текстов оффера",
-                    teams: "Команда привлечения",
-                    criticality: "Высокая",
-                    risk: "Утечка данных через уязвимости XSS, проблемы с валидацией",
-                    r: "",
-                    a: ""
-                },
-                {
-                    name: "Отображение пейволов (веб, сдк)",
-                    teams: "Команда привлечения",
-                    criticality: "Высокая",
-                    risk: "Утечка данных через уязвимости XSS, проблемы с валидацией",
-                    r: "",
-                    a: ""
-                },
-                {
-                    name: "Отображение секции кнопок",
-                    teams: "Команда привлечения",
-                    criticality: "Высокая",
-                    risk: "Утечка данных через уязвимости XSS, проблемы с валидацией",
-                    r: "",
-                    a: ""
-                },
-                {
-                    name: "Открытие платёжного виджета",
-                    teams: "Команда платёжного виджета",
-                    criticality: "Критическая",
-                    risk: "Несанкционированный доступ к данным",
-                    r: "",
-                    a: ""
-                }
-            ]
-        },{
-            name: "Авторизация пользователя",
-            steps: [
-                {
-                    name: "Переход на страницу входа",
-                    teams: "Frontend",
-                    criticality: "Низкая",
-                    risk: "Недоступность страницы при высокой нагрузке",
-                    r: "",
-                    a: ""
-                },
-                {
-                    name: "Ввод учетных данных",
-                    teams: "Frontend, Backend",
-                    criticality: "Высокая",
-                    risk: "Утечка данных через уязвимости XSS, проблемы с валидацией",
-                    r: "",
-                    a: ""
-                },
-                {
-                    name: "Проверка прав доступа",
-                    teams: "Backend, Security",
-                    criticality: "Критическая",
-                    risk: "Несанкционированный доступ к данным",
-                    r: "",
-                    a: ""
-                }
-            ]
-        },
-        {
-            name: "Оформление заказа",
-            steps: [
-                {
-                    name: "Добавление товара в корзину",
-                    teams: "Frontend",
-                    criticality: "Средняя",
-                    risk: "Потеря данных корзины при обновлении страницы",
-                    r: "",
-                    a: ""
-                },
-                {
-                    name: "Оплата заказа",
-                    teams: "Backend, Payment",
-                    criticality: "Критическая",
-                    risk: "Ошибки в процессинге платежей, дублирование транзакций",
-                    r: "",
-                    a: ""
-                }
-            ]
-        }
-    ];
-    saveToLocalStorage();
-}
