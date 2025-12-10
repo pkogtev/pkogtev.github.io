@@ -1,24 +1,64 @@
 // ============================================
-// State Management
+// КОНФИГУРАЦИЯ
+// Путь к JSON-файлу с данными матрицы рисков
 // ============================================
-let scenarios = [];
-let editingIndex = -1;
-let stepCounter = 0;
+const CONFIG = {
+    dataSourceUrl: './risks-matrix-data.json', // Путь к JSON-файлу на S3 (в той же директории)
+    localStorageKey: 'riskMatrix', // Ключ для сохранения в LocalStorage
+    retryAttempts: 3, // Количество попыток загрузки при ошибке
+    retryDelay: 1000 // Задержка между попытками (мс)
+};
 
 // ============================================
-// Initialization
+// STATE MANAGEMENT
+// Глобальные переменные состояния приложения
 // ============================================
-window.onload = function() {
-    loadFromLocalStorage();
-    renderTable();
-    updateTeamFilter();
+let scenarios = []; // Массив всех сценариев рисков
+let editingIndex = -1; // Индекс редактируемого сценария (-1 = режим создания)
+let stepCounter = 0; // Счетчик шагов в модальном окне
+let isDataLoadedFromExternal = false; // Флаг успешной загрузки из внешнего JSON
+
+// ============================================
+// INITIALIZATION
+// Инициализация приложения при загрузке страницы
+// ============================================
+window.onload = async function() {
+    console.log('🚀 Инициализация приложения...');
+    
+    // Показываем индикатор загрузки
+    showLoading(true);
+    
+    try {
+        // Пытаемся загрузить данные из внешнего JSON
+        await loadDataFromExternalSource();
+        
+        // Если данных нет (пустой массив), пытаемся загрузить из LocalStorage
+        if (scenarios.length === 0) {
+            console.log('📦 Внешний источник пуст, загружаем из LocalStorage...');
+            loadFromLocalStorage();
+        }
+        
+        // Рендерим таблицу и обновляем фильтры
+        renderTable();
+        updateTeamFilter();
+        
+        // Скрываем индикатор загрузки
+        showLoading(false);
+        
+        console.log('✅ Приложение успешно инициализировано');
+        
+    } catch (error) {
+        console.error('❌ Ошибка инициализации:', error);
+        
+        // При ошибке загружаем из LocalStorage как fallback
+        loadFromLocalStorage();
+        renderTable();
+        updateTeamFilter();
+        showLoading(false);
+    }
     
     // Закрытие dropdown при клике вне его
     document.addEventListener('click', function(e) {
-        if (!e.target.closest('.dropdown')) {
-            // Нет dropdown в новом дизайне
-        }
-        
         // Закрываем кастомные dropdown для критичности
         if (!e.target.closest('.criticality-dropdown')) {
             document.querySelectorAll('.criticality-dropdown-menu').forEach(menu => {
@@ -29,135 +69,145 @@ window.onload = function() {
 };
 
 // ============================================
-// LocalStorage Functions
+// LOADING INDICATOR
+// Управление индикатором загрузки
+// ============================================
+function showLoading(show) {
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    if (show) {
+        loadingOverlay.classList.add('active');
+    } else {
+        loadingOverlay.classList.remove('active');
+    }
+}
+
+// ============================================
+// ERROR HANDLING
+// Отображение сообщений об ошибках
+// ============================================
+function showError(message) {
+    const errorElement = document.getElementById('errorMessage');
+    errorElement.textContent = message;
+    errorElement.classList.add('show');
+    
+    // Автоматически скрываем через 5 секунд
+    setTimeout(() => {
+        errorElement.classList.remove('show');
+    }, 5000);
+}
+
+function hideError() {
+    const errorElement = document.getElementById('errorMessage');
+    errorElement.classList.remove('show');
+}
+
+// ============================================
+// EXTERNAL DATA SOURCE
+// Загрузка данных из внешнего JSON-файла
+// ============================================
+async function loadDataFromExternalSource() {
+    console.log(`📡 Загрузка данных из: ${CONFIG.dataSourceUrl}`);
+    
+    let attempt = 0;
+    
+    // Повторяем попытки загрузки при ошибке
+    while (attempt < CONFIG.retryAttempts) {
+        try {
+            const response = await fetch(CONFIG.dataSourceUrl, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Cache-Control': 'no-cache' // Отключаем кэш для актуальности данных
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            
+            // Валидация структуры данных
+            if (!data || !data.scenarios || !Array.isArray(data.scenarios)) {
+                throw new Error('Неверная структура JSON-файла. Ожидается объект с полем "scenarios"');
+            }
+            
+            // Загружаем сценарии
+            scenarios = data.scenarios;
+            isDataLoadedFromExternal = true;
+            
+            console.log(`✅ Данные успешно загружены: ${scenarios.length} сценариев`);
+            console.log(`📅 Версия данных: ${data.version || 'не указана'}`);
+            console.log(`🕐 Последнее обновление: ${data.lastUpdated || 'не указано'}`);
+            
+            // Сохраняем в LocalStorage как резервную копию
+            saveToLocalStorage();
+            
+            hideError();
+            return;
+            
+        } catch (error) {
+            attempt++;
+            console.warn(`⚠️ Попытка ${attempt}/${CONFIG.retryAttempts} не удалась:`, error.message);
+            
+            if (attempt < CONFIG.retryAttempts) {
+                // Ждем перед следующей попыткой
+                await new Promise(resolve => setTimeout(resolve, CONFIG.retryDelay));
+            } else {
+                // Все попытки исчерпаны
+                const errorMessage = `Не удалось загрузить данные из ${CONFIG.dataSourceUrl}. Используются локальные данные.`;
+                console.error('❌', errorMessage);
+                showError(errorMessage);
+                throw error;
+            }
+        }
+    }
+}
+
+// ============================================
+// LOCALSTORAGE FUNCTIONS
+// Работа с локальным хранилищем браузера
 // ============================================
 function saveToLocalStorage() {
     try {
-        localStorage.setItem('riskMatrix', JSON.stringify(scenarios));
+        // Сохраняем только массив сценариев (без метаданных)
+        localStorage.setItem(CONFIG.localStorageKey, JSON.stringify(scenarios));
         console.log('💾 Данные сохранены в LocalStorage');
     } catch (e) {
         console.error('❌ Ошибка сохранения в LocalStorage:', e);
+        showError('Не удалось сохранить данные локально');
     }
 }
 
 function loadFromLocalStorage() {
-    const data = localStorage.getItem('riskMatrix');
+    const data = localStorage.getItem(CONFIG.localStorageKey);
     if (data) {
         try {
             scenarios = JSON.parse(data);
             console.log('📦 Данные загружены из LocalStorage:', scenarios.length, 'сценариев');
         } catch (e) {
             console.error('❌ Ошибка загрузки из LocalStorage:', e);
-            scenarios = getDefaultScenarios();
+            scenarios = [];
+            showError('Ошибка чтения локальных данных');
         }
     } else {
-        scenarios = getDefaultScenarios();
-        saveToLocalStorage();
+        console.log('ℹ️ LocalStorage пуст');
+        scenarios = [];
     }
 }
 
-function getDefaultScenarios() {
-    return [
-        {
-            id: 1,
-            name: "Покупка нативной подписки с использованием платёжного виджета",
-            steps: [
-                {
-                    id: 1,
-                    name: "Запрос оффера",
-                    teams: "Команда привлечения",
-                    criticality: "Низкая",
-                    risk: "Недоступность страницы при высокой нагрузке",
-                    r: "",
-                    a: ""
-                },
-                {
-                    id: 2,
-                    name: "Выдача пользователю оффера",
-                    teams: "Команда тарифной сетки",
-                    criticality: "Высокая",
-                    risk: "Утечка данных через уязвимости XSS, проблемы с валидацией",
-                    r: "",
-                    a: ""
-                },
-                {
-                    id: 3,
-                    name: "Получение текстов оффера",
-                    teams: "Команда привлечения",
-                    criticality: "Высокая",
-                    risk: "Утечка данных через уязвимости XSS, проблемы с валидацией",
-                    r: "",
-                    a: ""
-                }
-            ]
-        },
-        {
-            id: 2,
-            name: "Авторизация пользователя",
-            steps: [
-                {
-                    id: 1,
-                    name: "Переход на страницу входа",
-                    teams: "Frontend",
-                    criticality: "Низкая",
-                    risk: "Недоступность страницы при высокой нагрузке",
-                    r: "",
-                    a: ""
-                },
-                {
-                    id: 2,
-                    name: "Ввод учетных данных",
-                    teams: "Frontend, Backend",
-                    criticality: "Высокая",
-                    risk: "Утечка данных через уязвимости XSS, проблемы с валидацией",
-                    r: "",
-                    a: ""
-                },
-                {
-                    id: 3,
-                    name: "Проверка прав доступа",
-                    teams: "Backend, Security",
-                    criticality: "Критическая",
-                    risk: "Несанкционированный доступ к данным",
-                    r: "",
-                    a: ""
-                }
-            ]
-        },
-        {
-            id: 3,
-            name: "Оформление заказа",
-            steps: [
-                {
-                    id: 1,
-                    name: "Добавление товара в корзину",
-                    teams: "Frontend",
-                    criticality: "Средняя",
-                    risk: "Потеря данных корзины при обновлении страницы",
-                    r: "",
-                    a: ""
-                },
-                {
-                    id: 2,
-                    name: "Оплата заказа",
-                    teams: "Backend, Payment",
-                    criticality: "Критическая",
-                    risk: "Ошибки в процессинге платежей, дублирование транзакций",
-                    r: "",
-                    a: ""
-                }
-            ]
-        }
-    ];
-}
-
+// ============================================
+// ID GENERATION
+// Генерация уникального ID для новых сценариев
+// ============================================
 function generateId() {
     if (scenarios.length === 0) return 1;
     return Math.max(...scenarios.map(s => s.id || 0)) + 1;
 }
 
 // ============================================
-// Modal Functions
+// MODAL FUNCTIONS
+// Управление модальным окном добавления/редактирования
 // ============================================
 function openModal(index = -1) {
     editingIndex = index;
@@ -165,14 +215,16 @@ function openModal(index = -1) {
     const modalTitle = document.getElementById('modalTitle');
     
     if (index >= 0) {
+        // Режим редактирования существующего сценария
         modalTitle.textContent = 'Редактировать сценарий';
         loadScenarioData(scenarios[index]);
     } else {
+        // Режим создания нового сценария
         modalTitle.textContent = 'Добавить сценарий';
         document.getElementById('scenarioName').value = '';
         document.getElementById('stepsContainer').innerHTML = '';
         stepCounter = 0;
-        addStep();
+        addStep(); // Добавляем первый шаг по умолчанию
     }
     
     modal.classList.add('active');
@@ -183,9 +235,11 @@ function closeModal() {
 }
 
 // ============================================
-// Step Management
+// STEP MANAGEMENT
+// Управление шагами в модальном окне
 // ============================================
 function addStep() {
+    // Ограничение: максимум 10 шагов на сценарий
     if (document.querySelectorAll('.step-item').length >= 10) {
         alert('Максимум 10 шагов на сценарий');
         return;
@@ -239,6 +293,7 @@ function removeStep(btn) {
 }
 
 function renumberSteps() {
+    // Перенумеровываем все шаги после удаления
     const steps = document.querySelectorAll('.step-item');
     steps.forEach((step, index) => {
         step.querySelector('.step-number').textContent = `Шаг ${index + 1}`;
@@ -247,16 +302,21 @@ function renumberSteps() {
 }
 
 // ============================================
-// Save Scenario (Create or Update)
+// SAVE SCENARIO (CREATE OR UPDATE)
+// Сохранение сценария (создание нового или обновление существующего)
 // ============================================
 function saveScenario() {
     const scenarioName = document.getElementById('scenarioName').value.trim();
+    
+    // Валидация: название сценария обязательно
     if (!scenarioName) {
         alert('Введите название сценария');
         return;
     }
 
     const stepItems = document.querySelectorAll('.step-item');
+    
+    // Валидация: хотя бы один шаг обязателен
     if (stepItems.length === 0) {
         alert('Добавьте хотя бы один шаг');
         return;
@@ -265,8 +325,11 @@ function saveScenario() {
     const steps = [];
     let hasError = false;
 
+    // Собираем данные всех шагов
     stepItems.forEach((item, index) => {
         const stepName = item.querySelector('.step-name').value.trim();
+        
+        // Валидация: название шага обязательно
         if (!stepName) {
             alert(`Заполните название для шага ${index + 1}`);
             hasError = true;
@@ -292,15 +355,18 @@ function saveScenario() {
     };
 
     if (editingIndex >= 0) {
+        // Обновляем существующий сценарий
         scenarios[editingIndex] = {
             ...scenarios[editingIndex],
             ...scenarioData
         };
     } else {
+        // Создаем новый сценарий
         scenarioData.id = generateId();
         scenarios.push(scenarioData);
     }
     
+    // Сохраняем в LocalStorage (т.к. внешний JSON read-only)
     saveToLocalStorage();
     renderTable();
     updateTeamFilter();
@@ -308,6 +374,7 @@ function saveScenario() {
 }
 
 function loadScenarioData(scenario) {
+    // Загружаем данные сценария в форму редактирования
     document.getElementById('scenarioName').value = scenario.name;
     document.getElementById('stepsContainer').innerHTML = '';
     stepCounter = 0;
@@ -357,13 +424,15 @@ function loadScenarioData(scenario) {
 }
 
 // ============================================
-// Render Table
+// RENDER TABLE
+// Отрисовка таблицы со сценариями и шагами
 // ============================================
 function renderTable() {
     const tbody = document.getElementById('tableBody');
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
     const teamFilter = document.getElementById('teamFilter').value;
 
+    // Если нет данных, показываем empty state
     if (scenarios.length === 0) {
         tbody.innerHTML = `
             <tr>
@@ -380,7 +449,9 @@ function renderTable() {
 
     tbody.innerHTML = '';
 
+    // Отрисовываем каждый сценарий с его шагами
     scenarios.forEach((scenario, scenarioIndex) => {
+        // Применяем фильтр поиска
         const matchesSearch = scenario.name.toLowerCase().includes(searchTerm);
         const matchesTeam = !teamFilter || scenario.steps.some(step => 
             step.teams && step.teams.toLowerCase().includes(teamFilter.toLowerCase())
@@ -388,6 +459,7 @@ function renderTable() {
 
         if (!matchesSearch && searchTerm) return;
 
+        // Строка сценария (заголовок)
         const scenarioRow = document.createElement('tr');
         scenarioRow.className = 'scenario-row';
         scenarioRow.innerHTML = `
@@ -401,6 +473,7 @@ function renderTable() {
         `;
         tbody.appendChild(scenarioRow);
 
+        // Строки шагов сценария
         scenario.steps.forEach((step, stepIndex) => {
             const stepMatchesTeam = !teamFilter || (step.teams && step.teams.toLowerCase().includes(teamFilter.toLowerCase()));
             if (!stepMatchesTeam) return;
@@ -438,6 +511,7 @@ function renderTable() {
 }
 
 function getCriticalityClass(criticality) {
+    // Маппинг критичности на CSS-классы
     const map = {
         'Низкая': 'low',
         'Средняя': 'medium',
@@ -448,7 +522,8 @@ function getCriticalityClass(criticality) {
 }
 
 // ============================================
-// Inline Editing Functions
+// INLINE EDITING FUNCTIONS
+// Функции для inline-редактирования ячеек таблицы
 // ============================================
 function editScenarioName(scenarioIndex, cell) {
     const scenario = scenarios[scenarioIndex];
@@ -456,6 +531,8 @@ function editScenarioName(scenarioIndex, cell) {
     const input = document.createElement('input');
     input.type = 'text';
     input.value = currentValue;
+    
+    // Сохраняем при потере фокуса
     input.onblur = function() {
         const newValue = this.value.trim();
         if (newValue && newValue !== currentValue) {
@@ -464,11 +541,14 @@ function editScenarioName(scenarioIndex, cell) {
         }
         renderTable();
     };
+    
+    // Сохраняем при нажатии Enter
     input.onkeypress = function(e) {
         if (e.key === 'Enter') {
             this.blur();
         }
     };
+    
     cell.innerHTML = '';
     cell.appendChild(input);
     input.focus();
@@ -481,17 +561,20 @@ function editField(scenarioIndex, stepIndex, field, cell) {
     const input = document.createElement('input');
     input.type = 'text';
     input.value = currentValue || '';
+    
     input.onblur = function() {
         const newValue = this.value.trim();
         step[field] = newValue;
         saveToLocalStorage();
         renderTable();
     };
+    
     input.onkeypress = function(e) {
         if (e.key === 'Enter') {
             this.blur();
         }
     };
+    
     cell.innerHTML = '';
     cell.appendChild(input);
     input.focus();
@@ -503,12 +586,14 @@ function editFieldTextarea(scenarioIndex, stepIndex, field, cell) {
     const currentValue = step[field];
     const textarea = document.createElement('textarea');
     textarea.value = currentValue || '';
+    
     textarea.onblur = function() {
         const newValue = this.value.trim();
         step[field] = newValue;
         saveToLocalStorage();
         renderTable();
     };
+    
     cell.innerHTML = '';
     cell.appendChild(textarea);
     textarea.focus();
@@ -521,7 +606,7 @@ function editCriticality(scenarioIndex, stepIndex, cell) {
     
     cell.classList.add('editing');
     
-    // Создаём кастомный dropdown
+    // Создаём кастомный dropdown для выбора критичности
     const container = document.createElement('div');
     container.className = 'criticality-dropdown';
     
@@ -584,7 +669,8 @@ function editCriticality(scenarioIndex, stepIndex, cell) {
 }
 
 // ============================================
-// Delete Functions
+// DELETE FUNCTIONS
+// Удаление сценариев и шагов
 // ============================================
 function deleteScenario(scenarioIndex) {
     if (confirm('Вы уверены, что хотите удалить этот сценарий со всеми шагами?')) {
@@ -599,6 +685,7 @@ function deleteStep(scenarioIndex, stepIndex) {
     if (confirm('Вы уверены, что хотите удалить этот шаг?')) {
         scenarios[scenarioIndex].steps.splice(stepIndex, 1);
         
+        // Если все шаги удалены, удаляем и сценарий
         if (scenarios[scenarioIndex].steps.length === 0) {
             scenarios.splice(scenarioIndex, 1);
         }
@@ -610,13 +697,15 @@ function deleteStep(scenarioIndex, stepIndex) {
 }
 
 // ============================================
-// Filter Functions
+// FILTER FUNCTIONS
+// Фильтрация и поиск
 // ============================================
 function applyFilters() {
     renderTable();
 }
 
 function updateTeamFilter() {
+    // Обновляем список команд в фильтре на основе текущих данных
     const teamFilter = document.getElementById('teamFilter');
     const currentValue = teamFilter.value;
     const teams = new Set();
@@ -644,10 +733,18 @@ function updateTeamFilter() {
 }
 
 // ============================================
-// Export/Import Functions
+// EXPORT/IMPORT FUNCTIONS
+// Экспорт и импорт данных
 // ============================================
 function saveToFile() {
-    const dataStr = JSON.stringify(scenarios, null, 2);
+    // Экспорт в формате совместимом с внешним JSON
+    const exportData = {
+        version: "1.0",
+        lastUpdated: new Date().toISOString(),
+        scenarios: scenarios
+    };
+    
+    const dataStr = JSON.stringify(exportData, null, 2);
     const blob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -665,6 +762,7 @@ function exportToCSV() {
         return;
     }
 
+    // Формируем CSV с BOM для корректного отображения кириллицы в Excel
     let csv = '\uFEFF';
     csv += 'Сценарий,Шаг пользователя,Участвующие команды,Критичность,Основной риск,R (Ответственный),A (Утверждающий)\n';
 
@@ -703,10 +801,12 @@ function importFromCSV(event) {
             const text = e.target.result;
             const lines = text.split('\n');
             
+            // Удаляем BOM если есть
             if (lines[0].charCodeAt(0) === 0xFEFF) {
                 lines[0] = lines[0].substring(1);
             }
             
+            // Проверяем заголовок
             const header = lines[0].toLowerCase();
             if (!header.includes('сценарий') || !header.includes('шаг')) {
                 alert('Неверный формат CSV файла.');
@@ -716,6 +816,7 @@ function importFromCSV(event) {
             const importedScenarios = [];
             let currentScenario = null;
             
+            // Парсим строки CSV
             for (let i = 1; i < lines.length; i++) {
                 const line = lines[i].trim();
                 if (!line) continue;
@@ -725,6 +826,7 @@ function importFromCSV(event) {
                 
                 const [scenarioName, stepName, teams, criticality, risk, r, a] = values;
                 
+                // Новый сценарий
                 if (scenarioName && scenarioName.trim()) {
                     if (currentScenario) {
                         importedScenarios.push(currentScenario);
@@ -736,6 +838,7 @@ function importFromCSV(event) {
                     };
                 }
                 
+                // Добавляем шаг к текущему сценарию
                 if (currentScenario && stepName && stepName.trim()) {
                     currentScenario.steps.push({
                         id: currentScenario.steps.length + 1,
@@ -758,6 +861,7 @@ function importFromCSV(event) {
                 return;
             }
             
+            // Спрашиваем пользователя: заменить или добавить
             const replace = confirm(
                 `Найдено сценариев: ${importedScenarios.length}\n\n` +
                 'Нажмите "ОК" чтобы ЗАМЕНИТЬ текущие данные\n' +
@@ -786,6 +890,7 @@ function importFromCSV(event) {
 }
 
 function parseCSVLine(line) {
+    // Парсинг CSV-строки с учетом экранирования кавычек
     const result = [];
     let current = '';
     let inQuotes = false;
@@ -821,34 +926,49 @@ function loadFromFile(event) {
     reader.onload = function(e) {
         try {
             const data = JSON.parse(e.target.result);
-            if (Array.isArray(data)) {
-                const replace = confirm(
-                    `Найдено сценариев: ${data.length}\n\n` +
-                    'Нажмите "ОК" чтобы ЗАМЕНИТЬ текущие данные\n' +
-                    'Нажмите "Отмена" чтобы ДОБАВИТЬ к текущим данным'
-                );
-                
-                data.forEach((scenario, index) => {
-                    if (!scenario.id) {
-                        scenario.id = generateId() + index;
-                    }
-                });
-                
-                if (replace) {
-                    scenarios = data;
-                } else {
-                    scenarios = scenarios.concat(data);
-                }
-                
-                saveToLocalStorage();
-                renderTable();
-                updateTeamFilter();
-                alert('Данные успешно загружены!');
+            
+            // Поддерживаем оба формата: с оберткой и без
+            let importedScenarios;
+            if (data.scenarios && Array.isArray(data.scenarios)) {
+                // Новый формат с метаданными
+                importedScenarios = data.scenarios;
+                console.log(`📥 Импорт JSON версии ${data.version || 'не указана'}`);
+            } else if (Array.isArray(data)) {
+                // Старый формат: прямой массив
+                importedScenarios = data;
             } else {
                 alert('Неверный формат файла');
+                return;
             }
+            
+            // Генерируем ID для сценариев без него
+            importedScenarios.forEach((scenario, index) => {
+                if (!scenario.id) {
+                    scenario.id = generateId() + index;
+                }
+            });
+            
+            // Спрашиваем: заменить или добавить
+            const replace = confirm(
+                `Найдено сценариев: ${importedScenarios.length}\n\n` +
+                'Нажмите "ОК" чтобы ЗАМЕНИТЬ текущие данные\n' +
+                'Нажмите "Отмена" чтобы ДОБАВИТЬ к текущим данным'
+            );
+            
+            if (replace) {
+                scenarios = importedScenarios;
+            } else {
+                scenarios = scenarios.concat(importedScenarios);
+            }
+            
+            saveToLocalStorage();
+            renderTable();
+            updateTeamFilter();
+            alert('Данные успешно загружены!');
+            
         } catch (error) {
             alert('Ошибка при чтении файла: ' + error.message);
+            console.error(error);
         }
     };
     reader.readAsText(file);
@@ -856,9 +976,11 @@ function loadFromFile(event) {
 }
 
 // ============================================
-// Event Listeners
+// EVENT LISTENERS
+// Обработчики событий
 // ============================================
 document.getElementById('modalOverlay').addEventListener('click', function(e) {
+    // Закрытие модального окна при клике на overlay
     if (e.target === this) {
         closeModal();
     }
