@@ -40,7 +40,7 @@ window.onload = async function() {
         
         // Рендерим таблицу и обновляем фильтры
         renderTable();
-        updateTeamFilter();
+        updateFilters();
         
         // Скрываем индикатор загрузки
         showLoading(false);
@@ -53,7 +53,7 @@ window.onload = async function() {
         // При ошибке загружаем из LocalStorage как fallback
         loadFromLocalStorage();
         renderTable();
-        updateTeamFilter();
+        updateFilters();
         showLoading(false);
     }
     
@@ -369,7 +369,7 @@ function saveScenario() {
     // Сохраняем в LocalStorage (т.к. внешний JSON read-only)
     saveToLocalStorage();
     renderTable();
-    updateTeamFilter();
+    updateFilters();
     closeModal();
 }
 
@@ -430,7 +430,10 @@ function loadScenarioData(scenario) {
 function renderTable() {
     const tbody = document.getElementById('tableBody');
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    const teamFilter = document.getElementById('teamFilter').value;
+    const teamFilter = document.getElementById('teamFilter').value.toLowerCase();
+    const criticalityFilter = document.getElementById('criticalityFilter').value;
+    const rFilter = document.getElementById('rFilter').value.toLowerCase();
+    const aFilter = document.getElementById('aFilter').value.toLowerCase();
 
     // Если нет данных, показываем empty state
     if (scenarios.length === 0) {
@@ -455,7 +458,7 @@ function renderTable() {
         // Применяем фильтр поиска по названию сценария
         const matchesSearch = scenario.name.toLowerCase().includes(searchTerm);
         
-        // ИСПРАВЛЕНИЕ: Также ищем в названиях шагов и рисках
+        // Также ищем в названиях шагов и рисках
         const matchesSearchInSteps = scenario.steps.some(step => 
             step.name.toLowerCase().includes(searchTerm) ||
             (step.risk && step.risk.toLowerCase().includes(searchTerm)) ||
@@ -467,14 +470,33 @@ function renderTable() {
             return;
         }
 
-        // Фильтруем шаги по команде
+        // Фильтруем шаги по всем параметрам
         const visibleSteps = scenario.steps.filter(step => {
-            if (!teamFilter) return true;
-            return step.teams && step.teams.toLowerCase().includes(teamFilter.toLowerCase());
+            // Фильтр по командам
+            if (teamFilter && (!step.teams || !step.teams.toLowerCase().includes(teamFilter))) {
+                return false;
+            }
+            
+            // Фильтр по критичности
+            if (criticalityFilter && step.criticality !== criticalityFilter) {
+                return false;
+            }
+            
+            // Фильтр по R (Ответственный)
+            if (rFilter && (!step.r || !step.r.toLowerCase().includes(rFilter))) {
+                return false;
+            }
+            
+            // Фильтр по A (Утверждающий)
+            if (aFilter && (!step.a || !step.a.toLowerCase().includes(aFilter))) {
+                return false;
+            }
+            
+            return true;
         });
 
-        // ИСПРАВЛЕНИЕ: Показываем сценарий только если есть видимые шаги
-        if (visibleSteps.length === 0 && teamFilter) {
+        // Показываем сценарий только если есть видимые шаги после фильтрации
+        if (visibleSteps.length === 0 && (teamFilter || criticalityFilter || rFilter || aFilter)) {
             return;
         }
 
@@ -531,14 +553,21 @@ function renderTable() {
         });
     });
 
-    // ИСПРАВЛЕНИЕ: Показываем сообщение если ничего не найдено
+    // Показываем сообщение если ничего не найдено
     if (visibleScenariosCount === 0) {
+        const activeFilters = [];
+        if (searchTerm) activeFilters.push(`"${searchTerm}"`);
+        if (teamFilter) activeFilters.push(`команда: ${teamFilter}`);
+        if (criticalityFilter) activeFilters.push(`критичность: ${criticalityFilter}`);
+        if (rFilter) activeFilters.push(`R: ${rFilter}`);
+        if (aFilter) activeFilters.push(`A: ${aFilter}`);
+        
         tbody.innerHTML = `
             <tr>
                 <td colspan="7">
                     <div class="empty-state">
                         <div class="empty-state-icon">🔍</div>
-                        <p>Ничего не найдено по запросу "${searchTerm || teamFilter}"</p>
+                        <p>Ничего не найдено${activeFilters.length > 0 ? ' по фильтрам: ' + activeFilters.join(', ') : ''}</p>
                     </div>
                 </td>
             </tr>
@@ -602,6 +631,7 @@ function editField(scenarioIndex, stepIndex, field, cell) {
         const newValue = this.value.trim();
         step[field] = newValue;
         saveToLocalStorage();
+        updateFilters();
         renderTable();
     };
     
@@ -669,6 +699,7 @@ function editCriticality(scenarioIndex, stepIndex, cell) {
             step.criticality = option;
             saveToLocalStorage();
             cell.classList.remove('editing');
+            updateFilters();
             renderTable();
         };
         dropdown.appendChild(item);
@@ -713,7 +744,7 @@ function deleteScenario(scenarioIndex) {
         scenarios.splice(scenarioIndex, 1);
         saveToLocalStorage();
         renderTable();
-        updateTeamFilter();
+        updateFilters();
     }
 }
 
@@ -728,7 +759,7 @@ function deleteStep(scenarioIndex, stepIndex) {
         
         saveToLocalStorage();
         renderTable();
-        updateTeamFilter();
+        updateFilters();
     }
 }
 
@@ -740,8 +771,16 @@ function applyFilters() {
     renderTable();
 }
 
+function updateFilters() {
+    // Обновляем все фильтры на основе текущих данных
+    updateTeamFilter();
+    updateCriticalityFilter();
+    updateRFilter();
+    updateAFilter();
+}
+
 function updateTeamFilter() {
-    // Обновляем список команд в фильтре на основе текущих данных
+    // Обновляем список команд в фильтре (убираем дубли)
     const teamFilter = document.getElementById('teamFilter');
     const currentValue = teamFilter.value;
     const teams = new Set();
@@ -749,8 +788,12 @@ function updateTeamFilter() {
     scenarios.forEach(scenario => {
         scenario.steps.forEach(step => {
             if (step.teams) {
+                // Разделяем команды по запятой и добавляем в Set (автоматически убирает дубли)
                 step.teams.split(',').forEach(team => {
-                    teams.add(team.trim());
+                    const trimmedTeam = team.trim();
+                    if (trimmedTeam) {
+                        teams.add(trimmedTeam);
+                    }
                 });
             }
         });
@@ -765,6 +808,95 @@ function updateTeamFilter() {
             option.selected = true;
         }
         teamFilter.appendChild(option);
+    });
+}
+
+function updateCriticalityFilter() {
+    // Обновляем фильтр по критичности
+    const criticalityFilter = document.getElementById('criticalityFilter');
+    const currentValue = criticalityFilter.value;
+    const criticalities = new Set();
+
+    scenarios.forEach(scenario => {
+        scenario.steps.forEach(step => {
+            if (step.criticality) {
+                criticalities.add(step.criticality);
+            }
+        });
+    });
+
+    criticalityFilter.innerHTML = '<option value="">Все критичности</option>';
+    
+    // Сортируем в правильном порядке
+    const order = ['Низкая', 'Средняя', 'Высокая', 'Критическая'];
+    order.forEach(crit => {
+        if (criticalities.has(crit)) {
+            const option = document.createElement('option');
+            option.value = crit;
+            option.textContent = crit;
+            if (crit === currentValue) {
+                option.selected = true;
+            }
+            criticalityFilter.appendChild(option);
+        }
+    });
+}
+
+function updateRFilter() {
+    // Обновляем фильтр по ответственным (R)
+    const rFilter = document.getElementById('rFilter');
+    const currentValue = rFilter.value;
+    const responsibles = new Set();
+
+    scenarios.forEach(scenario => {
+        scenario.steps.forEach(step => {
+            if (step.r) {
+                const trimmedR = step.r.trim();
+                if (trimmedR) {
+                    responsibles.add(trimmedR);
+                }
+            }
+        });
+    });
+
+    rFilter.innerHTML = '<option value="">Все ответственные</option>';
+    Array.from(responsibles).sort().forEach(r => {
+        const option = document.createElement('option');
+        option.value = r;
+        option.textContent = r;
+        if (r === currentValue) {
+            option.selected = true;
+        }
+        rFilter.appendChild(option);
+    });
+}
+
+function updateAFilter() {
+    // Обновляем фильтр по утверждающим (A)
+    const aFilter = document.getElementById('aFilter');
+    const currentValue = aFilter.value;
+    const approvers = new Set();
+
+    scenarios.forEach(scenario => {
+        scenario.steps.forEach(step => {
+            if (step.a) {
+                const trimmedA = step.a.trim();
+                if (trimmedA) {
+                    approvers.add(trimmedA);
+                }
+            }
+        });
+    });
+
+    aFilter.innerHTML = '<option value="">Все утверждающие</option>';
+    Array.from(approvers).sort().forEach(a => {
+        const option = document.createElement('option');
+        option.value = a;
+        option.textContent = a;
+        if (a === currentValue) {
+            option.selected = true;
+        }
+        aFilter.appendChild(option);
     });
 }
 
@@ -912,7 +1044,7 @@ function importFromCSV(event) {
             
             saveToLocalStorage();
             renderTable();
-            updateTeamFilter();
+            updateFilters();
             alert(`Успешно импортировано ${importedScenarios.length} сценариев!`);
             
         } catch (error) {
@@ -999,7 +1131,7 @@ function loadFromFile(event) {
             
             saveToLocalStorage();
             renderTable();
-            updateTeamFilter();
+            updateFilters();
             alert('Данные успешно загружены!');
             
         } catch (error) {
