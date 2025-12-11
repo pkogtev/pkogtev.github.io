@@ -448,16 +448,38 @@ function renderTable() {
     }
 
     tbody.innerHTML = '';
+    let visibleScenariosCount = 0; // Счетчик видимых сценариев
 
     // Отрисовываем каждый сценарий с его шагами
     scenarios.forEach((scenario, scenarioIndex) => {
-        // Применяем фильтр поиска
+        // Применяем фильтр поиска по названию сценария
         const matchesSearch = scenario.name.toLowerCase().includes(searchTerm);
-        const matchesTeam = !teamFilter || scenario.steps.some(step => 
-            step.teams && step.teams.toLowerCase().includes(teamFilter.toLowerCase())
+        
+        // ИСПРАВЛЕНИЕ: Также ищем в названиях шагов и рисках
+        const matchesSearchInSteps = scenario.steps.some(step => 
+            step.name.toLowerCase().includes(searchTerm) ||
+            (step.risk && step.risk.toLowerCase().includes(searchTerm)) ||
+            (step.teams && step.teams.toLowerCase().includes(searchTerm))
         );
+        
+        // Если не найдено ни в названии сценария, ни в шагах - пропускаем
+        if (searchTerm && !matchesSearch && !matchesSearchInSteps) {
+            return;
+        }
 
-        if (!matchesSearch && searchTerm) return;
+        // Фильтруем шаги по команде
+        const visibleSteps = scenario.steps.filter(step => {
+            if (!teamFilter) return true;
+            return step.teams && step.teams.toLowerCase().includes(teamFilter.toLowerCase());
+        });
+
+        // ИСПРАВЛЕНИЕ: Показываем сценарий только если есть видимые шаги
+        if (visibleSteps.length === 0 && teamFilter) {
+            return;
+        }
+
+        // Увеличиваем счетчик видимых сценариев
+        visibleScenariosCount++;
 
         // Строка сценария (заголовок)
         const scenarioRow = document.createElement('tr');
@@ -474,40 +496,54 @@ function renderTable() {
         tbody.appendChild(scenarioRow);
 
         // Строки шагов сценария
-        scenario.steps.forEach((step, stepIndex) => {
-            const stepMatchesTeam = !teamFilter || (step.teams && step.teams.toLowerCase().includes(teamFilter.toLowerCase()));
-            if (!stepMatchesTeam) return;
-
+        visibleSteps.forEach((step) => {
+            // Находим оригинальный индекс шага в массиве
+            const originalStepIndex = scenario.steps.indexOf(step);
+            
             const stepRow = document.createElement('tr');
             stepRow.className = 'step-row';
             stepRow.innerHTML = `
-                <td class="editable" onclick="editField(${scenarioIndex}, ${stepIndex}, 'name', this)">
+                <td class="editable" onclick="editField(${scenarioIndex}, ${originalStepIndex}, 'name', this)">
                     ${step.name}
                 </td>
-                <td class="editable" onclick="editField(${scenarioIndex}, ${stepIndex}, 'teams', this)">
+                <td class="editable" onclick="editField(${scenarioIndex}, ${originalStepIndex}, 'teams', this)">
                     ${step.teams || '-'}
                 </td>
-                <td class="editable" onclick="editCriticality(${scenarioIndex}, ${stepIndex}, this)">
+                <td class="editable" onclick="editCriticality(${scenarioIndex}, ${originalStepIndex}, this)">
                     <span class="criticality criticality-${getCriticalityClass(step.criticality)}">
                         ${step.criticality}
                     </span>
                 </td>
-                <td class="editable" onclick="editFieldTextarea(${scenarioIndex}, ${stepIndex}, 'risk', this)">
+                <td class="editable" onclick="editFieldTextarea(${scenarioIndex}, ${originalStepIndex}, 'risk', this)">
                     ${step.risk || '-'}
                 </td>
-                <td class="editable" onclick="editField(${scenarioIndex}, ${stepIndex}, 'r', this)">
+                <td class="editable" onclick="editField(${scenarioIndex}, ${originalStepIndex}, 'r', this)">
                     ${step.r || '-'}
                 </td>
-                <td class="editable" onclick="editField(${scenarioIndex}, ${stepIndex}, 'a', this)">
+                <td class="editable" onclick="editField(${scenarioIndex}, ${originalStepIndex}, 'a', this)">
                     ${step.a || '-'}
                 </td>
                 <td class="actions-cell">
-                    <button class="btn btn-danger" onclick="deleteStep(${scenarioIndex}, ${stepIndex})">🗑️</button>
+                    <button class="btn btn-danger" onclick="deleteStep(${scenarioIndex}, ${originalStepIndex})">🗑️</button>
                 </td>
             `;
             tbody.appendChild(stepRow);
         });
     });
+
+    // ИСПРАВЛЕНИЕ: Показываем сообщение если ничего не найдено
+    if (visibleScenariosCount === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔍</div>
+                        <p>Ничего не найдено по запросу "${searchTerm || teamFilter}"</p>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
 }
 
 function getCriticalityClass(criticality) {
