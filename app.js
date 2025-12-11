@@ -432,8 +432,6 @@ function renderTable() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
     const teamFilter = document.getElementById('teamFilter').value.toLowerCase();
     const criticalityFilter = document.getElementById('criticalityFilter').value;
-    const rFilter = document.getElementById('rFilter').value.toLowerCase();
-    const aFilter = document.getElementById('aFilter').value.toLowerCase();
 
     // Если нет данных, показываем empty state
     if (scenarios.length === 0) {
@@ -482,21 +480,11 @@ function renderTable() {
                 return false;
             }
             
-            // Фильтр по R (Ответственный)
-            if (rFilter && (!step.r || !step.r.toLowerCase().includes(rFilter))) {
-                return false;
-            }
-            
-            // Фильтр по A (Утверждающий)
-            if (aFilter && (!step.a || !step.a.toLowerCase().includes(aFilter))) {
-                return false;
-            }
-            
             return true;
         });
 
         // Показываем сценарий только если есть видимые шаги после фильтрации
-        if (visibleSteps.length === 0 && (teamFilter || criticalityFilter || rFilter || aFilter)) {
+        if (visibleSteps.length === 0 && (teamFilter || criticalityFilter)) {
             return;
         }
 
@@ -559,8 +547,6 @@ function renderTable() {
         if (searchTerm) activeFilters.push(`"${searchTerm}"`);
         if (teamFilter) activeFilters.push(`команда: ${teamFilter}`);
         if (criticalityFilter) activeFilters.push(`критичность: ${criticalityFilter}`);
-        if (rFilter) activeFilters.push(`R: ${rFilter}`);
-        if (aFilter) activeFilters.push(`A: ${aFilter}`);
         
         tbody.innerHTML = `
             <tr>
@@ -699,7 +685,6 @@ function editCriticality(scenarioIndex, stepIndex, cell) {
             step.criticality = option;
             saveToLocalStorage();
             cell.classList.remove('editing');
-            updateFilters();
             renderTable();
         };
         dropdown.appendChild(item);
@@ -774,9 +759,6 @@ function applyFilters() {
 function updateFilters() {
     // Обновляем все фильтры на основе текущих данных
     updateTeamFilter();
-    updateCriticalityFilter();
-    updateRFilter();
-    updateAFilter();
 }
 
 function updateTeamFilter() {
@@ -808,95 +790,6 @@ function updateTeamFilter() {
             option.selected = true;
         }
         teamFilter.appendChild(option);
-    });
-}
-
-function updateCriticalityFilter() {
-    // Обновляем фильтр по критичности
-    const criticalityFilter = document.getElementById('criticalityFilter');
-    const currentValue = criticalityFilter.value;
-    const criticalities = new Set();
-
-    scenarios.forEach(scenario => {
-        scenario.steps.forEach(step => {
-            if (step.criticality) {
-                criticalities.add(step.criticality);
-            }
-        });
-    });
-
-    criticalityFilter.innerHTML = '<option value="">Все критичности</option>';
-    
-    // Сортируем в правильном порядке
-    const order = ['Низкая', 'Средняя', 'Высокая', 'Критическая'];
-    order.forEach(crit => {
-        if (criticalities.has(crit)) {
-            const option = document.createElement('option');
-            option.value = crit;
-            option.textContent = crit;
-            if (crit === currentValue) {
-                option.selected = true;
-            }
-            criticalityFilter.appendChild(option);
-        }
-    });
-}
-
-function updateRFilter() {
-    // Обновляем фильтр по ответственным (R)
-    const rFilter = document.getElementById('rFilter');
-    const currentValue = rFilter.value;
-    const responsibles = new Set();
-
-    scenarios.forEach(scenario => {
-        scenario.steps.forEach(step => {
-            if (step.r) {
-                const trimmedR = step.r.trim();
-                if (trimmedR) {
-                    responsibles.add(trimmedR);
-                }
-            }
-        });
-    });
-
-    rFilter.innerHTML = '<option value="">Все ответственные</option>';
-    Array.from(responsibles).sort().forEach(r => {
-        const option = document.createElement('option');
-        option.value = r;
-        option.textContent = r;
-        if (r === currentValue) {
-            option.selected = true;
-        }
-        rFilter.appendChild(option);
-    });
-}
-
-function updateAFilter() {
-    // Обновляем фильтр по утверждающим (A)
-    const aFilter = document.getElementById('aFilter');
-    const currentValue = aFilter.value;
-    const approvers = new Set();
-
-    scenarios.forEach(scenario => {
-        scenario.steps.forEach(step => {
-            if (step.a) {
-                const trimmedA = step.a.trim();
-                if (trimmedA) {
-                    approvers.add(trimmedA);
-                }
-            }
-        });
-    });
-
-    aFilter.innerHTML = '<option value="">Все утверждающие</option>';
-    Array.from(approvers).sort().forEach(a => {
-        const option = document.createElement('option');
-        option.value = a;
-        option.textContent = a;
-        if (a === currentValue) {
-            option.selected = true;
-        }
-        aFilter.appendChild(option);
     });
 }
 
